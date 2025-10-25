@@ -1,4 +1,3 @@
-<x-layouts.app :title="__('Trainer Dashboard')">
 <div class="space-y-6">
     {{-- Trainer Dashboard Header --}}
     <div class="bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg shadow-lg p-6 text-white">
@@ -138,4 +137,3 @@
         </div>
     </div>
 </div>
-</x-layouts.app>

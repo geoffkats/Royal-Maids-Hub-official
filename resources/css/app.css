@@ -1,6 +1,9 @@
 @import 'tailwindcss';
 @import '../../vendor/livewire/flux/dist/flux.css';
 
+@import './_tokens.css';
+@import './forms.css';
+
 @source '../views';
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../vendor/livewire/flux-pro/stubs/**/*.blade.php';
@@ -11,6 +14,7 @@
 @theme {
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 
+    /* Legacy Zinc Colors (Keep for compatibility) */
     --color-zinc-50: #fafafa;
     --color-zinc-100: #f5f5f5;
     --color-zinc-200: #e5e5e5;
@@ -23,16 +27,80 @@
     --color-zinc-900: #171717;
     --color-zinc-950: #0a0a0a;
 
-    --color-accent: var(--color-neutral-800);
-    --color-accent-content: var(--color-neutral-800);
-    --color-accent-foreground: var(--color-white);
+    /* Brand Color Palette - Tailwind Utilities */
+    --color-brand-primary: #3B0A45;        /* Royal Purple */
+    --color-brand-secondary: #512B58;      /* Deep Violet */
+    --color-brand-accent: #F5B301;         /* Gold */
+    --color-brand-text-primary: #FFFFFF;   /* White */
+    --color-brand-text-secondary: #D1C4E9; /* Light Gray */
+    
+    /* Semantic Colors */
+    --color-brand-success: #4CAF50;        /* Emerald Green */
+    --color-brand-warning: #FFC107;        /* Amber */
+    --color-brand-error: #E53935;          /* Soft Red */
+    --color-brand-info: #64B5F6;           /* Sky Blue */
+    
+    /* Package Colors */
+    --color-brand-silver: #A8A9AD;         /* Silver */
+    --color-brand-gold-package: #FFD700;   /* Gold Package */
+    --color-brand-platinum: #B9A0DC;       /* Platinum */
+
+    /* ========================================
+       ROYAL MAIDS BRAND COLORS - V5.0
+       ======================================== */
+    
+    /* Primary Brand Colors */
+    --color-royal-purple: #3B0A45;        /* Primary background (sidebar, topbar) */
+    --color-deep-violet: #512B58;          /* Secondary panels (cards, containers) */
+    --color-gold: #F5B301;                 /* Accent (buttons, icons, active states) */
+    
+    /* Text Colors */
+    --color-text-primary: #FFFFFF;         /* Primary text on dark backgrounds */
+    --color-text-secondary: #D1C4E9;       /* Secondary text, muted labels */
+    
+    /* Supporting Semantic Colors */
+    --color-success: #4CAF50;              /* Success states, positive indicators */
+    --color-warning: #FFC107;              /* Warnings, pending states */
+    --color-error: #E53935;                /* Errors, destructive actions */
+    --color-info: #64B5F6;                 /* Links, informational elements */
+    
+    /* Package-specific Colors */
+    --color-silver: #A8A9AD;               /* Silver package tier */
+    --color-gold-package: #FFD700;         /* Gold package tier */
+    --color-platinum: #B9A0DC;             /* Platinum package tier */
+
+    /* Gradient Definitions */
+    --gradient-royal: linear-gradient(135deg, var(--color-royal-purple) 0%, var(--color-deep-violet) 100%);
+    --gradient-gold-shimmer: linear-gradient(135deg, #F5B301 0%, #FFD54F 100%);
+    
+    /* Semantic Tokens - Light Mode (Default) */
+    --color-bg-primary: var(--color-white);
+    --color-bg-secondary: var(--color-zinc-50);
+    --color-surface: var(--color-white);
+    --color-surface-elevated: var(--color-brand-secondary);
+    
+    --color-accent: var(--color-brand-accent);
+    --color-accent-content: var(--color-brand-accent);
+    --color-accent-foreground: var(--color-brand-primary);
+    
+    --color-border-default: var(--color-zinc-200);
+    --color-border-accent: var(--color-brand-accent);
 }
 
 @layer theme {
     .dark {
-        --color-accent: var(--color-white);
-        --color-accent-content: var(--color-white);
-        --color-accent-foreground: var(--color-neutral-800);
+        /* Semantic Tokens - Dark Mode */
+        --color-bg-primary: var(--color-brand-primary);
+        --color-bg-secondary: var(--color-brand-secondary);
+        --color-surface: var(--color-brand-secondary);
+        --color-surface-elevated: var(--color-brand-secondary);
+        
+        --color-accent: var(--color-brand-accent);
+        --color-accent-content: var(--color-brand-accent);
+        --color-accent-foreground: var(--color-brand-primary);
+        
+        --color-border-default: color-mix(in srgb, var(--color-brand-accent) 20%, transparent);
+        --color-border-accent: var(--color-brand-accent);
     }
 }
 
@@ -45,6 +113,55 @@
     ::file-selector-button {
         border-color: var(--color-gray-200, currentColor);
     }
+    
+    /* Royal Maids Brand Gradient Utilities */
+    .bg-gradient-royal {
+        background: linear-gradient(180deg, #3B0A45 0%, #512B58 100%);
+    }
+    
+    .bg-gradient-royal-horizontal {
+        background: linear-gradient(135deg, #3B0A45 0%, #512B58 100%);
+    }
+    
+    .bg-gradient-gold {
+        background: linear-gradient(135deg, #F5B301 0%, #FFD54F 100%);
+    }
+
+    /* Brand Color Utilities */
+    .bg-brand-primary { background-color: var(--color-brand-primary); }
+    .bg-brand-secondary { background-color: var(--color-brand-secondary); }
+    .bg-brand-accent { background-color: var(--color-brand-accent); }
+    .bg-brand-success { background-color: var(--color-brand-success); }
+    .bg-brand-warning { background-color: var(--color-brand-warning); }
+    .bg-brand-error { background-color: var(--color-brand-error); }
+    .bg-brand-info { background-color: var(--color-brand-info); }
+    .bg-brand-silver { background-color: var(--color-brand-silver); }
+    .bg-brand-gold-package { background-color: var(--color-brand-gold-package); }
+    .bg-brand-platinum { background-color: var(--color-brand-platinum); }
+
+    .text-brand-primary { color: var(--color-brand-primary); }
+    .text-brand-secondary { color: var(--color-brand-secondary); }
+    .text-brand-accent { color: var(--color-brand-accent); }
+    .text-brand-text-primary { color: var(--color-brand-text-primary); }
+    .text-brand-text-secondary { color: var(--color-brand-text-secondary); }
+    .text-brand-success { color: var(--color-brand-success); }
+    .text-brand-warning { color: var(--color-brand-warning); }
+    .text-brand-error { color: var(--color-brand-error); }
+    .text-brand-info { color: var(--color-brand-info); }
+    .text-brand-silver { color: var(--color-brand-silver); }
+    .text-brand-gold-package { color: var(--color-brand-gold-package); }
+    .text-brand-platinum { color: var(--color-brand-platinum); }
+
+    .border-brand-primary { border-color: var(--color-brand-primary); }
+    .border-brand-secondary { border-color: var(--color-brand-secondary); }
+    .border-brand-accent { border-color: var(--color-brand-accent); }
+    .border-brand-success { border-color: var(--color-brand-success); }
+    .border-brand-warning { border-color: var(--color-brand-warning); }
+    .border-brand-error { border-color: var(--color-brand-error); }
+    .border-brand-info { border-color: var(--color-brand-info); }
+    .border-brand-silver { border-color: var(--color-brand-silver); }
+    .border-brand-gold-package { border-color: var(--color-brand-gold-package); }
+    .border-brand-platinum { border-color: var(--color-brand-platinum); }
 }
 
 [data-flux-field]:not(ui-radio, ui-checkbox) {
@@ -59,6 +176,515 @@ input:focus[data-flux-control],
 textarea:focus[data-flux-control],
 select:focus[data-flux-control] {
     @apply outline-hidden ring-2 ring-accent ring-offset-2 ring-offset-accent-foreground;
+    border-color: var(--color-brand-accent) !important;
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-brand-accent) 20%, transparent) !important;
+}
+
+/* ========================================
+   FLUX UI COMPONENT CUSTOMIZATIONS
+   ======================================== */
+
+/* Button Component Overrides */
+[data-flux-button][data-variant="primary"] {
+    background-color: var(--color-brand-accent) !important;
+    color: var(--color-brand-primary) !important;
+    border-color: var(--color-brand-accent) !important;
+}
+
+[data-flux-button][data-variant="primary"]:hover {
+    background-color: color-mix(in srgb, var(--color-brand-accent) 90%, black) !important;
+    border-color: color-mix(in srgb, var(--color-brand-accent) 90%, black) !important;
+}
+
+[data-flux-button][data-variant="primary"]:focus {
+    box-shadow: 0 0 0 2px var(--color-brand-accent) !important;
+}
+
+[data-flux-button][data-variant="primary"]:active {
+    background-color: color-mix(in srgb, var(--color-brand-accent) 80%, black) !important;
+}
+
+/* Secondary Button Variant */
+[data-flux-button][data-variant="secondary"] {
+    background-color: var(--color-brand-secondary) !important;
+    color: var(--color-brand-text-primary) !important;
+    border-color: var(--color-brand-accent) !important;
+}
+
+[data-flux-button][data-variant="secondary"]:hover {
+    background-color: color-mix(in srgb, var(--color-brand-secondary) 90%, white) !important;
+    border-color: var(--color-brand-accent) !important;
+}
+
+/* Ghost Button Variant */
+[data-flux-button][data-variant="ghost"] {
+    color: var(--color-brand-text-primary) !important;
+    border-color: transparent !important;
+}
+
+[data-flux-button][data-variant="ghost"]:hover {
+    background-color: color-mix(in srgb, var(--color-brand-accent) 10%, transparent) !important;
+    color: var(--color-brand-accent) !important;
+}
+
+/* Outline Button Variant */
+[data-flux-button][data-variant="outline"] {
+    background-color: transparent !important;
+    color: var(--color-brand-accent) !important;
+    border-color: var(--color-brand-accent) !important;
+}
+
+[data-flux-button][data-variant="outline"]:hover {
+    background-color: var(--color-brand-accent) !important;
+    color: var(--color-brand-primary) !important;
+}
+
+/* Destructive Button Variant */
+[data-flux-button][data-variant="destructive"] {
+    background-color: var(--color-brand-error) !important;
+    color: white !important;
+    border-color: var(--color-brand-error) !important;
+}
+
+[data-flux-button][data-variant="destructive"]:hover {
+    background-color: color-mix(in srgb, var(--color-brand-error) 90%, black) !important;
+    border-color: color-mix(in srgb, var(--color-brand-error) 90%, black) !important;
+}
+
+/* ========================================
+   SIDEBAR CUSTOMIZATIONS
+   ======================================== */
+
+/* Sidebar Background - Always Dark Theme */
+[data-flux-sidebar] {
+    background: linear-gradient(180deg, #3B0A45 0%, #512B58 100%) !important;
+    color: white !important;
+}
+
+/* Sidebar Scroll Styling */
+[data-flux-sidebar]::-webkit-scrollbar {
+    width: 6px;
+}
+
+[data-flux-sidebar]::-webkit-scrollbar-track {
+    background: rgba(245, 179, 1, 0.1);
+    border-radius: 3px;
+}
+
+[data-flux-sidebar]::-webkit-scrollbar-thumb {
+    background: rgba(245, 179, 1, 0.3);
+    border-radius: 3px;
+}
+
+[data-flux-sidebar]::-webkit-scrollbar-thumb:hover {
+    background: rgba(245, 179, 1, 0.5);
+}
+
+/* Navigation List Items */
+[data-flux-navlist-item] {
+    color: #D1C4E9 !important;
+    border-radius: 8px !important;
+    margin: 2px 0 !important;
+}
+
+[data-flux-navlist-item]:hover {
+    background-color: rgba(245, 179, 1, 0.1) !important;
+    color: #F5B301 !important;
+}
+
+[data-flux-navlist-item][aria-current="page"] {
+    background-color: rgba(245, 179, 1, 0.2) !important;
+    color: #F5B301 !important;
+    border: 1px solid rgba(245, 179, 1, 0.3) !important;
+}
+
+/* Navigation Group Headings */
+[data-flux-navlist-group] h3 {
+    color: #F5B301 !important;
+    font-weight: 600 !important;
+    font-size: 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    margin-bottom: 0.5rem !important;
+}
+
+/* Profile Dropdown */
+[data-flux-profile] {
+    color: white !important;
+}
+
+[data-flux-profile]:hover {
+    background-color: rgba(245, 179, 1, 0.1) !important;
+}
+
+/* Menu Items */
+[data-flux-menu-item] {
+    color: #D1C4E9 !important;
+}
+
+[data-flux-menu-item]:hover {
+    background-color: rgba(245, 179, 1, 0.1) !important;
+    color: #F5B301 !important;
+}
+
+/* Menu Separators */
+[data-flux-menu-separator] {
+    border-color: rgba(245, 179, 1, 0.2) !important;
+}
+
+/* ========================================
+   TABLE CUSTOMIZATIONS
+   ======================================== */
+
+/* Table Container Styling */
+.table-container {
+    background: var(--color-brand-secondary) !important;
+    border: 1px solid var(--color-brand-accent) !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Table Headers */
+table thead {
+    background: var(--color-brand-primary) !important;
+}
+
+table thead th {
+    color: var(--color-brand-accent) !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+    padding: 1rem !important;
+    border-bottom: 2px solid var(--color-brand-accent) !important;
+}
+
+/* Table Body */
+table tbody {
+    background: var(--color-brand-secondary) !important;
+}
+
+table tbody tr {
+    border-bottom: 1px solid rgba(245, 179, 1, 0.1) !important;
+    transition: background-color 0.2s ease !important;
+}
+
+table tbody tr:hover {
+    background: rgba(245, 179, 1, 0.05) !important;
+}
+
+table tbody tr:nth-child(even) {
+    background: rgba(245, 179, 1, 0.02) !important;
+}
+
+table tbody tr:nth-child(even):hover {
+    background: rgba(245, 179, 1, 0.08) !important;
+}
+
+/* Table Cells */
+table td {
+    color: var(--color-brand-text-primary) !important;
+    padding: 0.875rem 1rem !important;
+    font-size: 0.875rem !important;
+    vertical-align: middle !important;
+}
+
+/* Table Links */
+table a {
+    color: var(--color-brand-info) !important;
+    text-decoration: none !important;
+    font-weight: 500 !important;
+    transition: color 0.2s ease !important;
+}
+
+table a:hover {
+    color: var(--color-brand-accent) !important;
+}
+
+/* Badge Styling in Tables */
+table .badge {
+    padding: 0.25rem 0.75rem !important;
+    border-radius: 9999px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.05em !important;
+}
+
+/* Status Badges */
+.badge-success {
+    background: var(--color-brand-success) !important;
+    color: white !important;
+}
+
+.badge-warning {
+    background: var(--color-brand-warning) !important;
+    color: var(--color-brand-primary) !important;
+}
+
+.badge-error {
+    background: var(--color-brand-error) !important;
+    color: white !important;
+}
+
+.badge-info {
+    background: var(--color-brand-info) !important;
+    color: white !important;
+}
+
+.badge-accent {
+    background: var(--color-brand-accent) !important;
+    color: var(--color-brand-primary) !important;
+}
+
+/* Table Actions */
+.table-actions {
+    display: flex !important;
+    gap: 0.5rem !important;
+    align-items: center !important;
+}
+
+.table-actions .btn {
+    padding: 0.375rem 0.75rem !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.table-actions .btn-primary {
+    background: var(--color-brand-accent) !important;
+    color: var(--color-brand-primary) !important;
+    border: 1px solid var(--color-brand-accent) !important;
+}
+
+.table-actions .btn-primary:hover {
+    background: color-mix(in srgb, var(--color-brand-accent) 90%, black) !important;
+    border-color: color-mix(in srgb, var(--color-brand-accent) 90%, black) !important;
+}
+
+.table-actions .btn-secondary {
+    background: transparent !important;
+    color: var(--color-brand-text-secondary) !important;
+    border: 1px solid rgba(245, 179, 1, 0.3) !important;
+}
+
+.table-actions .btn-secondary:hover {
+    background: rgba(245, 179, 1, 0.1) !important;
+    color: var(--color-brand-accent) !important;
+    border-color: var(--color-brand-accent) !important;
+}
+
+.table-actions .btn-danger {
+    background: var(--color-brand-error) !important;
+    color: white !important;
+    border: 1px solid var(--color-brand-error) !important;
+}
+
+.table-actions .btn-danger:hover {
+    background: color-mix(in srgb, var(--color-brand-error) 90%, black) !important;
+    border-color: color-mix(in srgb, var(--color-brand-error) 90%, black) !important;
+}
+
+/* Pagination Styling */
+.pagination {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-top: 1.5rem !important;
+    padding: 1rem !important;
+    background: var(--color-brand-secondary) !important;
+    border-radius: 8px !important;
+}
+
+.pagination .page-link {
+    color: var(--color-brand-text-primary) !important;
+    background: transparent !important;
+    border: 1px solid rgba(245, 179, 1, 0.3) !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: 6px !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.pagination .page-link:hover {
+    background: rgba(245, 179, 1, 0.1) !important;
+    color: var(--color-brand-accent) !important;
+    border-color: var(--color-brand-accent) !important;
+}
+
+.pagination .page-item.active .page-link {
+    background: var(--color-brand-accent) !important;
+    color: var(--color-brand-primary) !important;
+    border-color: var(--color-brand-accent) !important;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: var(--color-brand-text-secondary) !important;
+    background: transparent !important;
+    border-color: rgba(245, 179, 1, 0.2) !important;
+}
+
+/* ========================================
+   FILTER SECTION CUSTOMIZATIONS
+   ======================================== */
+
+/* Filter Container */
+.filter-container {
+    background: var(--color-brand-secondary) !important;
+    border: 1px solid var(--color-brand-accent) !important;
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Filter Header */
+.filter-header {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.filter-header h3 {
+    color: var(--color-brand-text-primary) !important;
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+}
+
+.filter-header .icon {
+    color: var(--color-brand-accent) !important;
+}
+
+/* Filter Input Styling */
+.filter-input [data-flux-control] {
+    background: var(--color-brand-primary) !important;
+    border: 1px solid rgba(245, 179, 1, 0.3) !important;
+    color: var(--color-brand-text-primary) !important;
+    border-radius: 8px !important;
+}
+
+.filter-input [data-flux-control]:focus {
+    border-color: var(--color-brand-accent) !important;
+    box-shadow: 0 0 0 2px rgba(245, 179, 1, 0.2) !important;
+}
+
+.filter-input [data-flux-label] {
+    color: var(--color-brand-text-primary) !important;
+    font-weight: 500 !important;
+}
+
+/* Filter Select Styling */
+.filter-select [data-flux-control] {
+    background: var(--color-brand-primary) !important;
+    border: 1px solid rgba(245, 179, 1, 0.3) !important;
+    color: var(--color-brand-text-primary) !important;
+    border-radius: 8px !important;
+}
+
+.filter-select [data-flux-control]:focus {
+    border-color: var(--color-brand-accent) !important;
+    box-shadow: 0 0 0 2px rgba(245, 179, 1, 0.2) !important;
+}
+
+.filter-select [data-flux-label] {
+    color: var(--color-brand-text-primary) !important;
+    font-weight: 500 !important;
+}
+
+/* Filter Actions */
+.filter-actions {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-top: 1.5rem !important;
+    padding-top: 1rem !important;
+    border-top: 1px solid rgba(245, 179, 1, 0.2) !important;
+}
+
+.filter-info {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    color: var(--color-brand-text-secondary) !important;
+    font-size: 0.875rem !important;
+}
+
+.filter-buttons {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+/* Filter Grid Layout */
+.filter-grid {
+    display: grid !important;
+    gap: 1rem !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+}
+
+.filter-grid-2 {
+    grid-template-columns: 2fr 1fr 1fr !important;
+}
+
+.filter-grid-3 {
+    grid-template-columns: 1fr 1fr 1fr !important;
+}
+
+/* Filter Responsive */
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .filter-actions {
+        flex-direction: column !important;
+        gap: 1rem !important;
+        align-items: stretch !important;
+    }
+    
+    .filter-buttons {
+        justify-content: center !important;
+    }
+}
+
+/* Filter Status Indicators */
+.filter-status {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.25rem !important;
+    padding: 0.25rem 0.5rem !important;
+    background: rgba(245, 179, 1, 0.1) !important;
+    color: var(--color-brand-accent) !important;
+    border-radius: 9999px !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+}
+
+.filter-status.active {
+    background: var(--color-brand-accent) !important;
+    color: var(--color-brand-primary) !important;
+}
+
+/* Filter Clear Button */
+.filter-clear {
+    background: transparent !important;
+    color: var(--color-brand-text-secondary) !important;
+    border: 1px solid rgba(245, 179, 1, 0.3) !important;
+    padding: 0.375rem 0.75rem !important;
+    border-radius: 6px !important;
+    font-size: 0.75rem !important;
+    font-weight: 500 !important;
+    transition: all 0.2s ease !important;
+}
+
+.filter-clear:hover {
+    background: rgba(245, 179, 1, 0.1) !important;
+    color: var(--color-brand-accent) !important;
+    border-color: var(--color-brand-accent) !important;
 }
 
 /* \[:where(&)\]:size-4 {

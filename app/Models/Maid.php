@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Maid extends Model
 {
@@ -38,6 +39,8 @@ class Maid extends Model
         'previous_work',
         'medical_status',
         'profile_image',
+        'additional_documents',
+        'id_scans',
         'additional_notes',
     ];
 
@@ -45,6 +48,8 @@ class Maid extends Model
         'date_of_birth' => 'date',
         'date_of_arrival' => 'date',
         'medical_status' => 'array',
+        'additional_documents' => 'array',
+        'id_scans' => 'array',
         'experience_years' => 'integer',
         'english_proficiency' => 'integer',
         'number_of_children' => 'integer',
@@ -58,6 +63,30 @@ class Maid extends Model
                 $maid->save();
             }
         });
+    }
+
+    /**
+     * Get the bookings for the maid.
+     */
+    public function bookings(): HasMany
+    {
+        return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * Get the deployments for the maid.
+     */
+    public function deployments(): HasMany
+    {
+        return $this->hasMany(Deployment::class);
+    }
+
+    /**
+     * Get the current active deployment.
+     */
+    public function currentDeployment()
+    {
+        return $this->hasOne(Deployment::class)->where('status', 'active')->latest();
     }
 
     public function getFullNameAttribute(): string

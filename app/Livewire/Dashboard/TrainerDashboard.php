@@ -8,6 +8,7 @@ class TrainerDashboard extends Component
 {
     public function render()
     {
-        return view('livewire.dashboard.trainer-dashboard');
+        return view('livewire.dashboard.trainer-dashboard')
+            ->layout('components.layouts.app', ['title' => __('Trainer Dashboard')]);
     }
 }

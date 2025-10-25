@@ -24,12 +24,52 @@ class Index extends Component
     #[Url]
     public int $perPage = 15;
 
+    // Bulk selection state
+    public array $selected = [];
+    public bool $selectPage = false;
+
     public function updating($name, $value): void
     {
         // Reset to first page whenever filters or search change
         if (in_array($name, ['search', 'status', 'role', 'perPage'], true)) {
             $this->resetPage();
+            // Reset selections when changing dataset
+            $this->resetSelection();
         }
+    }
+
+    public function updatedSelectPage($value): void
+    {
+        // Toggle selecting the current page of results
+        $pageIds = $this->getCurrentPageIds();
+        if ($value) {
+            $this->selected = array_values(array_unique(array_merge($this->selected, $pageIds)));
+        } else {
+            // Remove current page IDs from selection
+            $this->selected = array_values(array_diff($this->selected, $pageIds));
+        }
+    }
+
+    public function deleteSelected(): void
+    {
+        if (empty($this->selected)) {
+            return;
+        }
+
+        Maid::query()
+            ->whereIn('id', $this->selected)
+            ->delete();
+
+        $count = count($this->selected);
+        $this->resetSelection();
+
+        session()->flash('message', "$count maids deleted successfully!");
+    }
+
+    protected function resetSelection(): void
+    {
+        $this->selected = [];
+        $this->selectPage = false;
     }
 
     public function getStatuses(): array
@@ -42,14 +82,27 @@ class Index extends Component
         return ['housekeeper','house_manager','nanny','chef','elderly_caretaker','nakawere_caretaker'];
     }
 
+    public function delete($id): void
+    {
+        $maid = Maid::findOrFail($id);
+        $maid->delete();
+        
+        session()->flash('message', 'Maid deleted successfully!');
+    }
+
     public function render()
     {
         $maids = $this->queryMaids();
+        
+        // Get statistics from all maids, not just filtered results
+        $allMaids = Maid::all();
 
         return view('livewire.maids.index', [
             'maids' => $maids,
+            'allMaids' => $allMaids, // Add this for KPI calculations
             'statusOptions' => $this->getStatuses(),
             'roleOptions' => $this->getRoles(),
+            'pageIds' => $maids->pluck('id')->toArray(),
         ]);
     }
 
@@ -71,5 +124,11 @@ class Index extends Component
             ->when(!empty($this->role), fn($q) => $q->where('role', $this->role))
             ->orderByDesc('id')
             ->paginate(max(5, min(100, (int) $this->perPage)));
+    }
+
+    protected function getCurrentPageIds(): array
+    {
+        // Get IDs for the currently visible page based on current filters and pagination
+        return $this->queryMaids()->pluck('id')->toArray();
     }
 }

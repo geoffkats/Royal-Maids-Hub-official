@@ -1,0 +1,33 @@
+:root {
+  /* Brand Colors */
+  --brand-royal-purple: #3B0A45;
+  --brand-deep-violet: #512B58;
+  --brand-gold: #F5B301;
+
+  /* Text */
+  --text-primary: #FFFFFF;
+  --text-secondary: #D1C4E9;
+
+  /* Semantic */
+  --color-success: #4CAF50;
+  --color-warning: #FFC107;
+  --color-error: #E53935;
+  --color-info: #64B5F6;
+
+  /* Package tiers */
+  --tier-silver: #A8A9AD;
+  --tier-gold: #FFD700;
+  --tier-platinum: #B9A0DC;
+
+  /* Gradients */
+  --brand-gradient: linear-gradient(180deg, #3B0A45 0%, #512B58 100%);
+  --brand-gradient-horizontal: linear-gradient(90deg, #3B0A45 0%, #512B58 100%);
+  --brand-gradient-gold: linear-gradient(180deg, #F5B301 0%, #FFD700 100%);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text-primary: #FFFFFF;
+    --text-secondary: #D1C4E9;
+  }
+}

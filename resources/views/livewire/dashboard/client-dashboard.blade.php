@@ -1,4 +1,3 @@
-<x-layouts.app :title="__('Client Dashboard')">
 <div class="space-y-6">
     {{-- Client Dashboard Header --}}
     <div class="bg-gradient-to-r from-emerald-600 to-teal-600 rounded-lg shadow-lg p-6 text-white">
@@ -216,4 +215,3 @@
         </div>
     </div>
 </div>
-</x-layouts.app>
