@@ -153,36 +153,6 @@
         @enderror
     </div>
 
-    <!-- Cuisine Type -->
-    <div class="space-y-2">
-        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            Preferred Cuisine Type <span class="text-red-500">*</span>
-        </label>
-        <div class="grid grid-cols-1 gap-3">
-            @foreach(['Local', 'International', 'Mixed'] as $cuisine)
-                <label class="relative flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all duration-200
-                             {{ $cuisine_type === $cuisine ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-slate-300 dark:border-slate-600 hover:border-amber-300 dark:hover:border-amber-700' }}">
-                    <input type="radio" 
-                           wire:model.live="cuisine_type" 
-                           value="{{ $cuisine }}" 
-                           class="sr-only">
-                    <span class="text-sm font-medium {{ $cuisine_type === $cuisine ? 'text-amber-700 dark:text-amber-300' : 'text-slate-700 dark:text-slate-300' }}">
-                        {{ $cuisine }}
-                    </span>
-                    @if($cuisine_type === $cuisine)
-                        <x-flux::icon.check-circle class="w-5 h-5 text-amber-600 dark:text-amber-400 absolute top-2 right-2" />
-                    @endif
-                </label>
-            @endforeach
-        </div>
-        @error('cuisine_type') 
-            <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
-                <x-flux::icon.exclamation-triangle class="w-4 h-4" />
-                {{ $message }}
-            </div>
-        @enderror
-    </div>
-
     <!-- Home Atmosphere -->
     <div class="space-y-2">
         <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
@@ -213,35 +183,7 @@
         @enderror
     </div>
 
-    <!-- Task Management -->
-    <div class="space-y-2 md:col-span-2">
-        <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-            How should the maid manage tasks? <span class="text-red-500">*</span>
-        </label>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-            @foreach(['Independent', 'With Guidance', 'Structured List'] as $management)
-                <label class="relative flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all duration-200
-                             {{ $manage_tasks === $management ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20' : 'border-slate-300 dark:border-slate-600 hover:border-amber-300 dark:hover:border-amber-700' }}">
-                    <input type="radio" 
-                           wire:model.live="manage_tasks" 
-                           value="{{ $management }}" 
-                           class="sr-only">
-                    <span class="text-sm font-medium {{ $manage_tasks === $management ? 'text-amber-700 dark:text-amber-300' : 'text-slate-700 dark:text-slate-300' }}">
-                        {{ $management }}
-                    </span>
-                    @if($manage_tasks === $management)
-                        <x-flux::icon.check-circle class="w-5 h-5 text-amber-600 dark:text-amber-400 absolute top-2 right-2" />
-                    @endif
-                </label>
-            @endforeach
-        </div>
-        @error('manage_tasks') 
-            <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
-                <x-flux::icon.exclamation-triangle class="w-4 h-4" />
-                {{ $message }}
-            </div>
-        @enderror
-    </div>
+    
 
     <!-- Unspoken Rules -->
     <div class="space-y-2 md:col-span-2">

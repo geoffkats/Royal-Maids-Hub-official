@@ -77,9 +77,86 @@
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                 </svg>
-                Category
+                Category <span class="text-red-400">*</span>
             </label>
-            <input type="text" wire:model="category" class="w-full py-3 px-4 rounded-lg border-2 border-[#F5B301]/30 bg-[#3B0A45] text-white placeholder-[#D1C4E9]/60 focus:border-[#F5B301] focus:ring-2 focus:ring-[#F5B301]/50 transition-all shadow-sm hover:shadow-md" placeholder="e.g. Service Quality, Maid Absence, Payment Issue">
+            <select wire:model="category" class="w-full py-3 px-4 rounded-lg border-2 border-[#F5B301]/30 bg-[#3B0A45] text-white focus:border-[#F5B301] focus:ring-2 focus:ring-[#F5B301]/50 transition-all shadow-sm hover:shadow-md">
+                <option value="">Select a category...</option>
+                
+                @php
+                    $categories = config('tickets.categories', [
+                        'Inquiry' => 'Inquiry',
+                        'Quote Request' => 'Quote Request',
+                        'Pre-Sales Support' => 'Pre-Sales Support',
+                        'Service Quality' => 'Service Quality',
+                        'Maid Absence' => 'Maid Absence',
+                        'Maid Performance' => 'Maid Performance',
+                        'Maid Request' => 'Maid Request',
+                        'Rescheduling' => 'Rescheduling',
+                        'Cancellation' => 'Cancellation',
+                        'Payment Issue' => 'Payment Issue',
+                        'Billing Error' => 'Billing Error',
+                        'Refund Request' => 'Refund Request',
+                        'Invoice Request' => 'Invoice Request',
+                        'Technical Issue' => 'Technical Issue',
+                        'Account Access' => 'Account Access',
+                        'App Problem' => 'App Problem',
+                        'Safety Concern' => 'Safety Concern',
+                        'Legal Issue' => 'Legal Issue',
+                        'Emergency' => 'Emergency',
+                        'Harassment' => 'Harassment',
+                        'Feedback' => 'Feedback',
+                        'Complaint' => 'Complaint',
+                        'Other' => 'Other',
+                    ]);
+                @endphp
+                
+                <!-- Pre-Sales Categories -->
+                <optgroup label="Pre-Sales">
+                    <option value="Inquiry">Inquiry</option>
+                    <option value="Quote Request">Quote Request</option>
+                    <option value="Pre-Sales Support">Pre-Sales Support</option>
+                </optgroup>
+                
+                <!-- Service Categories -->
+                <optgroup label="Service">
+                    <option value="Service Quality">Service Quality</option>
+                    <option value="Maid Absence">Maid Absence</option>
+                    <option value="Maid Performance">Maid Performance</option>
+                    <option value="Maid Request">Maid Request</option>
+                    <option value="Rescheduling">Rescheduling</option>
+                    <option value="Cancellation">Cancellation</option>
+                </optgroup>
+                
+                <!-- Billing Categories -->
+                <optgroup label="Billing">
+                    <option value="Payment Issue">Payment Issue</option>
+                    <option value="Billing Error">Billing Error</option>
+                    <option value="Refund Request">Refund Request</option>
+                    <option value="Invoice Request">Invoice Request</option>
+                </optgroup>
+                
+                <!-- Technical Categories -->
+                <optgroup label="Technical">
+                    <option value="Technical Issue">Technical Issue</option>
+                    <option value="Account Access">Account Access</option>
+                    <option value="App Problem">App Problem</option>
+                </optgroup>
+                
+                <!-- Critical Categories -->
+                <optgroup label="Critical">
+                    <option value="Safety Concern">Safety Concern</option>
+                    <option value="Legal Issue">Legal Issue</option>
+                    <option value="Emergency">Emergency</option>
+                    <option value="Harassment">Harassment</option>
+                </optgroup>
+                
+                <!-- General Categories -->
+                <optgroup label="General">
+                    <option value="Feedback">Feedback</option>
+                    <option value="Complaint">Complaint</option>
+                    <option value="Other">Other</option>
+                </optgroup>
+            </select>
             @error('category') <span class="text-red-400 text-sm mt-1 block flex items-center gap-1"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>{{ $message }}</span> @enderror
         </div>
 

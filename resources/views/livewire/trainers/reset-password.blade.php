@@ -11,13 +11,13 @@
 
     <!-- Modal -->
     @if($showModal)
-    <div class="fixed inset-0 z-50 overflow-y-auto" wire:click.self="closeModal">
+    <div class="fixed inset-0 z-[9999] overflow-y-auto" wire:click.self="closeModal">
         <div class="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <!-- Background overlay -->
-            <div class="fixed inset-0 transition-opacity bg-black bg-opacity-50" wire:click="closeModal"></div>
+            <div class="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-30" wire:click="closeModal"></div>
 
             <!-- Modal panel -->
-            <div class="inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-[#512B58] border border-[#F5B301]/30 shadow-xl rounded-xl">
+            <div class="relative inline-block w-full max-w-md p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-[#512B58] border border-[#F5B301]/30 shadow-xl rounded-xl z-[10000]">
                 <!-- Header -->
                 <div class="flex items-center justify-between mb-6">
                     <div class="flex items-center gap-3">

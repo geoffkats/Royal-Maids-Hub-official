@@ -214,21 +214,57 @@
                         {{ __('Medical Information') }}
                     </h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        @php
+                            $medicalStatus = $maid->medical_status ?? [];
+                            $hepatitisB = $medicalStatus['hepatitis_b']['result'] ?? null;
+                            $hepatitisBDate = $medicalStatus['hepatitis_b']['date'] ?? null;
+                            $hiv = $medicalStatus['hiv']['result'] ?? null;
+                            $hivDate = $medicalStatus['hiv']['date'] ?? null;
+                            $urineHcg = $medicalStatus['urine_hcg']['result'] ?? null;
+                            $urineHcgDate = $medicalStatus['urine_hcg']['date'] ?? null;
+                            $medicalNotes = $medicalStatus['notes'] ?? null;
+                            
+                            $formatResult = function($result) {
+                                if (!$result) return '—';
+                                return match($result) {
+                                    'positive' => 'Positive',
+                                    'negative' => 'Negative',
+                                    'pending' => 'Pending',
+                                    'not_tested' => 'Not Tested',
+                                    default => ucfirst($result),
+                                };
+                            };
+                        @endphp
                         <div>
-                            <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('Hepatitis B') }}</label>
-                            <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $maid->hepatitis_b_result ?? '—' }}</p>
+                            <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('Hepatitis B Test Result') }}</label>
+                            <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $formatResult($hepatitisB) }}</p>
+                            @if($hepatitisBDate)
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                    {{ __('Date:') }} {{ \Carbon\Carbon::parse($hepatitisBDate)->format('M d, Y') }}
+                                </p>
+                            @endif
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('HIV Test') }}</label>
-                            <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $maid->hiv_result ?? '—' }}</p>
+                            <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('HIV Test Result') }}</label>
+                            <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $formatResult($hiv) }}</p>
+                            @if($hivDate)
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                    {{ __('Date:') }} {{ \Carbon\Carbon::parse($hivDate)->format('M d, Y') }}
+                                </p>
+                            @endif
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('Urine HCG') }}</label>
-                            <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $maid->urine_hcg_result ?? '—' }}</p>
+                            <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('Urine HCG Test Result') }}</label>
+                            <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $formatResult($urineHcg) }}</p>
+                            @if($urineHcgDate)
+                                <p class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                    {{ __('Date:') }} {{ \Carbon\Carbon::parse($urineHcgDate)->format('M d, Y') }}
+                                </p>
+                            @endif
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('Medical Notes') }}</label>
-                            <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $maid->medical_notes ?? '—' }}</p>
+                            <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $medicalNotes ?? '—' }}</p>
                         </div>
                     </div>
                 </div>

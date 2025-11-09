@@ -54,13 +54,13 @@ class Create extends Component
     public $work_status = 'full-time';
 
     // Medical Information
-    public $hepatitis_b_result = '';
-    public $hepatitis_b_date = '';
-    public $hiv_result = '';
-    public $hiv_date = '';
-    public $urine_hcg_result = '';
-    public $urine_hcg_date = '';
-    public $medical_notes = '';
+    public $hepatitis_b_result = null;
+    public $hepatitis_b_date = null;
+    public $hiv_result = null;
+    public $hiv_date = null;
+    public $urine_hcg_result = null;
+    public $urine_hcg_date = null;
+    public $medical_notes = null;
 
     // File Uploads
     public $profile_image;
@@ -134,11 +134,11 @@ class Create extends Component
         'status' => 'required|in:available,in-training,booked,deployed,absconded,terminated,on-leave',
         'secondary_status' => 'required|in:booked,available,deployed,on-leave,absconded,terminated',
         'work_status' => 'required|in:brokerage,long-term,part-time,full-time',
-        'hepatitis_b_result' => 'nullable|string|max:50',
+        'hepatitis_b_result' => 'nullable|in:positive,negative,pending,not_tested',
         'hepatitis_b_date' => 'nullable|date',
-        'hiv_result' => 'nullable|string|max:50',
+        'hiv_result' => 'nullable|in:positive,negative,pending,not_tested',
         'hiv_date' => 'nullable|date',
-        'urine_hcg_result' => 'nullable|string|max:50',
+        'urine_hcg_result' => 'nullable|in:positive,negative,pending,not_tested',
         'urine_hcg_date' => 'nullable|date',
         'medical_notes' => 'nullable|string',
         'profile_image' => 'nullable|image|max:2048',
@@ -155,6 +155,14 @@ class Create extends Component
 
     public function save()
     {
+        // Convert empty strings to null for medical test results
+        $this->hepatitis_b_result = $this->hepatitis_b_result === '' ? null : $this->hepatitis_b_result;
+        $this->hiv_result = $this->hiv_result === '' ? null : $this->hiv_result;
+        $this->urine_hcg_result = $this->urine_hcg_result === '' ? null : $this->urine_hcg_result;
+        $this->hepatitis_b_date = $this->hepatitis_b_date === '' ? null : $this->hepatitis_b_date;
+        $this->hiv_date = $this->hiv_date === '' ? null : $this->hiv_date;
+        $this->urine_hcg_date = $this->urine_hcg_date === '' ? null : $this->urine_hcg_date;
+        
         try {
             $this->validate();
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -165,18 +173,18 @@ class Create extends Component
         // Prepare medical status
         $medicalStatus = [
             'hepatitis_b' => [
-                'result' => $this->hepatitis_b_result,
-                'date' => $this->hepatitis_b_date,
+                'result' => !empty($this->hepatitis_b_result) ? $this->hepatitis_b_result : null,
+                'date' => !empty($this->hepatitis_b_date) ? $this->hepatitis_b_date : null,
             ],
             'hiv' => [
-                'result' => $this->hiv_result,
-                'date' => $this->hiv_date,
+                'result' => !empty($this->hiv_result) ? $this->hiv_result : null,
+                'date' => !empty($this->hiv_date) ? $this->hiv_date : null,
             ],
             'urine_hcg' => [
-                'result' => $this->urine_hcg_result,
-                'date' => $this->urine_hcg_date,
+                'result' => !empty($this->urine_hcg_result) ? $this->urine_hcg_result : null,
+                'date' => !empty($this->urine_hcg_date) ? $this->urine_hcg_date : null,
             ],
-            'notes' => $this->medical_notes,
+            'notes' => !empty($this->medical_notes) ? $this->medical_notes : null,
         ];
 
         // Handle file uploads

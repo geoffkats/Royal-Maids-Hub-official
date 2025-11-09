@@ -250,9 +250,9 @@ class Ticket extends Model
     }
 
     // Relationships
-    public function requester(): BelongsTo
+    public function requester()
     {
-        return $this->belongsTo(User::class, 'requester_id');
+        return $this->morphTo('requester', 'requester_type', 'requester_id');
     }
 
     public function createdOnBehalfOf(): BelongsTo
@@ -419,10 +419,38 @@ class Ticket extends Model
                 $onBehalfName = $this->maid?->full_name ?? 'Maid';
             }
             
-            return "Created by {$this->requester->name} on behalf of {$onBehalfName}";
+            $requesterName = $this->requester_type === 'user' 
+                ? $this->requester->name 
+                : $this->requester->full_name ?? $this->requester->contact_person ?? 'Unknown';
+            
+            return "Created by {$requesterName} on behalf of {$onBehalfName}";
         }
         
-        return "Created by {$this->requester->name}";
+        $requesterName = $this->requester_type === 'user' 
+            ? $this->requester->name 
+            : $this->requester->full_name ?? $this->requester->contact_person ?? 'Unknown';
+        
+        return "Created by {$requesterName}";
+    }
+
+    public function getRequesterTypeBadge(): array
+    {
+        return match($this->requester_type) {
+            'lead' => ['label' => 'Lead', 'color' => 'blue'],
+            'client' => ['label' => 'Client', 'color' => 'green'],
+            'user' => ['label' => 'Staff', 'color' => 'purple'],
+            default => ['label' => 'Unknown', 'color' => 'zinc']
+        };
+    }
+
+    public function isFromLead(): bool
+    {
+        return $this->requester_type === 'lead';
+    }
+
+    public function isPreSalesTicket(): bool
+    {
+        return $this->isFromLead() || in_array($this->category, ['Inquiry', 'Quote Request', 'Pre-Sales Support']);
     }
 
     public function getCreatedOnBehalfText(): string

@@ -76,10 +76,16 @@
                         <flux:navlist.item icon="chart-pie" :href="$href('reports.kpi-dashboard')" :current="$is('reports.kpi-dashboard')">
                             {{ __('KPI Dashboard') }}
                         </flux:navlist.item>
+                        <flux:navlist.item icon="clipboard-document-check" :href="$href('admin.weekly-boards.index')" :current="$is('admin.weekly-boards.*')">
+                            {{ __('Weekly Boards Review') }}
+                        </flux:navlist.item>
                     </flux:navlist.group>
 
 
                     <flux:navlist.group :heading="__('Support & Tickets')" class="mb-4">
+                        <flux:navlist.item icon="envelope" :href="$href('contact-submissions.index')" :current="$is('contact-submissions.*')">
+                            {{ __('Contact Inquiries') }}
+                        </flux:navlist.item>
                         <flux:navlist.item icon="lifebuoy" :href="$href('tickets.index')" :current="$is('tickets.index')">
                             {{ __('All Tickets') }}
                         </flux:navlist.item>
@@ -89,6 +95,40 @@
                         <flux:navlist.item icon="chart-bar" :href="$href('tickets.analytics')" :current="$is('tickets.analytics')">
                             {{ __('Ticket Analytics') }}
                         </flux:navlist.item>
+                    </flux:navlist.group>
+
+                    <flux:navlist.group :heading="__('CRM')" class="mb-4">
+                        <flux:navlist.item icon="funnel" :href="$href('crm.pipeline')" :current="$is('crm.pipeline')">
+                            {{ __('Pipeline Board') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="user-plus" href="/crm/leads" :current="$is('crm.leads.*')">
+                            {{ __('Leads') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="chart-bar" href="/crm/opportunities" :current="$is('crm.opportunities.*')">
+                            {{ __('Opportunities') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="clipboard-document-list" href="/crm/activities" :current="$is('crm.activities.*')">
+                            {{ __('Activities') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="cog-6-tooth" href="/crm/settings" :current="$is('crm.settings.*')">
+                            {{ __('CRM Settings') }}
+                        </flux:navlist.item>
+
+                        <!-- CRM Reports -->
+                        <flux:navlist.group :heading="__('CRM Reports')" class="mt-4">
+                            <flux:navlist.item icon="funnel" :href="$href('crm.reports.funnel')" :current="$is('crm.reports.funnel')">
+                                {{ __('Lead Funnel') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="trophy" :href="$href('crm.reports.sales-performance')" :current="$is('crm.reports.sales-performance')">
+                                {{ __('Sales Performance') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="clipboard-document-check" :href="$href('crm.reports.activity-metrics')" :current="$is('crm.reports.activity-metrics')">
+                                {{ __('Activity Metrics') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="chart-pie" :href="$href('crm.reports.revenue-forecasting')" :current="$is('crm.reports.revenue-forecasting')">
+                                {{ __('Revenue Forecasting') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
                     </flux:navlist.group>
 
                     <flux:navlist.group :heading="__('Business')" class="mb-4">
@@ -104,13 +144,16 @@
                     <!-- Trainer Navigation -->
                     <flux:navlist.group :heading="__('Training Management')" class="mb-4">
                         <flux:navlist.item icon="users" :href="$href('trainees.index')" :current="$is('trainees.*')">
-                            {{ __('My Trainees') }}
+                            {{ __('My Maids') }}
                         </flux:navlist.item>
                         <flux:navlist.item icon="clipboard-document-list" :href="$href('programs.index')" :current="$is('programs.*')">
                             {{ __('Training Programs') }}
                         </flux:navlist.item>
                         <flux:navlist.item icon="calendar-days" :href="$href('schedule.index')" :current="$is('schedule.*')">
                             {{ __('Schedule') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="clipboard-document-check" :href="$href('weekly-board.index')" :current="$is('weekly-board.index')">
+                            {{ __('Weekly Task Board') }}
                         </flux:navlist.item>
                     </flux:navlist.group>
 
@@ -124,11 +167,36 @@
                     </flux:navlist.group>
 
                     <flux:navlist.group :heading="__('Reports')" class="mb-4">
-                        <flux:navlist.item icon="chart-bar" :href="$href('reports.index')" :current="$is('reports.index')">
-                            {{ __('Reports') }}
+                        <flux:navlist.item icon="chart-bar" :href="$href('reports.trainer')" :current="$is('reports.trainer')">
+                            {{ __('Trainer Performance Dashboard') }}
                         </flux:navlist.item>
-                        <flux:navlist.item icon="chart-pie" :href="$href('reports.kpi-dashboard')" :current="$is('reports.kpi-dashboard')">
+                        <!-- <flux:navlist.item icon="chart-pie" :href="$href('reports.kpi-dashboard')" :current="$is('reports.kpi-dashboard')">
                             {{ __('KPI Dashboard') }}
+                        </flux:navlist.item> -->
+                    </flux:navlist.group>
+
+                    <flux:navlist.group :heading="__('Support & Tickets')" class="mb-4">
+                        <flux:navlist.item icon="plus" :href="$href('tickets.create')" :current="$is('tickets.create')">
+                            {{ __('Create Ticket') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="lifebuoy" :href="$href('tickets.index')" :current="$is('tickets.index')">
+                            {{ __('All Tickets') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="inbox" :href="$href('tickets.inbox')" :current="$is('tickets.inbox')">
+                            {{ __('My Inbox') }}
+                        </flux:navlist.item>
+                     
+                    </flux:navlist.group>
+
+                    <flux:navlist.group :heading="__('My Profile')" class="mb-4">
+                        <flux:navlist.item icon="user" href="/settings/profile" :current="$is('profile.*')">
+                            {{ __('View Profile') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="cog-6-tooth" href="/settings/profile" :current="$is('profile.*')">
+                            {{ __('Edit Profile') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="key" href="/settings/password" :current="$is('password.*')">
+                            {{ __('Change Password') }}
                         </flux:navlist.item>
                     </flux:navlist.group>
 

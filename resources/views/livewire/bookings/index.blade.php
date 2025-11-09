@@ -120,8 +120,8 @@
         </flux:callout>
     @endif
 
-    <div class="overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
-        <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+    <div class="overflow-x-auto md:overflow-hidden rounded-lg border border-neutral-200 bg-white shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
+        <table class="min-w-[960px] md:min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
             <thead class="bg-neutral-50 dark:bg-neutral-900/50">
                 <tr>
                     <th class="px-3 md:px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">{{ __('ID') }}</th>
@@ -146,7 +146,11 @@
                         </td>
                         <td class="whitespace-nowrap px-3 md:px-6 py-4 text-sm hidden md:table-cell">
                             @if($booking->maid)
-                                <div class="text-neutral-900 dark:text-white">{{ $booking->maid->full_name }}</div>
+                                <a href="{{ route('maids.show', $booking->maid) }}" 
+                                   class="font-medium text-[#64B5F6] hover:text-[#F5B301] transition-colors" 
+                                   wire:navigate>
+                                    {{ $booking->maid->full_name }}
+                                </a>
                             @else
                                 <span class="text-neutral-500 dark:text-neutral-400 italic">Pending assignment</span>
                             @endif

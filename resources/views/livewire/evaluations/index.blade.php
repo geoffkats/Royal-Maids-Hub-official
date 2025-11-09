@@ -151,10 +151,12 @@
                         <option value="approve">{{ __('Approve Selected') }}</option>
                         <option value="reject">{{ __('Reject Selected') }}</option>
                         <option value="pending">{{ __('Set to Pending') }}</option>
-                        @if($showArchived)
-                            <option value="unarchive">{{ __('Unarchive Selected') }}</option>
-                        @else
-                            <option value="archive">{{ __('Archive Selected') }}</option>
+                        @if(auth()->user()->role === 'admin')
+                            @if($showArchived)
+                                <option value="unarchive">{{ __('Unarchive Selected') }}</option>
+                            @else
+                                <option value="archive">{{ __('Archive Selected') }}</option>
+                            @endif
                         @endif
                     </flux:select>
 
@@ -260,6 +262,7 @@
                                         />
                                     @endif
                                     
+                                    @if(auth()->user()->role === 'admin')
                                     <flux:button 
                                         wire:click="toggleArchive({{ $evaluation->id }})" 
                                         size="sm" 
@@ -267,6 +270,7 @@
                                         variant="ghost"
                                         :title="$evaluation->archived ? __('Unarchive') : __('Archive')"
                                     />
+                                    @endif
                                 @endcan
 
                                 @can('delete', $evaluation)

@@ -71,6 +71,23 @@
 
         <div class="space-y-4 rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
             <div class="flex items-center gap-2 mb-4">
+                <flux:icon.user-group class="size-5 text-[#F5B301]" />
+                <flux:heading size="md" class="text-white">{{ __('Next of Kin') }}</flux:heading>
+            </div>
+            <div class="grid gap-4 md:grid-cols-3">
+                <flux:input wire:model.defer="next_of_kin_name" :label="__('Next of Kin Name')" />
+                @error('next_of_kin_name') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
+
+                <flux:input wire:model.defer="next_of_kin_phone" :label="__('Next of Kin Phone')" />
+                @error('next_of_kin_phone') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
+
+                <flux:input wire:model.defer="next_of_kin_relationship" :label="__('Relationship')" placeholder="e.g., Spouse, Parent, Sibling" />
+                @error('next_of_kin_relationship') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
+            </div>
+        </div>
+
+        <div class="space-y-4 rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+            <div class="flex items-center gap-2 mb-4">
                 <flux:icon.map-pin class="size-5 text-[#F5B301]" />
                 <flux:heading size="md" class="text-white">{{ __('Address & Subscription') }}</flux:heading>
             </div>
@@ -87,12 +104,16 @@
                 @error('district') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
 
                 <div>
-                    <label class="block text-sm font-medium text-[#D1C4E9] mb-2">{{ __('Subscription Tier') }}</label>
-                    <select wire:model.defer="subscription_tier" class="w-full rounded-lg border border-[#F5B301]/30 bg-[#3B0A45] text-white px-3 py-2 focus:border-[#F5B301] focus:ring-2 focus:ring-[#F5B301]/20">
-                        <option value="basic" class="bg-[#3B0A45] text-white">Basic</option>
-                        <option value="premium" class="bg-[#3B0A45] text-white">Premium</option>
-                        <option value="enterprise" class="bg-[#3B0A45] text-white">Enterprise</option>
+                    <label class="block text-sm font-medium text-[#D1C4E9] mb-2">{{ __('Package') }}</label>
+                    <select wire:model.defer="package_id" class="w-full rounded-lg border border-[#F5B301]/30 bg-[#3B0A45] text-white px-3 py-2 focus:border-[#F5B301] focus:ring-2 focus:ring-[#F5B301]/20">
+                        <option value="" class="bg-[#3B0A45] text-white">{{ __('Select Package...') }}</option>
+                        @foreach($packages as $package)
+                            <option value="{{ $package->id }}" class="bg-[#3B0A45] text-white">
+                                {{ $package->name }} - {{ $package->tier }} (UGX {{ number_format($package->base_price) }})
+                            </option>
+                        @endforeach
                     </select>
+                    @error('package_id') <span class="text-red-400 text-sm mt-1 block">{{ $message }}</span> @enderror
                 </div>
 
                 <div>

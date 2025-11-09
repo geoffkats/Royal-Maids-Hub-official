@@ -18,9 +18,11 @@
                     </flux:button>
                 @endif
                 
+                @if(auth()->user()->role === 'admin')
                 <flux:button wire:click="toggleArchive" variant="ghost" :icon="$evaluation->archived ? 'arrow-uturn-left' : 'archive-box'">
                     {{ $evaluation->archived ? __('Unarchive') : __('Archive') }}
                 </flux:button>
+                @endif
             @endcan
 
             @can('delete', $evaluation)

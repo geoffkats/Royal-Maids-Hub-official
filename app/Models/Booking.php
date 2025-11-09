@@ -14,6 +14,7 @@ class Booking extends Model
     protected $fillable = [
         // Original V3.0 fields (keeping for compatibility)
         'client_id',
+        'lead_id', // NEW: Link to CRM lead
         'maid_id',
         'package_id', // NEW: Link to subscription package
         'booking_type',
@@ -97,6 +98,30 @@ class Booking extends Model
     public function package(): BelongsTo
     {
         return $this->belongsTo(Package::class);
+    }
+
+    /**
+     * Get the lead that this booking is linked to.
+     */
+    public function lead(): BelongsTo
+    {
+        return $this->belongsTo(\App\Models\CRM\Lead::class);
+    }
+
+    /**
+     * Check if booking is linked to a lead.
+     */
+    public function isLinkedToLead(): bool
+    {
+        return !is_null($this->lead_id);
+    }
+
+    /**
+     * Get the linked lead.
+     */
+    public function getLinkedLead(): ?\App\Models\CRM\Lead
+    {
+        return $this->lead;
     }
 
     /**

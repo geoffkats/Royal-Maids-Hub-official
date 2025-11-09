@@ -1,0 +1,75 @@
+site_name: RoyalMaidsHub V3.0 Documentation
+site_description: Complete system documentation for RoyalMaidsHub V3.0
+site_author: RoyalMaids Team
+repo_url: https://github.com/geoffkats/RoyalMaidsHubV3.0
+repo_name: RoyalMaidsHubV3.0
+
+theme:
+  name: material
+  palette:
+    primary: deep purple
+    accent: amber
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+
+nav:
+  - Home: README.md
+  - Getting Started:
+    - Overview: Overview.md
+    - Setup & Installation: Setup.md
+    - Architecture: Architecture.md
+  - System:
+    - Roles & Permissions: Roles-and-Permissions.md
+    - Routes: Routes.md
+    - Database & Models: Database.md
+    - Testing: Testing.md
+    - Security: Security.md
+    - Integrations: Integrations.md
+  - Modules:
+    - CRM:
+      - Overview: Modules/CRM/Overview.md
+      - Leads: Modules/CRM/Leads.md
+      - Opportunities: Modules/CRM/Opportunities.md
+      - Activities: Modules/CRM/Activities.md
+      - Tags: Modules/CRM/Tags.md
+      - Reports: Modules/CRM/Reports.md
+      - Settings: Modules/CRM/Settings.md
+      - Import & Export: Modules/CRM/ImportExport.md
+    - Tickets: Modules/Tickets/Overview.md
+    - Maids: Modules/Maids/Overview.md
+    - Trainers: Modules/Trainers/Overview.md
+    - Clients: Modules/Clients/Overview.md
+    - Bookings: Modules/Bookings/Overview.md
+    - Deployments: Modules/Deployments/Overview.md
+    - Programs: Modules/Programs/Overview.md
+    - Evaluations: Modules/Evaluations/Overview.md
+    - Schedule: Modules/Schedule/Overview.md
+    - Packages: Modules/Packages/Overview.md
+  - UX:
+    - Navigation: UX/Navigation.md
+  - Reference:
+    - Glossary: Glossary.md
+    - Changelog: Changelog.md
+    - References: References.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.details
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+  - awesome-pages
+
+docs_dir: docs

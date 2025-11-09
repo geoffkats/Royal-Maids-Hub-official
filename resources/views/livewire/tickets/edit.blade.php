@@ -62,12 +62,56 @@
                 </div>
 
                 <div>
-                    <flux:input 
-                        wire:model="category" 
-                        label="Category" 
-                        placeholder="e.g., Service Quality, Payment Issue"
-                        class="bg-[#3B0A45] border-[#F5B301]/30 text-white"
-                    />
+                    <flux:select wire:model="category" label="Category">
+                        <option value="">Select a category...</option>
+                        
+                        <!-- Pre-Sales Categories -->
+                        <optgroup label="Pre-Sales">
+                            <option value="Inquiry">Inquiry</option>
+                            <option value="Quote Request">Quote Request</option>
+                            <option value="Pre-Sales Support">Pre-Sales Support</option>
+                        </optgroup>
+                        
+                        <!-- Service Categories -->
+                        <optgroup label="Service">
+                            <option value="Service Quality">Service Quality</option>
+                            <option value="Maid Absence">Maid Absence</option>
+                            <option value="Maid Performance">Maid Performance</option>
+                            <option value="Maid Request">Maid Request</option>
+                            <option value="Rescheduling">Rescheduling</option>
+                            <option value="Cancellation">Cancellation</option>
+                        </optgroup>
+                        
+                        <!-- Billing Categories -->
+                        <optgroup label="Billing">
+                            <option value="Payment Issue">Payment Issue</option>
+                            <option value="Billing Error">Billing Error</option>
+                            <option value="Refund Request">Refund Request</option>
+                            <option value="Invoice Request">Invoice Request</option>
+                        </optgroup>
+                        
+                        <!-- Technical Categories -->
+                        <optgroup label="Technical">
+                            <option value="Technical Issue">Technical Issue</option>
+                            <option value="Account Access">Account Access</option>
+                            <option value="App Problem">App Problem</option>
+                        </optgroup>
+                        
+                        <!-- Critical Categories -->
+                        <optgroup label="Critical">
+                            <option value="Safety Concern">Safety Concern</option>
+                            <option value="Legal Issue">Legal Issue</option>
+                            <option value="Emergency">Emergency</option>
+                            <option value="Harassment">Harassment</option>
+                        </optgroup>
+                        
+                        <!-- General Categories -->
+                        <optgroup label="General">
+                            <option value="Feedback">Feedback</option>
+                            <option value="Complaint">Complaint</option>
+                            <option value="Other">Other</option>
+                        </optgroup>
+                    </flux:select>
                     @error('category') <flux:error>{{ $message }}</flux:error> @enderror
                 </div>
 

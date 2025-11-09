@@ -63,6 +63,20 @@
         </div>
 
         <div class="space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
+            <flux:heading size="md">{{ __('Next of Kin') }}</flux:heading>
+            <div class="grid gap-4 md:grid-cols-3">
+                <flux:input wire:model.defer="next_of_kin_name" :label="__('Next of Kin Name')" />
+                @error('next_of_kin_name') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
+
+                <flux:input wire:model.defer="next_of_kin_phone" :label="__('Next of Kin Phone')" />
+                @error('next_of_kin_phone') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
+
+                <flux:input wire:model.defer="next_of_kin_relationship" :label="__('Relationship')" placeholder="e.g., Spouse, Parent, Sibling" />
+                @error('next_of_kin_relationship') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
+            </div>
+        </div>
+
+        <div class="space-y-4 rounded-lg border border-neutral-200 p-4 dark:border-neutral-700">
             <flux:heading size="md">{{ __('Address & Subscription') }}</flux:heading>
             <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                 <div class="md:col-span-2">
@@ -77,12 +91,16 @@
                 @error('district') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
 
                 <div>
-                    <label class="mb-1 block text-sm text-neutral-600 dark:text-neutral-400">{{ __('Tier') }}</label>
-                    <select wire:model.defer="subscription_tier" class="w-full rounded-md border-neutral-300 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
-                        <option value="basic">Basic</option>
-                        <option value="premium">Premium</option>
-                        <option value="enterprise">Enterprise</option>
+                    <label class="mb-1 block text-sm text-neutral-600 dark:text-neutral-400">{{ __('Package') }}</label>
+                    <select wire:model.defer="package_id" class="w-full rounded-md border-neutral-300 bg-white text-neutral-900 dark:border-neutral-700 dark:bg-neutral-800 dark:text-white">
+                        <option value="">{{ __('Select Package...') }}</option>
+                        @foreach($packages as $package)
+                            <option value="{{ $package->id }}">
+                                {{ $package->name }} - {{ $package->tier }} (UGX {{ number_format($package->base_price) }})
+                            </option>
+                        @endforeach
                     </select>
+                    @error('package_id') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
                 </div>
 
                 <div>

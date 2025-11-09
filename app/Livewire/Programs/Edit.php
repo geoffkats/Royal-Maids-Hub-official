@@ -78,9 +78,18 @@ class Edit extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
+        $user = auth()->user();
+        
+        // For trainers, only show themselves. For admins, show all trainers.
+        if ($user->role === 'trainer') {
+            $trainers = Trainer::where('user_id', $user->id)->with('user')->get();
+        } else {
+            $trainers = Trainer::with('user')->get();
+        }
+        
         return view('livewire.programs.edit', [
             'title' => __('Edit Training Program'),
-            'trainers' => Trainer::with('user')->get(),
+            'trainers' => $trainers,
             'maids' => Maid::where('status', 'in-training')->get(),
         ]);
     }

@@ -23,6 +23,12 @@ class Show extends Component
 
     public function toggleArchive(): void
     {
+        // Only admins can archive/unarchive evaluations
+        if (auth()->user()->role !== 'admin') {
+            session()->flash('error', __('Only administrators can archive evaluations.'));
+            return;
+        }
+
         $this->authorize('update', $this->evaluation);
 
         if ($this->evaluation->archived) {

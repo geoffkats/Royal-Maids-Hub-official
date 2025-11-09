@@ -12,6 +12,9 @@ use App\Models\Trainer;
 use App\Models\TrainingProgram;
 use App\Models\Ticket;
 use App\Models\User;
+use App\Models\CRM\Lead;
+use App\Models\CRM\Opportunity;
+use App\Models\CRM\Activity;
 use Illuminate\Support\Facades\DB;
 use Livewire\Component;
 
@@ -215,6 +218,49 @@ class AdminDashboard extends Component
         $slaBreachedTickets = Ticket::where('sla_breached', true)->count();
         $resolvedTickets = Ticket::whereIn('status', ['resolved', 'closed'])->count();
 
+        // ============ CRM STATISTICS ============
+        $totalLeads = Lead::count();
+        $newLeads = Lead::where('status', 'new')->count();
+        $workingLeads = Lead::where('status', 'working')->count();
+        $qualifiedLeads = Lead::where('status', 'qualified')->count();
+        $convertedLeads = Lead::where('status', 'converted')->count();
+        $disqualifiedLeads = Lead::where('status', 'disqualified')->count();
+
+        // Lead conversion rate
+        $leadConversionRate = $totalLeads > 0 ? round(($convertedLeads / $totalLeads) * 100, 1) : 0;
+
+        // Opportunities
+        $totalOpportunities = Opportunity::count();
+        $openOpportunities = Opportunity::whereNull('won_at')->whereNull('lost_at')->count();
+        $wonOpportunities = Opportunity::whereNotNull('won_at')->count();
+        $lostOpportunities = Opportunity::whereNotNull('lost_at')->count();
+
+        // Pipeline value
+        $pipelineValue = Opportunity::whereNull('won_at')->whereNull('lost_at')->sum('amount');
+        $weightedPipelineValue = Opportunity::whereNull('won_at')->whereNull('lost_at')
+            ->get()
+            ->sum(function($opp) {
+                return ($opp->amount * $opp->probability) / 100;
+            });
+
+        // Win rate
+        $closedOpportunities = $wonOpportunities + $lostOpportunities;
+        $winRate = $closedOpportunities > 0 ? round(($wonOpportunities / $closedOpportunities) * 100, 1) : 0;
+
+        // Activities
+        $totalActivities = Activity::count();
+        $pendingActivities = Activity::where('status', 'pending')->count();
+        $overdueActivities = Activity::where('status', 'pending')
+            ->where('due_date', '<', now())
+            ->count();
+        $completedActivities = Activity::where('status', 'completed')->count();
+
+        // Top leads by score
+        $topLeads = Lead::whereIn('status', ['new', 'working', 'qualified'])
+            ->orderBy('score', 'desc')
+            ->limit(5)
+            ->get();
+
         return view('livewire.dashboard.admin-dashboard', compact(
             // Users
             'totalUsers', 'verifiedUsers', 'adminUsers', 'trainerUsers', 'clientUsers',
@@ -245,7 +291,12 @@ class AdminDashboard extends Component
             // Deployments
             'activeDeployments', 'completedDeployments', 'terminatedDeployments', 'avgDeploymentDuration',
             // Tickets
-            'totalTickets', 'openTickets', 'slaBreachedTickets', 'resolvedTickets'
+            'totalTickets', 'openTickets', 'slaBreachedTickets', 'resolvedTickets',
+            // CRM
+            'totalLeads', 'newLeads', 'workingLeads', 'qualifiedLeads', 'convertedLeads', 'disqualifiedLeads',
+            'leadConversionRate', 'totalOpportunities', 'openOpportunities', 'wonOpportunities', 'lostOpportunities',
+            'pipelineValue', 'weightedPipelineValue', 'winRate', 'totalActivities', 'pendingActivities',
+            'overdueActivities', 'completedActivities', 'topLeads'
         ))->layout('components.layouts.app', ['title' => __('Admin Dashboard')]);
     }
 }

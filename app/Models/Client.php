@@ -19,9 +19,13 @@ class Client extends Model
         'contact_person',
         'phone',
         'secondary_phone',
+        'next_of_kin_name',
+        'next_of_kin_phone',
+        'next_of_kin_relationship',
         'address',
         'city',
         'district',
+        'package_id',
         'subscription_tier',
         'subscription_status',
         'subscription_start_date',
@@ -47,6 +51,14 @@ class Client extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the package for the client.
+     */
+    public function package(): BelongsTo
+    {
+        return $this->belongsTo(Package::class);
     }
 
     /**
@@ -109,5 +121,13 @@ class Client extends Model
         ]);
 
         return implode(', ', $parts);
+    }
+
+    /**
+     * Get all leads that converted to this client.
+     */
+    public function leads(): HasMany
+    {
+        return $this->hasMany(\App\Models\CRM\Lead::class);
     }
 }

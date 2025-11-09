@@ -89,6 +89,14 @@ class Maid extends Model
         return $this->hasOne(Deployment::class)->where('status', 'active')->latest();
     }
 
+    /**
+     * Get the training programs for the maid.
+     */
+    public function trainingPrograms(): HasMany
+    {
+        return $this->hasMany(TrainingProgram::class);
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim(($this->first_name ?? '') . ' ' . ($this->last_name ?? ''));

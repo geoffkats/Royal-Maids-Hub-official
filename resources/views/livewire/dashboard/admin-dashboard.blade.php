@@ -408,6 +408,185 @@
 
     </div>
 
+    {{-- CRM OVERVIEW --}}
+    <div>
+        <h2 class="mb-4 text-lg font-semibold text-white">{{ __('CRM Overview') }}</h2>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            
+            {{-- Total Leads --}}
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-[#D1C4E9]">{{ __('Total Leads') }}</p>
+                        <p class="mt-2 text-3xl font-bold text-white">{{ number_format($totalLeads) }}</p>
+                        <p class="mt-1 text-xs text-[#D1C4E9]">{{ number_format($workingLeads) }} {{ __('working') }}</p>
+                    </div>
+                    <div class="rounded-full bg-[#64B5F6] p-3">
+                        <flux:icon.user-plus class="size-8 text-white" />
+                    </div>
+                </div>
+            </div>
+
+            {{-- Pipeline Value --}}
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-[#D1C4E9]">{{ __('Pipeline Value') }}</p>
+                        <p class="mt-2 text-3xl font-bold text-white">@currency($pipelineValue)</p>
+                        <p class="mt-1 text-xs text-[#D1C4E9]">{{ __('Weighted:') }} @currency($weightedPipelineValue)</p>
+                    </div>
+                    <div class="rounded-full bg-[#4CAF50] p-3">
+                        <flux:icon.currency-dollar class="size-8 text-white" />
+                    </div>
+                </div>
+            </div>
+
+            {{-- Open Opportunities --}}
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-[#D1C4E9]">{{ __('Opportunities') }}</p>
+                        <p class="mt-2 text-3xl font-bold text-white">{{ number_format($openOpportunities) }}</p>
+                        <p class="mt-1 text-xs text-[#D1C4E9]">{{ __('Win Rate:') }} {{ $winRate }}%</p>
+                    </div>
+                    <div class="rounded-full bg-[#B9A0DC] p-3">
+                        <flux:icon.briefcase class="size-8 text-[#3B0A45]" />
+                    </div>
+                </div>
+            </div>
+
+            {{-- Activities --}}
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-[#D1C4E9]">{{ __('Activities') }}</p>
+                        <p class="mt-2 text-3xl font-bold text-white">{{ number_format($pendingActivities) }}</p>
+                        <p class="mt-1 text-xs text-{{ $overdueActivities > 0 ? 'red-400' : '[#D1C4E9]' }}">
+                            {{ number_format($overdueActivities) }} {{ __('overdue') }}
+                        </p>
+                    </div>
+                    <div class="rounded-full bg-{{ $overdueActivities > 0 ? '[#EF5350]' : '[#FFC107]' }} p-3">
+                        <flux:icon.check-circle class="size-8 text-white" />
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    {{-- CRM DETAILED METRICS --}}
+    <div class="grid gap-6 lg:grid-cols-3">
+
+        {{-- Lead Funnel --}}
+        <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+            <h3 class="mb-4 flex items-center gap-2 text-base font-semibold text-white">
+                <flux:icon.funnel class="size-5 text-[#F5B301]" />
+                {{ __('Lead Funnel') }}
+            </h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="size-2 rounded-full bg-[#64B5F6]"></div>
+                        <span class="text-sm text-[#D1C4E9]">{{ __('New') }}</span>
+                    </div>
+                    <span class="font-semibold text-white">{{ number_format($newLeads) }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="size-2 rounded-full bg-[#FFC107]"></div>
+                        <span class="text-sm text-[#D1C4E9]">{{ __('Working') }}</span>
+                    </div>
+                    <span class="font-semibold text-white">{{ number_format($workingLeads) }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="size-2 rounded-full bg-[#B9A0DC]"></div>
+                        <span class="text-sm text-[#D1C4E9]">{{ __('Qualified') }}</span>
+                    </div>
+                    <span class="font-semibold text-white">{{ number_format($qualifiedLeads) }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2">
+                        <div class="size-2 rounded-full bg-[#4CAF50]"></div>
+                        <span class="text-sm text-[#D1C4E9]">{{ __('Converted') }}</span>
+                    </div>
+                    <flux:badge color="green" size="sm">{{ number_format($convertedLeads) }}</flux:badge>
+                </div>
+                <div class="mt-4 pt-3 border-t border-[#F5B301]/20">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-[#D1C4E9]">{{ __('Conversion Rate') }}</span>
+                        <flux:badge color="blue" size="sm">{{ $leadConversionRate }}%</flux:badge>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Pipeline Status --}}
+        <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+            <h3 class="mb-4 flex items-center gap-2 text-base font-semibold text-white">
+                <flux:icon.chart-bar class="size-5 text-[#4CAF50]" />
+                {{ __('Pipeline Status') }}
+            </h3>
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-[#D1C4E9]">{{ __('Total Opportunities') }}</span>
+                    <span class="font-semibold text-white">{{ number_format($totalOpportunities) }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-[#D1C4E9]">{{ __('Open') }}</span>
+                    <flux:badge color="blue" size="sm">{{ number_format($openOpportunities) }}</flux:badge>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-[#D1C4E9]">{{ __('Won') }}</span>
+                    <flux:badge color="green" size="sm">{{ number_format($wonOpportunities) }}</flux:badge>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-[#D1C4E9]">{{ __('Lost') }}</span>
+                    <flux:badge color="red" size="sm">{{ number_format($lostOpportunities) }}</flux:badge>
+                </div>
+                <div class="mt-4 pt-3 border-t border-[#F5B301]/20">
+                    <div class="flex items-center justify-between">
+                        <span class="text-sm text-[#D1C4E9]">{{ __('Win Rate') }}</span>
+                        <flux:badge :color="$winRate >= 50 ? 'green' : ($winRate >= 30 ? 'yellow' : 'red')" size="sm">
+                            {{ $winRate }}%
+                        </flux:badge>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Top Leads --}}
+        <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+            <h3 class="mb-4 flex items-center gap-2 text-base font-semibold text-white">
+                <flux:icon.star class="size-5 text-[#F5B301]" />
+                {{ __('Top Leads') }}
+            </h3>
+            <div class="space-y-3">
+                @forelse ($topLeads as $lead)
+                    <div class="flex items-center justify-between rounded-lg bg-[#3B0A45]/50 p-3 border border-[#F5B301]/20">
+                        <div class="flex-1 min-w-0">
+                            <p class="font-medium text-white truncate">
+                                {{ $lead->first_name }} {{ $lead->last_name }}
+                            </p>
+                            <p class="text-xs text-[#D1C4E9] truncate">
+                                {{ $lead->company ?? __('No company') }}
+                            </p>
+                        </div>
+                        <flux:badge 
+                            :color="$lead->score >= 80 ? 'green' : ($lead->score >= 50 ? 'yellow' : 'zinc')" 
+                            size="sm"
+                        >
+                            {{ $lead->score }}
+                        </flux:badge>
+                    </div>
+                @empty
+                    <p class="py-4 text-center text-sm text-[#D1C4E9]">{{ __('No leads available yet.') }}</p>
+                @endforelse
+            </div>
+        </div>
+
+    </div>
+
     {{-- TOP PERFORMERS & RECENT ACTIVITY --}}
     <div class="grid gap-6 lg:grid-cols-2">
         

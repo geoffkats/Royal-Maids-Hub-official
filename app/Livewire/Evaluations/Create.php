@@ -57,6 +57,8 @@ class Create extends Component
             if ($trainer) {
                 $this->trainer_id = $trainer->id;
             }
+            // Trainers can only create pending evaluations
+            $this->status = 'pending';
         }
 
         $this->evaluation_date = now()->format('Y-m-d');
@@ -98,8 +100,21 @@ class Create extends Component
         ];
     }
 
+    public function updatedStatus($value): void
+    {
+        // Prevent trainers from changing status
+        if (auth()->user()->role === 'trainer' && $value !== 'pending') {
+            $this->status = 'pending';
+        }
+    }
+
     public function save(): void
     {
+        // Ensure trainers can only save pending evaluations
+        if (auth()->user()->role === 'trainer') {
+            $this->status = 'pending';
+        }
+        
         $this->validate();
 
         // Build scores structure

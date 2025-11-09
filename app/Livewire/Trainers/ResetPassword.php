@@ -55,8 +55,11 @@ class ResetPassword extends Component
         $this->closeModal();
         session()->flash('message', 'Password has been reset successfully for ' . $this->trainer->user->name);
         
-        // Emit event to refresh the trainers list
+        // Emit event to refresh the trainers list and show message
         $this->dispatch('password-reset');
+        
+        // Redirect to refresh the page and show the message
+        return redirect()->route('trainers.index');
     }
 
     public function render()

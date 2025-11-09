@@ -101,7 +101,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="date_of_arrival" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -115,7 +115,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="nationality" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -129,7 +129,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="nin_number" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -143,7 +143,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="marital_status" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -161,7 +161,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="number_of_children" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -337,7 +337,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="experience_years" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -351,7 +351,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="mother_tongue" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -365,7 +365,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="english_proficiency" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -379,7 +379,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="md:col-span-2 space-y-2">
                             <label for="previous_work" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -427,7 +427,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="status" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -445,7 +445,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="secondary_status" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -463,7 +463,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="work_status" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -503,15 +503,21 @@
                             <label for="hepatitis_b_result" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Hepatitis B Test Result
                             </label>
-                            <input type="text" wire:model="hepatitis_b_result" id="hepatitis_b_result" 
-                                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                            <select wire:model="hepatitis_b_result" id="hepatitis_b_result" 
+                                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
+                                <option value="">-- Select Result --</option>
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="pending">Pending</option>
+                                <option value="not_tested">Not Tested</option>
+                            </select>
                             @error('hepatitis_b_result') 
                                 <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
                                     <x-flux::icon.exclamation-triangle class="w-4 h-4" />
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="hepatitis_b_date" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -525,21 +531,27 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="hiv_result" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 HIV Test Result
                             </label>
-                            <input type="text" wire:model="hiv_result" id="hiv_result" 
-                                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                            <select wire:model="hiv_result" id="hiv_result" 
+                                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
+                                <option value="">-- Select Result --</option>
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="pending">Pending</option>
+                                <option value="not_tested">Not Tested</option>
+                            </select>
                             @error('hiv_result') 
                                 <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
                                     <x-flux::icon.exclamation-triangle class="w-4 h-4" />
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="hiv_date" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -553,21 +565,27 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="urine_hcg_result" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Urine HCG Test Result
                             </label>
-                            <input type="text" wire:model="urine_hcg_result" id="urine_hcg_result" 
-                                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                            <select wire:model="urine_hcg_result" id="urine_hcg_result" 
+                                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
+                                <option value="">-- Select Result --</option>
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="pending">Pending</option>
+                                <option value="not_tested">Not Tested</option>
+                            </select>
                             @error('urine_hcg_result') 
                                 <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
                                     <x-flux::icon.exclamation-triangle class="w-4 h-4" />
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="urine_hcg_date" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -581,7 +599,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="md:col-span-2 space-y-2">
                             <label for="medical_notes" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -661,7 +679,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="additional_documents" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -675,7 +693,7 @@
                                     {{ $message }}
                                 </div>
                             @enderror
-                            </div>
+                        </div>
 
                         <div class="space-y-2">
                             <label for="id_scans" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -739,39 +757,42 @@
                 </div>
             </div>
         </form>
-    </div>
 
-    <!-- Validation Alert Modal -->
-    <flux:modal name="validation-alert" wire:model="showValidationModal" class="max-w-md">
-        <div class="space-y-4">
-            <flux:heading size="lg" class="text-red-600 dark:text-red-400">
-                <x-flux::icon.exclamation-triangle class="w-6 h-6 mr-2" />
-                Required Information Missing
-            </flux:heading>
-            
-            <p class="text-slate-700 dark:text-slate-300">
-                Please fill in all required fields before creating the maid profile.
-            </p>
-            
-            @if($errors->any())
-                <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
-                    <h4 class="font-semibold text-red-800 dark:text-red-200 mb-2">Missing Required Fields:</h4>
-                    <ul class="text-sm text-red-700 dark:text-red-300 space-y-1">
-                        @foreach($errors->all() as $error)
-                            <li class="flex items-center">
-                                <x-flux::icon.x-mark class="w-4 h-4 mr-2 flex-shrink-0" />
-                                {{ $error }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
-            
-            <div class="flex items-center justify-end gap-3">
-                <flux:button variant="primary" wire:click="closeValidationModal">
-                    I Understand
-                </flux:button>
+        <!-- Validation Alert Modal -->
+        @if($showValidationModal ?? false)
+            <div wire:ignore>
+                <flux:modal name="validation-alert" wire:model="showValidationModal" class="max-w-md">
+                    <div class="space-y-4">
+                        <flux:heading size="lg" class="text-red-600 dark:text-red-400">
+                            <x-flux::icon.exclamation-triangle class="w-6 h-6 mr-2" />
+                            Required Information Missing
+                        </flux:heading>
+                        
+                        <p class="text-slate-700 dark:text-slate-300">
+                            Please fill in all required fields before creating the maid profile.
+                        </p>
+                        
+                        @if($errors->any())
+                            <div class="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4">
+                                <h4 class="font-semibold text-red-800 dark:text-red-200 mb-2">Missing Required Fields:</h4>
+                                <ul class="text-sm text-red-700 dark:text-red-300 space-y-1">
+                                    @foreach($errors->all() as $error)
+                                        <li class="flex items-center">
+                                            <x-flux::icon.x-mark class="w-4 h-4 mr-2 flex-shrink-0" />
+                                            {{ $error }}
+                                        </li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                        
+                        <div class="flex items-center justify-end gap-3">
+                            <flux:button variant="primary" wire:click="closeValidationModal">
+                                I Understand
+                            </flux:button>
+                        </div>
+                    </div>
+                </flux:modal>
             </div>
-        </div>
-    </flux:modal>
-</div>
+        @endif
+    </div>

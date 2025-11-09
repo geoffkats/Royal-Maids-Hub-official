@@ -4,7 +4,7 @@
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-3">
                 <div class="rounded-full bg-[#F5B301] p-2">
-                    <flux:icon.calendar-plus class="size-6 text-[#3B0A45]" />
+                    <flux:icon.calendar class="size-6 text-[#3B0A45]" />
                 </div>
                 <div>
                     <flux:heading size="xl" class="text-white">{{ __('Create Booking') }}</flux:heading>

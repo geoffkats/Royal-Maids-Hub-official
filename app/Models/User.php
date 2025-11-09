@@ -77,4 +77,12 @@ class User extends Authenticatable
     {
         return $this->hasMany(Ticket::class, 'assigned_to');
     }
+
+    /**
+     * Get the trainer profile for this user
+     */
+    public function trainer()
+    {
+        return $this->hasOne(Trainer::class);
+    }
 }

@@ -165,5 +165,23 @@ class DatabaseSeeder extends Seeder
         
         // Seed tickets with various scenarios (tier-based, on-behalf, etc.)
         $this->call(\Database\Seeders\TicketSeeder::class);
+        
+        // Seed CRM data (sources, pipelines, stages, tags, sample leads)
+        $this->call(\Database\Seeders\CRMSeeder::class);
+        
+        // Seed CRM reports data (historical data for better analytics)
+        $this->call(\Database\Seeders\CRMReportsSeeder::class);
+        
+        // Seed CRM tags and relationships
+        $this->call(\Database\Seeders\CRMTagsSeeder::class);
+        
+        // Seed CRM settings
+        $this->call(\Database\Seeders\CRMSettingsSeeder::class);
+        
+        $this->call(\Database\Seeders\DeploymentSeeder::class);
+
+        $this->call(\Database\Seeders\PackageSeeder::class);
+        
+        
     }
 }

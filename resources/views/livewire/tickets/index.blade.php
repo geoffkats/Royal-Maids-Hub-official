@@ -196,15 +196,42 @@
                         </span>
                     </td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-[#D1C4E9]">
-                        @if($ticket->client)
-                            <div>{{ $ticket->client->contact_person }}</div>
-                            <div class="text-xs text-[#D1C4E9]/70">Client</div>
-                        @elseif($ticket->maid)
-                            <div>{{ $ticket->maid->first_name }} {{ $ticket->maid->last_name }}</div>
-                            <div class="text-xs text-[#D1C4E9]/70">Maid</div>
-                        @else
-                            <span class="text-[#D1C4E9]/50">—</span>
-                        @endif
+                            @php
+                                $badge = $ticket->getRequesterTypeBadge();
+                                $badgeColors = [
+                                    'blue' => 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
+                                    'purple' => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700',
+                                    'green' => 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700',
+                                    'zinc' => 'bg-zinc-100 text-zinc-800 border-zinc-300 dark:bg-zinc-900/30 dark:text-zinc-300 dark:border-zinc-700',
+                                ];
+                            @endphp
+                            <div class="flex flex-col gap-1">
+                                @if($ticket->requester)
+                                    <div class="text-white font-medium">
+                                        @if($ticket->requester_type === 'lead')
+                                            {{ $ticket->requester->full_name }}
+                                        @elseif($ticket->requester_type === 'client')
+                                            {{ $ticket->requester->contact_person }}
+                                        @elseif($ticket->requester_type === 'maid')
+                                            {{ $ticket->requester->first_name }} {{ $ticket->requester->last_name }}
+                                        @elseif($ticket->requester_type === 'user')
+                                            {{ $ticket->requester->name }}
+                                        @else
+                                            {{ $ticket->requester->name ?? 'Unknown' }}
+                                        @endif
+                                    </div>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border {{ $badgeColors[$badge['color']] }}">
+                                        {{ $badge['label'] }}
+                                        @if($ticket->isPreSalesTicket())
+                                            <svg class="w-3 h-3 ml-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                            </svg>
+                                        @endif
+                                    </span>
+                                @else
+                                    <span class="text-[#D1C4E9]/50">—</span>
+                                @endif
+                            </div>
                     </td>
                     <td class="px-4 py-3 whitespace-nowrap text-sm text-[#D1C4E9]">
                         @if($ticket->assignedTo)

@@ -341,8 +341,31 @@ select:focus[data-flux-control] {
     background: var(--color-brand-secondary) !important;
     border: 1px solid var(--color-brand-accent) !important;
     border-radius: 12px !important;
-    overflow: hidden !important;
+    overflow-x: auto !important;
+    overflow-y: hidden !important;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-brand-accent) rgba(245, 179, 1, 0.2);
+}
+
+/* Custom scrollbar for webkit browsers */
+.table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: rgba(245, 179, 1, 0.1);
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: var(--color-brand-accent);
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: color-mix(in srgb, var(--color-brand-accent) 80%, black);
 }
 
 /* Table Headers */

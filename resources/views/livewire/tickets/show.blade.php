@@ -180,6 +180,54 @@
                 <h3 class="text-lg font-semibold text-white mb-4">Related Entities</h3>
                 
                 <div class="space-y-3 text-sm">
+                        <!-- Requester Information -->
+                        @if($ticket->requester)
+                            @php
+                                $badge = $ticket->getRequesterTypeBadge();
+                                $badgeColors = [
+                                    'blue' => 'bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700',
+                                    'purple' => 'bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-900/30 dark:text-purple-300 dark:border-purple-700',
+                                    'green' => 'bg-green-100 text-green-800 border-green-300 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700',
+                                    'zinc' => 'bg-zinc-100 text-zinc-800 border-zinc-300 dark:bg-zinc-900/30 dark:text-zinc-300 dark:border-zinc-700',
+                                ];
+                            @endphp
+                            <div class="pb-3 border-b border-[#F5B301]/20">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <span class="text-[#D1C4E9]">Requester:</span>
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border {{ $badgeColors[$badge['color']] }}">
+                                        {{ $badge['label'] }}
+                                    </span>
+                                    @if($ticket->isPreSalesTicket())
+                                        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700">
+                                            <svg class="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                                            </svg>
+                                            Pre-Sales
+                                        </span>
+                                    @endif
+                                </div>
+                                <div class="ml-6">
+                                    @if($ticket->requester_type === 'lead')
+                                        <a href="{{ route('crm.leads.show', $ticket->requester) }}" class="text-[#64B5F6] hover:text-[#F5B301]">
+                                            {{ $ticket->requester->full_name }}
+                                        </a>
+                                    @elseif($ticket->requester_type === 'client')
+                                        <a href="{{ route('clients.show', $ticket->requester) }}" class="text-[#64B5F6] hover:text-[#F5B301]">
+                                            {{ $ticket->requester->contact_person }}
+                                        </a>
+                                    @elseif($ticket->requester_type === 'maid')
+                                        <a href="{{ route('maids.show', $ticket->requester) }}" class="text-[#64B5F6] hover:text-[#F5B301]">
+                                            {{ $ticket->requester->first_name }} {{ $ticket->requester->last_name }}
+                                        </a>
+                                    @elseif($ticket->requester_type === 'user')
+                                        <span class="text-white">{{ $ticket->requester->name }}</span>
+                                    @else
+                                        <span class="text-white">{{ $ticket->requester->name ?? 'Unknown' }}</span>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
+
                     @if($ticket->client)
                         <div>
                             <span class="text-[#D1C4E9]">Client:</span>

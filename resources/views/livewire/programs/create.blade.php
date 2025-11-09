@@ -1,20 +1,26 @@
-<div class="space-y-6">
-    <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-            <flux:heading size="xl">{{ __('New Training Program') }}</flux:heading>
-            <flux:subheading class="mt-1">{{ __('Create a new training program assignment') }}</flux:subheading>
+<div class="min-h-screen bg-[#3B0A45] dark:bg-[#3B0A45] p-6">
+        <!-- Header Section -->
+        <div class="bg-gradient-to-r from-[#3B0A45] to-[#512B58] border border-[#F5B301]/30 rounded-xl p-6 shadow-lg mb-6">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-[#F5B301] to-[#FF9800] rounded-lg flex items-center justify-center">
+                        <flux:icon.academic-cap class="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                        <flux:heading size="xl" class="text-white">{{ __('New Training Program') }}</flux:heading>
+                        <flux:subheading class="mt-1 text-[#D1C4E9]">{{ __('Create a new training program assignment') }}</flux:subheading>
+                    </div>
+                </div>
+
+                <flux:button as="a" :href="route('programs.index')" variant="ghost" icon="arrow-left" class="text-[#D1C4E9] hover:text-white hover:bg-[#F5B301]/20">
+                    {{ __('Back') }}
+                </flux:button>
+            </div>
         </div>
 
-        <flux:button as="a" :href="route('programs.index')" variant="ghost" icon="arrow-left">
-            {{ __('Back') }}
-        </flux:button>
-    </div>
-
-    <flux:separator variant="subtle" />
-
-    <form wire:submit.prevent="save" class="space-y-6">
-        <div class="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-700 dark:bg-neutral-800">
-            <flux:heading size="lg" class="mb-4">{{ __('Program Details') }}</flux:heading>
+        <form wire:submit.prevent="save" class="space-y-6">
+            <div class="bg-[#512B58] border border-[#F5B301]/30 rounded-xl p-6 shadow-lg">
+                <flux:heading size="lg" class="mb-4 text-white">{{ __('Program Details') }}</flux:heading>
             
             <div class="grid gap-4 md:grid-cols-2">
                 <flux:select wire:model.defer="trainer_id" :label="__('Trainer')" required>
@@ -51,13 +57,13 @@
             </div>
         </div>
 
-        <div class="flex justify-end gap-2">
-            <flux:button as="a" :href="route('programs.index')" variant="ghost">
-                {{ __('Cancel') }}
-            </flux:button>
-            <flux:button type="submit" variant="primary" icon="check">
-                {{ __('Create Program') }}
-            </flux:button>
-        </div>
-    </form>
+            <div class="flex justify-end gap-3 pt-6 border-t border-[#F5B301]/20">
+                <flux:button as="a" :href="route('programs.index')" variant="ghost" class="text-[#D1C4E9] hover:text-white hover:bg-[#F5B301]/20">
+                    {{ __('Cancel') }}
+                </flux:button>
+                <flux:button type="submit" variant="primary" icon="check" class="bg-[#F5B301] hover:bg-[#F5B301]/80 text-[#3B0A45] font-medium">
+                    {{ __('Create Program') }}
+                </flux:button>
+            </div>
+        </form>
 </div>

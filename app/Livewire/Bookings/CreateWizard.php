@@ -5,6 +5,7 @@ namespace App\Livewire\Bookings;
 use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Maid;
+use App\Services\CRM\BookingToLeadService;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -15,7 +16,7 @@ class CreateWizard extends Component
     use AuthorizesRequests, WithFileUploads;
 
     // Mode detection
-    public ?Booking $booking = null; // If set, we're editing
+    public ?Booking $booking = null;
     public bool $isEditing = false;
 
     // Wizard state
@@ -23,16 +24,8 @@ class CreateWizard extends Component
     public int $totalSteps = 4;
     public bool $showValidationModal = false;
 
-    // Original V3.0 fields
+    // Step 1: Contact Information
     public $client_id = '';
-    public $maid_id = '';
-    public $booking_type = 'long-term';
-    public $start_date = '';
-    public $end_date = '';
-    public $status = 'pending';
-    public $notes = '';
-
-    // Section 1: Contact Information
     public $full_name = '';
     public $phone = '';
     public $email = '';
@@ -44,14 +37,14 @@ class CreateWizard extends Component
     public $national_id_path = '';
     public $existing_national_id_path = '';
 
-    // Section 2: Home & Environment
+    // Step 2: Home & Environment
     public $home_type = '';
     public $bedrooms = 0;
     public $bathrooms = 0;
     public $outdoor_responsibilities = [];
     public $appliances = [];
 
-    // Section 3: Household Composition
+    // Step 3: Household Composition
     public $adults = 1;
     public $has_children = 'No';
     public $children_ages = '';
@@ -61,7 +54,7 @@ class CreateWizard extends Component
     public $language = '';
     public $language_other = '';
 
-    // Section 4: Job Role & Expectations
+    // Step 4: Job Role & Expectations
     public $service_tier = '';
     public $service_mode = '';
     public $work_days = [];
@@ -73,17 +66,30 @@ class CreateWizard extends Component
     public $unspoken_rules = '';
     public $anything_else = '';
 
+    // Basic booking fields
+    public $maid_id = '';
+    public $booking_type = 'long-term';
+    public $start_date = '';
+    public $end_date = '';
+    public $status = 'pending';
+    public $notes = '';
+
     public function mount(?Booking $booking = null): void
     {
-        // Determine if we're editing
-        if ($booking && $booking->exists) {
-            $this->isEditing = true;
-            $this->booking = $booking->load(['maid']);
-            $this->authorize('update', $this->booking);
-            $this->loadBookingData();
-        } else {
-            $this->authorize('create', Booking::class);
-            $this->loadClientData();
+        try {
+            // Determine if we're editing
+            if ($booking && $booking->exists) {
+                $this->isEditing = true;
+                $this->booking = $booking->load(['maid']);
+                $this->authorize('update', $this->booking);
+                $this->loadBookingData();
+            } else {
+                $this->authorize('create', Booking::class);
+                $this->loadClientData();
+            }
+        } catch (\Exception $e) {
+            \Log::error('Error in CreateWizard mount: ' . $e->getMessage());
+            // Don't rethrow the exception, let the component load
         }
     }
 
@@ -92,51 +98,67 @@ class CreateWizard extends Component
      */
     protected function loadBookingData(): void
     {
-        // Load all fields from existing booking
+        if (!$this->booking) return;
+
+        // Load basic booking data
         $this->maid_id = $this->booking->maid_id;
+        $this->booking_type = $this->booking->booking_type;
         $this->start_date = $this->booking->start_date?->format('Y-m-d');
         $this->end_date = $this->booking->end_date?->format('Y-m-d');
-        $this->status = $this->booking->status;
         $this->notes = $this->booking->notes;
-        
-        // Section 1: Contact
-        $this->full_name = $this->booking->full_name;
-        $this->phone = $this->booking->phone;
-        $this->email = $this->booking->email;
-        $this->country = $this->booking->country;
-        $this->city = $this->booking->city;
-        $this->division = $this->booking->division;
-        $this->parish = $this->booking->parish;
-        $this->existing_national_id_path = $this->booking->national_id_path;
-        
-        // Section 2: Home
-        $this->home_type = $this->booking->home_type;
-        $this->bedrooms = $this->booking->bedrooms;
-        $this->bathrooms = $this->booking->bathrooms;
-        $this->outdoor_responsibilities = $this->booking->outdoor_responsibilities ?? [];
-        $this->appliances = $this->booking->appliances ?? [];
-        
-        // Section 3: Household
-        $this->adults = $this->booking->adults;
-        $this->has_children = $this->booking->has_children;
-        $this->children_ages = $this->booking->children_ages;
-        $this->has_elderly = $this->booking->has_elderly;
-        $this->pets = $this->booking->pets;
-        $this->pet_kind = $this->booking->pet_kind;
-        $this->language = $this->booking->language;
-        $this->language_other = $this->booking->language_other;
-        
-        // Section 4: Job Expectations
-        $this->service_tier = $this->booking->service_tier;
-        $this->service_mode = $this->booking->service_mode;
-        $this->work_days = $this->booking->work_days ?? [];
-        $this->working_hours = $this->booking->working_hours;
-        $this->responsibilities = $this->booking->responsibilities ?? [];
-        $this->cuisine_type = $this->booking->cuisine_type;
-        $this->atmosphere = $this->booking->atmosphere;
-        $this->manage_tasks = $this->booking->manage_tasks;
-        $this->unspoken_rules = $this->booking->unspoken_rules;
-        $this->anything_else = $this->booking->anything_else;
+
+        // National ID
+        $this->existing_national_id_path = $this->booking->national_id_path ?? '';
+        $this->national_id_path = $this->existing_national_id_path;
+
+        // Load client data
+        $client = $this->booking->client;
+        if ($client) {
+            $this->client_id = $client->id;
+            $this->full_name = $client->contact_person;
+            $this->phone = $client->phone;
+            $this->email = $client->user?->email ?? '';
+            $this->city = $client->city ?? '';
+            $this->division = $client->district ?? '';
+            // parish stored on booking snapshot if provided later
+        }
+
+        // Fallback to booking snapshot values if available
+        $this->full_name = $this->full_name ?: ($this->booking->full_name ?? '');
+        $this->phone = $this->phone ?: ($this->booking->phone ?? '');
+        $this->email = $this->email ?: ($this->booking->email ?? '');
+        $this->country = $this->booking->country ?? $this->country;
+        $this->city = $this->city ?: ($this->booking->city ?? '');
+        $this->division = $this->division ?: ($this->booking->division ?? '');
+        $this->parish = $this->booking->parish ?? '';
+
+        // Home & environment
+        $this->home_type = $this->booking->home_type ?? '';
+        $this->bedrooms = $this->booking->bedrooms ?? 0;
+        $this->bathrooms = $this->booking->bathrooms ?? 0;
+        $this->outdoor_responsibilities = is_array($this->booking->outdoor_responsibilities) ? $this->booking->outdoor_responsibilities : [];
+        $this->appliances = is_array($this->booking->appliances) ? $this->booking->appliances : [];
+
+        // Household
+        $this->adults = $this->booking->adults ?? 1;
+        $this->has_children = $this->booking->has_children ?? 'No';
+        $this->children_ages = $this->booking->children_ages ?? '';
+        $this->has_elderly = $this->booking->has_elderly ?? 'No';
+        $this->pets = $this->booking->pets ?? 'No';
+        $this->pet_kind = $this->booking->pet_kind ?? '';
+        $this->language = $this->booking->language ?? '';
+        $this->language_other = $this->booking->language_other ?? '';
+
+        // Expectations
+        $this->service_tier = $this->booking->service_tier ?? '';
+        $this->service_mode = $this->booking->service_mode ?? '';
+        $this->work_days = is_array($this->booking->work_days) ? $this->booking->work_days : [];
+        $this->working_hours = $this->booking->working_hours ?? '';
+        $this->responsibilities = is_array($this->booking->responsibilities) ? $this->booking->responsibilities : [];
+        $this->atmosphere = $this->booking->atmosphere ?? '';
+        $this->unspoken_rules = $this->booking->unspoken_rules ?? '';
+        $this->anything_else = $this->booking->anything_else ?? '';
+        $this->status = $this->booking->status ?? $this->status;
     }
 
     /**
@@ -144,29 +166,32 @@ class CreateWizard extends Component
      */
     protected function loadClientData(): void
     {
-        
-        // If user is a client, pre-populate contact information
-        if (auth()->user()->role === 'client') {
-            $client = Client::where('user_id', auth()->id())->first();
-            
-            // Create client record if it doesn't exist
-            if (!$client) {
-                $client = Client::create([
-                    'user_id' => auth()->id(),
-                    'contact_person' => auth()->user()->name,
-                    'phone' => '',
-                    'address' => '',
-                    'subscription_tier' => 'basic',
-                    'status' => 'active',
-                ]);
+        try {
+            // If user is a client, pre-populate contact information
+            if (auth()->user()->role === 'client') {
+                $client = Client::where('user_id', auth()->id())->first();
+                
+                // Create client record if it doesn't exist
+                if (!$client) {
+                    $client = Client::create([
+                        'user_id' => auth()->id(),
+                        'contact_person' => auth()->user()->name,
+                        'phone' => '',
+                        'address' => '',
+                        'subscription_tier' => 'basic',
+                        'status' => 'active',
+                    ]);
+                }
+                
+                if ($client) {
+                    $this->client_id = $client->id;
+                    $this->full_name = $client->contact_person ?? auth()->user()->name;
+                    $this->phone = $client->phone ?? '';
+                    $this->email = $client->user?->email ?? auth()->user()->email;
+                }
             }
-            
-            if ($client) {
-                $this->client_id = $client->id;
-                $this->full_name = $client->contact_person ?? auth()->user()->name;
-                $this->phone = $client->phone ?? '';
-                $this->email = $client->user->email ?? auth()->user()->email;
-            }
+        } catch (\Exception $e) {
+            \Log::error('Error in loadClientData: ' . $e->getMessage());
         }
     }
 
@@ -175,15 +200,10 @@ class CreateWizard extends Component
      */
     public function nextStep(): void
     {
-        try {
-            $this->validateCurrentStep();
-            
+        if ($this->validateCurrentStep()) {
             if ($this->currentStep < $this->totalSteps) {
                 $this->currentStep++;
             }
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            $this->showValidationModal = true;
-            throw $e;
         }
     }
 
@@ -198,15 +218,7 @@ class CreateWizard extends Component
     }
 
     /**
-     * Close validation modal
-     */
-    public function closeValidationModal(): void
-    {
-        $this->showValidationModal = false;
-    }
-
-    /**
-     * Go directly to a specific step (if already validated)
+     * Jump to specific step
      */
     public function goToStep(int $step): void
     {
@@ -216,173 +228,161 @@ class CreateWizard extends Component
     }
 
     /**
-     * Validate current step before proceeding
+     * Validate current step
      */
-    protected function validateCurrentStep(): void
+    protected function validateCurrentStep(): bool
     {
-        $rules = match ($this->currentStep) {
-            1 => $this->getStep1Rules(),
-            2 => $this->getStep2Rules(),
-            3 => $this->getStep3Rules(),
-            4 => $this->getStep4Rules(),
-            default => [],
-        };
-
-        $this->validate($rules);
+        try {
+            switch ($this->currentStep) {
+                case 1:
+                    $this->validate([
+                        'full_name' => 'required|string|max:255',
+                        'phone' => 'required|string|max:20',
+                        'email' => 'required|email|max:255',
+                        'city' => 'required|string|max:255',
+                        'division' => 'required|string|max:255',
+                    ]);
+                    break;
+                case 2:
+                    $this->validate([
+                        'home_type' => 'required|string',
+                        'bedrooms' => 'required|integer|min:0',
+                        'bathrooms' => 'required|integer|min:0',
+                    ]);
+                    break;
+                case 3:
+                    $this->validate([
+                        'adults' => 'required|integer|min:1',
+                        'has_children' => 'required|in:Yes,No',
+                        'has_elderly' => 'required|in:Yes,No',
+                        'pets' => 'required|in:Yes,No',
+                    ]);
+                    break;
+                case 4:
+                    $this->validate([
+                        'service_tier' => 'required|string',
+                        'service_mode' => 'required|string',
+                        'working_hours' => 'required|string',
+                        'work_days' => 'required|array|min:1',
+                    ]);
+                    break;
+            }
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('Validation error in step ' . $this->currentStep . ': ' . $e->getMessage());
+            return false;
+        }
     }
 
     /**
-     * Step 1: Contact Information validation rules
-     */
-    protected function getStep1Rules(): array
-    {
-        return [
-            'full_name' => 'required|string|max:100',
-            'phone' => 'required|string|max:20',
-            'email' => 'required|email|max:100',
-            'country' => 'required|string|max:50',
-            'city' => 'required|string|max:50',
-            'division' => 'required|string|max:50',
-            'parish' => 'required|string|max:50',
-            'national_id' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048', // 2MB max
-        ];
-    }
-
-    /**
-     * Step 2: Home & Environment validation rules
-     */
-    protected function getStep2Rules(): array
-    {
-        return [
-            'home_type' => 'required|string|max:50',
-            'bedrooms' => 'required|integer|min:0',
-            'bathrooms' => 'required|integer|min:0',
-            'outdoor_responsibilities' => 'nullable|array',
-            'appliances' => 'nullable|array',
-        ];
-    }
-
-    /**
-     * Step 3: Household Composition validation rules
-     */
-    protected function getStep3Rules(): array
-    {
-        return [
-            'adults' => 'required|integer|min:1',
-            'has_children' => 'required|in:Yes,No',
-            'children_ages' => 'required_if:has_children,Yes|nullable|string|max:255',
-            'has_elderly' => 'required|in:Yes,No',
-            'pets' => 'required|string|max:100',
-            'pet_kind' => 'required_if:pets,Yes with duties,Yes no duties|nullable|string|max:100',
-            'language' => 'required|string|max:50',
-            'language_other' => 'required_if:language,Other|nullable|string|max:100',
-        ];
-    }
-
-    /**
-     * Step 4: Job Role & Expectations validation rules
-     */
-    protected function getStep4Rules(): array
-    {
-        return [
-            'service_tier' => 'required|in:Silver,Gold,Platinum',
-            'service_mode' => 'required|in:Live-in,Live-out',
-            'work_days' => 'required|array|min:1',
-            'working_hours' => 'required|string|max:100',
-            'responsibilities' => 'required|array|min:1',
-            'cuisine_type' => 'required|string|max:50',
-            'atmosphere' => 'required|string|max:50',
-            'manage_tasks' => 'required|string|max:100',
-            'unspoken_rules' => 'nullable|string|max:1000',
-            'anything_else' => 'nullable|string|max:2000',
-            'start_date' => 'required|date|after_or_equal:today',
-            'end_date' => 'nullable|date|after:start_date',
-        ];
-    }
-
-    /**
-     * Submit the complete booking form
+     * Submit the final form
      */
     public function submit(): void
     {
-        // Validate all steps
-        $this->validate(array_merge(
-            $this->getStep1Rules(),
-            $this->getStep2Rules(),
-            $this->getStep3Rules(),
-            $this->getStep4Rules()
-        ));
+        try {
+            // Validate all steps
+            if (!$this->validateAllSteps()) {
+                $this->showValidationModal = true;
+                return;
+            }
 
-        if ($this->isEditing) {
-            $this->updateBooking();
-        } else {
-            $this->createBooking();
+            // Create or update booking
+            if ($this->isEditing) {
+                $this->updateBooking();
+            } else {
+                $this->createBooking();
+            }
+
+            session()->flash('success', $this->isEditing ? __('Booking updated successfully.') : __('Booking created successfully.'));
+            $this->redirect(route('bookings.index'), navigate: true);
+        } catch (\Exception $e) {
+            \Log::error('Error in submit: ' . $e->getMessage());
+            session()->flash('error', 'An error occurred while saving the booking.');
         }
     }
 
     /**
-     * Create a new booking
+     * Validate all steps
+     */
+    protected function validateAllSteps(): bool
+    {
+        try {
+            $this->validate([
+                'full_name' => 'required|string|max:255',
+                'phone' => 'required|string|max:20',
+                'email' => 'required|email|max:255',
+                'city' => 'required|string|max:255',
+                'division' => 'required|string|max:255',
+                'home_type' => 'required|string',
+                'bedrooms' => 'required|integer|min:0',
+                'bathrooms' => 'required|integer|min:0',
+                'adults' => 'required|integer|min:1',
+                'has_children' => 'required|in:Yes,No',
+                'has_elderly' => 'required|in:Yes,No',
+                'pets' => 'required|in:Yes,No',
+                'service_tier' => 'required|string',
+                'service_mode' => 'required|string',
+                'working_hours' => 'required|string',
+                'work_days' => 'required|array|min:1',
+                'maid_id' => 'required|exists:maids,id',
+                'booking_type' => 'required|in:brokerage,long-term,part-time,full-time',
+                'start_date' => 'required|date|after_or_equal:today',
+                'end_date' => 'nullable|date|after:start_date',
+            ]);
+            return true;
+        } catch (\Exception $e) {
+            \Log::error('Validation error in submit: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Create new booking using lead-first approach
      */
     protected function createBooking(): void
     {
-        // Handle file upload
-        if ($this->national_id) {
-            $this->national_id_path = $this->national_id->store('national-ids', 'public');
-        }
+        // Prepare booking data for lead service
+        $bookingData = [
+            'full_name' => $this->full_name,
+            'email' => $this->email,
+            'phone' => $this->phone,
+            'city' => $this->city,
+            'division' => $this->division,
+            'parish' => $this->parish,
+            'address' => $this->parish ?? $this->city,
+        ];
 
-        // Ensure we have a client_id (create client if needed)
-        if (!$this->client_id) {
-            // Check if a client exists with this email
-            $user = \App\Models\User::where('email', $this->email)->first();
-            
-            if ($user && $user->role === 'client') {
-                $client = Client::where('user_id', $user->id)->first();
-                if ($client) {
-                    $this->client_id = $client->id;
-                }
-            }
-            
-            // If still no client, create one
-            if (!$this->client_id) {
-                // Create user account if doesn't exist
-                if (!$user) {
-                    $user = \App\Models\User::create([
-                        'name' => $this->full_name,
-                        'email' => $this->email,
-                        'password' => bcrypt(str()->random(16)), // Random password
-                        'role' => 'client',
-                        'email_verified_at' => now(),
-                    ]);
-                }
-                
-                // Create client record
-                $client = Client::create([
-                    'user_id' => $user->id,
-                    'contact_person' => $this->full_name,
-                    'phone' => $this->phone,
-                    'address' => "{$this->division}, {$this->city}, {$this->country}",
-                    'city' => $this->city,
-                    'district' => $this->division,
-                    'subscription_tier' => 'basic',
-                    'subscription_status' => 'active',
-                ]);
-                
-                $this->client_id = $client->id;
-            }
-        }
+        // Use BookingToLeadService to find or create lead
+        $bookingToLeadService = app(BookingToLeadService::class);
+        $lead = $bookingToLeadService->findOrCreateLeadFromBooking($bookingData);
 
-        // Create booking with all data
-        $booking = Booking::create([
-            // Original V3.0 fields
-            'client_id' => $this->client_id,
-            'maid_id' => $this->maid_id ?: null,
+        // Determine client_id
+        $clientId = null;
+        
+        // If client_id was explicitly selected by admin/staff, use it
+        if (!empty($this->client_id)) {
+            $clientId = $this->client_id;
+            // Link lead to this client if not already linked
+            if (!$lead->client_id) {
+                $lead->update(['client_id' => $clientId, 'status' => 'qualified']);
+            }
+        } elseif ($lead->client_id) {
+            // Lead is already linked to a client (from duplicate detection)
+            $clientId = $lead->client_id;
+        }
+        
+        // Create booking linked to lead (and optionally client)
+        Booking::create([
+            'lead_id' => $lead->id, // Link to lead
+            'client_id' => $clientId, // May be null initially, set when lead converts to client
+            'maid_id' => $this->maid_id,
             'booking_type' => $this->booking_type,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-            'status' => 'pending', // Always start as pending
+            'status' => $this->status ?? 'pending',
             'notes' => $this->notes,
 
-            // Section 1: Contact Information
+            // Contact snapshot
             'full_name' => $this->full_name,
             'phone' => $this->phone,
             'email' => $this->email,
@@ -390,16 +390,15 @@ class CreateWizard extends Component
             'city' => $this->city,
             'division' => $this->division,
             'parish' => $this->parish,
-            'national_id_path' => $this->national_id_path,
 
-            // Section 2: Home & Environment
+            // Home & environment
             'home_type' => $this->home_type,
             'bedrooms' => $this->bedrooms,
             'bathrooms' => $this->bathrooms,
             'outdoor_responsibilities' => $this->outdoor_responsibilities,
             'appliances' => $this->appliances,
 
-            // Section 3: Household Composition
+            // Household
             'adults' => $this->adults,
             'has_children' => $this->has_children,
             'children_ages' => $this->children_ages,
@@ -409,30 +408,16 @@ class CreateWizard extends Component
             'language' => $this->language,
             'language_other' => $this->language_other,
 
-            // Section 4: Job Role & Expectations
+            // Expectations
             'service_tier' => $this->service_tier,
             'service_mode' => $this->service_mode,
             'work_days' => $this->work_days,
             'working_hours' => $this->working_hours,
             'responsibilities' => $this->responsibilities,
-            'cuisine_type' => $this->cuisine_type,
             'atmosphere' => $this->atmosphere,
-            'manage_tasks' => $this->manage_tasks,
             'unspoken_rules' => $this->unspoken_rules,
             'anything_else' => $this->anything_else,
         ]);
-
-        // Update client counters if client_id exists
-        if ($this->client_id) {
-            $client = Client::find($this->client_id);
-            if ($client) {
-                $client->increment('total_bookings');
-                $client->increment('active_bookings');
-            }
-        }
-
-        session()->flash('success', __('Booking request submitted successfully! We will review and assign a maid soon.'));
-        $this->redirect(route('bookings.show', $booking), navigate: true);
     }
 
     /**
@@ -440,41 +425,21 @@ class CreateWizard extends Component
      */
     protected function updateBooking(): void
     {
-        $data = $this->getBookingData();
+        if (!$this->booking) return;
 
-        // Handle file upload if new file provided
-        if ($this->national_id) {
-            $path = $this->national_id->store('national-ids', 'public');
-            $data['national_id_path'] = $path;
-            
-            // Delete old file if exists
-            if ($this->existing_national_id_path) {
-                \Storage::disk('public')->delete($this->existing_national_id_path);
-            }
-        }
-
-        $this->booking->update($data);
-
-        session()->flash('success', __('Booking updated successfully!'));
-        $this->redirect(route('bookings.show', $this->booking), navigate: true);
-    }
-
-    /**
-     * Get booking data array
-     */
-    protected function getBookingData(): array
-    {
-        return [
-            // Original V3.0 fields
-            'client_id' => $this->client_id,
-            'maid_id' => $this->maid_id ?: null,
+        // Update client
+        $this->createOrUpdateClient();
+        
+        // Update booking
+        $this->booking->update([
+            'maid_id' => $this->maid_id,
             'booking_type' => $this->booking_type,
             'start_date' => $this->start_date,
             'end_date' => $this->end_date,
-            'status' => $this->isEditing ? $this->status : 'pending',
+            'status' => $this->status ?? $this->booking->status,
             'notes' => $this->notes,
 
-            // Section 1: Contact Information
+            // Contact snapshot
             'full_name' => $this->full_name,
             'phone' => $this->phone,
             'email' => $this->email,
@@ -482,16 +447,15 @@ class CreateWizard extends Component
             'city' => $this->city,
             'division' => $this->division,
             'parish' => $this->parish,
-            'national_id_path' => $this->national_id_path ?: $this->existing_national_id_path,
 
-            // Section 2: Home & Environment
+            // Home & environment
             'home_type' => $this->home_type,
             'bedrooms' => $this->bedrooms,
             'bathrooms' => $this->bathrooms,
             'outdoor_responsibilities' => $this->outdoor_responsibilities,
             'appliances' => $this->appliances,
 
-            // Section 3: Household Composition
+            // Household
             'adults' => $this->adults,
             'has_children' => $this->has_children,
             'children_ages' => $this->children_ages,
@@ -501,31 +465,52 @@ class CreateWizard extends Component
             'language' => $this->language,
             'language_other' => $this->language_other,
 
-            // Section 4: Job Role & Expectations
+            // Expectations
             'service_tier' => $this->service_tier,
             'service_mode' => $this->service_mode,
             'work_days' => $this->work_days,
             'working_hours' => $this->working_hours,
             'responsibilities' => $this->responsibilities,
-            'cuisine_type' => $this->cuisine_type,
             'atmosphere' => $this->atmosphere,
-            'manage_tasks' => $this->manage_tasks,
             'unspoken_rules' => $this->unspoken_rules,
             'anything_else' => $this->anything_else,
-        ];
+        ]);
     }
 
     /**
-     * Save as draft (optional feature)
+     * Create or update client
      */
-    public function saveDraft(): void
+    protected function createOrUpdateClient(): Client
     {
-        // TODO: Implement draft saving functionality
-        session()->flash('info', __('Draft saved successfully.'));
+        $clientData = [
+            'contact_person' => $this->full_name,
+            'phone' => $this->phone,
+            'city' => $this->city,
+            'district' => $this->division,
+        ];
+
+        if ($this->isEditing && $this->booking) {
+            $client = $this->booking->client;
+            $client->update($clientData);
+            return $client;
+        } else {
+            $clientData['user_id'] = auth()->id();
+            $clientData['subscription_tier'] = 'basic';
+            $clientData['status'] = 'active';
+            return Client::create($clientData);
+        }
     }
 
     /**
-     * Get progress percentage (Livewire computed property)
+     * Close validation modal
+     */
+    public function closeValidationModal(): void
+    {
+        $this->showValidationModal = false;
+    }
+
+    /**
+     * Get progress percentage
      */
     public function getProgressPercentageProperty(): int
     {
@@ -535,13 +520,30 @@ class CreateWizard extends Component
     #[Layout('components.layouts.app')]
     public function render()
     {
-        $maids = Maid::where('status', 'available')->orderBy('first_name')->get();
+        try {
+            $clients = auth()->user()->role === 'admin' 
+                ? Client::with('user')->orderBy('contact_person')->get()
+                : Client::where('user_id', auth()->id())->get();
+                
+            $maids = Maid::where('status', 'available')->orderBy('first_name')->get();
 
-        return view('livewire.bookings.create-wizard', [
-            'maids' => $maids,
-            'title' => $this->isEditing 
-                ? __('Edit Booking #') . $this->booking->id 
-                : __('Create New Booking Request'),
-        ]);
+            return view('livewire.bookings.create-wizard', [
+                'clients' => $clients,
+                'maids' => $maids,
+                'title' => $this->isEditing 
+                    ? __('Edit Booking #') . $this->booking->id 
+                    : __('Create New Booking Request'),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Render error in CreateWizard: ' . $e->getMessage());
+            
+            // Return a simple error view
+            return view('livewire.bookings.create-wizard', [
+                'clients' => collect(),
+                'maids' => collect(),
+                'title' => __('Create New Booking Request'),
+                'error' => $e->getMessage(),
+            ]);
+        }
     }
 }

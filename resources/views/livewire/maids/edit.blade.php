@@ -511,8 +511,14 @@
                             <label for="hepatitis_b_result" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Hepatitis B Test Result
                             </label>
-                            <input type="text" wire:model="hepatitis_b_result" id="hepatitis_b_result" 
-                                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                            <select wire:model="hepatitis_b_result" id="hepatitis_b_result" 
+                                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
+                                <option value="">-- Select Result --</option>
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="pending">Pending</option>
+                                <option value="not_tested">Not Tested</option>
+                            </select>
                             @error('hepatitis_b_result') 
                                 <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
                                     <x-flux::icon.exclamation-triangle class="w-4 h-4" />
@@ -539,8 +545,14 @@
                             <label for="hiv_result" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 HIV Test Result
                             </label>
-                            <input type="text" wire:model="hiv_result" id="hiv_result" 
-                                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                            <select wire:model="hiv_result" id="hiv_result" 
+                                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
+                                <option value="">-- Select Result --</option>
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="pending">Pending</option>
+                                <option value="not_tested">Not Tested</option>
+                            </select>
                             @error('hiv_result') 
                                 <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
                                     <x-flux::icon.exclamation-triangle class="w-4 h-4" />
@@ -567,8 +579,14 @@
                             <label for="urine_hcg_result" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Urine HCG Test Result
                             </label>
-                            <input type="text" wire:model="urine_hcg_result" id="urine_hcg_result" 
-                                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                            <select wire:model="urine_hcg_result" id="urine_hcg_result" 
+                                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
+                                <option value="">-- Select Result --</option>
+                                <option value="positive">Positive</option>
+                                <option value="negative">Negative</option>
+                                <option value="pending">Pending</option>
+                                <option value="not_tested">Not Tested</option>
+                            </select>
                             @error('urine_hcg_result') 
                                 <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
                                     <x-flux::icon.exclamation-triangle class="w-4 h-4" />

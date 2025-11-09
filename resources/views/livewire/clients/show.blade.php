@@ -229,7 +229,12 @@
                     <div>
                         <div class="text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('Plan') }}</div>
                         <div class="mt-1">
-                            <flux:badge size="lg" color="blue">{{ ucfirst($client->subscription_tier) }}</flux:badge>
+                            @if($client->package)
+                                <flux:badge size="lg" color="blue">{{ $client->package->name }}</flux:badge>
+                                <div class="text-xs text-neutral-500 dark:text-neutral-400 mt-1">{{ $client->package->tier }} Tier</div>
+                            @else
+                                <flux:badge size="lg" color="gray">{{ __('No Package Selected') }}</flux:badge>
+                            @endif
                         </div>
                     </div>
 

@@ -15,7 +15,7 @@ class Show extends Component
 
     public function mount(Client $client): void
     {
-        $this->client = $client->load('user');
+        $this->client = $client->load(['user', 'package']);
         $this->authorize('view', $this->client);
     }
 

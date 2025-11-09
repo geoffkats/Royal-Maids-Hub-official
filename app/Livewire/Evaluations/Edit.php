@@ -127,8 +127,21 @@ class Edit extends Component
         ];
     }
 
+    public function updatedStatus($value): void
+    {
+        // Prevent trainers from changing status
+        if (auth()->user()->role === 'trainer' && $value !== 'pending') {
+            $this->status = 'pending';
+        }
+    }
+
     public function update(): void
     {
+        // Ensure trainers can only save pending evaluations
+        if (auth()->user()->role === 'trainer') {
+            $this->status = 'pending';
+        }
+        
         $this->validate();
 
         // Build scores structure

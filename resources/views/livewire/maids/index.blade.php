@@ -13,9 +13,19 @@
             <div>
                     <h1 class="text-3xl font-bold flex items-center gap-3">
                         <x-flux::icon.users class="w-8 h-8" />
-                        {{ __('Maids Management') }}
+                        @if(auth()->user()->role === 'trainer')
+                            {{ __('My Trainees') }}
+                        @else
+                            {{ __('Maids Management') }}
+                        @endif
                     </h1>
-                    <p class="text-indigo-100 mt-2">{{ __('Manage, search and filter your domestic workers') }}</p>
+                    <p class="text-indigo-100 mt-2">
+                        @if(auth()->user()->role === 'trainer')
+                            {{ __('View and manage your assigned trainees') }}
+                        @else
+                            {{ __('Manage, search and filter your domestic workers') }}
+                        @endif
+                    </p>
             </div>
                 <div class="mt-4 md:mt-0 flex items-center gap-3">
                     <a href="{{ route('maids.export.pdf') }}"
@@ -23,18 +33,22 @@
                         <x-flux::icon.document-arrow-down class="w-5 h-5" />
                         {{ __('Export PDF') }}
                     </a>
-            <button wire:click="deleteSelected"
-                @disabled(empty($selected))
-                            wire:confirm="Are you sure you want to delete selected maids?"
-                            class="inline-flex items-center gap-2 px-5 py-3 bg-red-600 border border-red-500 rounded-lg font-semibold text-white hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
-                        <x-flux::icon.trash class="w-5 h-5" />
-                        {{ __('Bulk Delete') }}
-                    </button>
+                    @if(auth()->user()->role === 'admin')
+                    <button wire:click="deleteSelected"
+                        @disabled(empty($selected))
+                                wire:confirm="Are you sure you want to delete selected maids?"
+                                class="inline-flex items-center gap-2 px-5 py-3 bg-red-600 border border-red-500 rounded-lg font-semibold text-white hover:bg-red-700 transition-all duration-200 shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed">
+                            <x-flux::icon.trash class="w-5 h-5" />
+                            {{ __('Bulk Delete') }}
+                        </button>
+                    @endif
+                    @if(auth()->user()->role === 'admin')
                     <a href="{{ route('maids.create') }}" 
                        class="inline-flex items-center gap-2 px-6 py-3 bg-white/20 backdrop-blur-sm border border-white/30 rounded-lg font-semibold text-white hover:bg-white/30 transition-all duration-200 shadow-lg hover:shadow-xl">
                         <x-flux::icon.plus class="w-5 h-5" />
                         {{ __('Add New Maid') }}
                     </a>
+                    @endif
                 </div>
             </div>
         </div>
@@ -197,9 +211,11 @@
             <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
                     <thead class="bg-gradient-to-r from-neutral-50 to-neutral-100 dark:from-neutral-700 dark:to-neutral-800">
                         <tr>
+                        @if(auth()->user()->role === 'admin')
                         <th class="px-4 py-4">
                             <input type="checkbox" wire:model.live="selectPage" class="rounded text-indigo-600 border-neutral-300 dark:border-neutral-600 focus:ring-indigo-500">
                         </th>
+                        @endif
                             <th class="px-6 py-4 text-left text-xs font-semibold uppercase tracking-wider text-neutral-600 dark:text-neutral-300">
                                 <x-flux::icon.identification class="w-4 h-4 inline mr-1" />
                                 {{ __('Code') }}
@@ -237,9 +253,11 @@
                 <tbody class="divide-y divide-neutral-200 dark:divide-neutral-700">
                     @forelse ($maids as $maid)
                             <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-700/50 transition-colors duration-150">
+                                @if(auth()->user()->role === 'admin')
                                 <td class="px-4 py-4">
                                     <input type="checkbox" value="{{ $maid->id }}" wire:model.live="selected" class="rounded text-indigo-600 border-neutral-300 dark:border-neutral-600 focus:ring-indigo-500">
                                 </td>
+                                @endif
                                 <td class="px-6 py-4 whitespace-nowrap">
                                     <div class="flex items-center">
                                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-300">
@@ -320,6 +338,7 @@
                                         <x-flux::icon.eye class="w-4 h-4" />
                                         <span class="sr-only">{{ __('View') }}</span>
                                     </a>
+                                    @if(auth()->user()->role === 'admin')
                                     <a href="{{ route('maids.edit', $maid) }}" 
                                        class="inline-flex items-center justify-center p-2 text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded-md transition-colors duration-150"
                                        title="Edit" aria-label="Edit">
@@ -333,6 +352,7 @@
                                         <x-flux::icon.trash class="w-4 h-4" />
                                         <span class="sr-only">{{ __('Delete') }}</span>
                                     </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>

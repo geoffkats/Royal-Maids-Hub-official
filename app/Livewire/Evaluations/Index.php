@@ -125,6 +125,12 @@ class Index extends Component
 
     public function toggleArchive(int $id): void
     {
+        // Only admins can archive/unarchive evaluations
+        if (auth()->user()->role !== 'admin') {
+            session()->flash('error', __('Only administrators can archive evaluations.'));
+            return;
+        }
+
         $evaluation = Evaluation::with('trainer')->findOrFail($id);
         $this->authorize('update', $evaluation);
 
@@ -140,6 +146,12 @@ class Index extends Component
     public function applyBulkAction(): void
     {
         if (empty($this->selectedIds) || !$this->bulkAction) {
+            return;
+        }
+
+        // Only admins can perform bulk archive actions
+        if (in_array($this->bulkAction, ['archive', 'unarchive']) && auth()->user()->role !== 'admin') {
+            session()->flash('error', __('Only administrators can archive evaluations.'));
             return;
         }
 

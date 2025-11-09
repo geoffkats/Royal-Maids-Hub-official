@@ -3,6 +3,7 @@
 namespace App\Livewire\Clients;
 
 use App\Models\Client;
+use App\Models\Package;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -29,9 +30,13 @@ class Edit extends Component
     public string $contact_person = '';
     public string $phone = '';
     public ?string $secondary_phone = null;
+    public ?string $next_of_kin_name = null;
+    public ?string $next_of_kin_phone = null;
+    public ?string $next_of_kin_relationship = null;
     public string $address = '';
     public string $city = '';
     public string $district = '';
+    public ?int $package_id = null;
     public string $subscription_tier = 'basic';
     public string $subscription_status = 'pending';
 
@@ -48,9 +53,13 @@ class Edit extends Component
         $this->contact_person = $client->contact_person;
         $this->phone = $client->phone;
         $this->secondary_phone = $client->secondary_phone;
+        $this->next_of_kin_name = $client->next_of_kin_name;
+        $this->next_of_kin_phone = $client->next_of_kin_phone;
+        $this->next_of_kin_relationship = $client->next_of_kin_relationship;
         $this->address = $client->address;
         $this->city = $client->city;
         $this->district = $client->district;
+        $this->package_id = $client->package_id;
         $this->subscription_tier = $client->subscription_tier;
         $this->subscription_status = $client->subscription_status;
     }
@@ -67,10 +76,14 @@ class Edit extends Component
             'contact_person' => ['required','string','max:255'],
             'phone' => ['required','string','max:50'],
             'secondary_phone' => ['nullable','string','max:50'],
+            'next_of_kin_name' => ['nullable','string','max:255'],
+            'next_of_kin_phone' => ['nullable','string','max:50'],
+            'next_of_kin_relationship' => ['nullable','string','max:100'],
             'address' => ['required','string'],
             'city' => ['required','string','max:100'],
             'district' => ['required','string','max:100'],
             'company_name' => ['nullable','string','max:255'],
+            'package_id' => ['nullable', 'exists:packages,id'],
             'subscription_tier' => ['required', Rule::in(['basic','premium','enterprise'])],
             'subscription_status' => ['required', Rule::in(['active','expired','pending','cancelled'])],
         ];
@@ -104,9 +117,13 @@ class Edit extends Component
             'contact_person' => $this->contact_person,
             'phone' => $this->phone,
             'secondary_phone' => $this->secondary_phone,
+            'next_of_kin_name' => $this->next_of_kin_name,
+            'next_of_kin_phone' => $this->next_of_kin_phone,
+            'next_of_kin_relationship' => $this->next_of_kin_relationship,
             'address' => $this->address,
             'city' => $this->city,
             'district' => $this->district,
+            'package_id' => $this->package_id,
             'subscription_tier' => $this->subscription_tier,
             'subscription_status' => $this->subscription_status,
         ]);
@@ -120,6 +137,7 @@ class Edit extends Component
     {
         return view('livewire.clients.edit', [
             'title' => __('Edit Client'),
+            'packages' => Package::where('is_active', true)->orderBy('sort_order')->get(),
         ]);
     }
 }
