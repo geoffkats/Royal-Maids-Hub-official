@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    @include('partials.head')
     
-    <title>{{ $title ?? 'Royal Maids Hub' }}</title>
-    
-    <!-- Fonts -->
+    <!-- Additional Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
     
-    <!-- Scripts -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
-    
-    <!-- Favicon -->
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 </head>
 <body class="font-sans antialiased">
+    @php
+        $settings = \App\Models\CompanySetting::current();
+    @endphp
+    
+    <!-- Custom Body Scripts -->
+    @if($settings->body_scripts)
+        {!! $settings->body_scripts !!}
+    @endif
+    
+    <!-- Google Tag Manager (noscript) -->
+    @if($settings->google_tag_manager_id)
+        <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $settings->google_tag_manager_id }}"
+        height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    @endif
     <!-- Navigation Header -->
     <nav class="relative bg-gradient-to-r from-[#512B58]/95 to-[#3B0A45]/95 backdrop-blur-sm shadow-lg sticky top-0 z-50" 
          style="background-image: url('/storage/web-site-images/hero.jpg'); background-size: cover; background-position: center; background-blend-mode: overlay;">
@@ -33,17 +36,17 @@
                 <!-- Logo -->
                 <div class="flex items-center">
                     <a href="{{ route('home') }}" class="flex items-center space-x-3">
-                        <div class="w-12 h-12 bg-gradient-to-br from-[#F5B301] to-[#FFD700] rounded-full flex items-center justify-center shadow-lg">
-                            <img src="/storage/web-site-images/Royal_Maids_Hubjpg-31-removebg-preview.png" 
-                                 alt="Royal Maids Hub" 
-                                 class="w-8 h-8 object-contain"
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
-                            <svg class="w-8 h-8 text-[#512B58] hidden" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
-                            </svg>
-                        </div>
+                        @if($settings->logo_url)
+                            <img src="{{ $settings->logo_url }}" alt="{{ $settings->company_name }}" class="h-12 w-auto object-contain">
+                        @else
+                            <div class="w-12 h-12 bg-gradient-to-br from-[#F5B301] to-[#FFD700] rounded-full flex items-center justify-center shadow-lg">
+                                <svg class="w-8 h-8 text-[#512B58]" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                                </svg>
+                            </div>
+                        @endif
                         <div class="text-white">
-                            <h1 class="text-2xl font-bold">Royal Maids Hub</h1>
+                            <h1 class="text-2xl font-bold">{{ $settings->company_name }}</h1>
                             <p class="text-sm text-[#D1C4E9]">Premium Domestic Services</p>
                         </div>
                     </a>
@@ -333,5 +336,10 @@
     </script>
     @livewireScripts
     @stack('scripts')
+    
+    <!-- Custom Footer Scripts -->
+    @if($settings->footer_scripts)
+        {!! $settings->footer_scripts !!}
+    @endif
 </body>
 </html>

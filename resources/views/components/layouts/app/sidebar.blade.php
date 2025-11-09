@@ -4,16 +4,37 @@
         @include('partials.head')
     </head>
     <body class="min-h-screen bg-[#3B0A45] dark:bg-[#3B0A45]">
+        @php
+            $settings = \App\Models\CompanySetting::current();
+        @endphp
+        
+        <!-- Custom Body Scripts -->
+        @if($settings->body_scripts)
+            {!! $settings->body_scripts !!}
+        @endif
+        
+        <!-- Google Tag Manager (noscript) -->
+        @if($settings->google_tag_manager_id)
+            <noscript><iframe src="https://www.googletagmanager.com/ns.html?id={{ $settings->google_tag_manager_id }}"
+            height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+        @endif
+        
         <flux:sidebar sticky stashable class="border-e border-[#F5B301]/20 bg-gradient-royal dark:bg-gradient-royal">
             <flux:sidebar.toggle class="lg:hidden" icon="x-mark" />
 
-            <!-- Royal Maids Brand Header -->
+            <!-- Company Brand Header -->
             <div class="me-5 flex items-center space-x-3 rtl:space-x-reverse mb-6">
-                <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-gold">
-                    <flux:icon.home-modern class="size-6 text-[#3B0A45]" />
-                </div>
+                @if($settings->logo_dark_url)
+                    <img src="{{ $settings->logo_dark_url }}" alt="{{ $settings->company_name }}" class="h-10 w-auto object-contain">
+                @elseif($settings->logo_url)
+                    <img src="{{ $settings->logo_url }}" alt="{{ $settings->company_name }}" class="h-10 w-auto object-contain">
+                @else
+                    <div class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-gold">
+                        <flux:icon.home-modern class="size-6 text-[#3B0A45]" />
+                    </div>
+                @endif
                 <div class="flex flex-col">
-                    <span class="text-lg font-bold text-white">Royal Maids</span>
+                    <span class="text-lg font-bold text-white">{{ $settings->company_name }}</span>
                     <span class="text-xs text-[#D1C4E9]">Management Hub</span>
                 </div>
             </div>
@@ -113,7 +134,16 @@
                         <flux:navlist.item icon="cog-6-tooth" href="/crm/settings" :current="$is('crm.settings.*')">
                             {{ __('CRM Settings') }}
                         </flux:navlist.item>
-
+                    </flux:navlist.group>
+                    
+                    <!-- System Settings -->
+                    <flux:navlist.group :heading="__('System')" expandable class="mt-4">
+                        <flux:navlist.item icon="building-office-2" href="/settings/company" :current="$is('settings.company')">
+                            {{ __('Company Settings') }}
+                        </flux:navlist.item>
+                    </flux:navlist.group>
+                    
+                    <flux:navlist.group>
                         <!-- CRM Reports -->
                         <flux:navlist.group :heading="__('CRM Reports')" class="mt-4">
                             <flux:navlist.item icon="funnel" :href="$href('crm.reports.funnel')" :current="$is('crm.reports.funnel')">
@@ -371,5 +401,10 @@
         
         <!-- Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        
+        <!-- Custom Footer Scripts -->
+        @if($settings->footer_scripts)
+            {!! $settings->footer_scripts !!}
+        @endif
     </body>
 </html>

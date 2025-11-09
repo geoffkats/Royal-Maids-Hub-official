@@ -238,6 +238,9 @@ Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
     
     Route::get('/crm/settings', \App\Livewire\CRM\Settings\Index::class)->name('crm.settings.index');
     
+    // Company Settings
+    Route::get('/settings/company', \App\Livewire\Settings\CompanySettings::class)->name('settings.company');
+    
     // Contact Form Submissions
     Route::get('/contact-submissions', \App\Livewire\ContactSubmissions::class)->name('contact-submissions.index');
 
