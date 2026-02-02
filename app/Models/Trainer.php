@@ -28,6 +28,21 @@ class Trainer extends Model
         return $this->hasMany(Evaluation::class);
     }
 
+    public function sidebarPermissions()
+    {
+        return $this->hasMany(TrainerSidebarPermission::class);
+    }
+
+    /**
+     * Check if trainer has access to a specific sidebar item.
+     */
+    public function hasAccessTo(string $item): bool
+    {
+        return $this->sidebarPermissions()
+            ->where('sidebar_item', $item)
+            ->exists();
+    }
+
     public function getPhotoUrlAttribute(): string
     {
         if ($this->photo_path) {

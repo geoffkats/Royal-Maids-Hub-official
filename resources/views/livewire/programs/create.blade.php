@@ -19,6 +19,29 @@
         </div>
 
         <form wire:submit.prevent="save" class="space-y-6">
+            @php
+                $currentTrainer = auth()->user()->role === 'trainer' ? auth()->user()->trainer : null;
+                $hasNoSpecialization = $currentTrainer && !$currentTrainer->specialization;
+            @endphp
+
+            @if($hasNoSpecialization)
+                <div class="bg-[#F5B301]/10 border border-[#F5B301]/50 rounded-xl p-4">
+                    <div class="flex items-start gap-3">
+                        <flux:icon.information-circle class="w-5 h-5 text-[#F5B301] flex-shrink-0 mt-0.5" />
+                        <div>
+                            <h4 class="text-[#F5B301] font-semibold mb-1">{{ __('Complete Your Profile') }}</h4>
+                            <p class="text-[#D1C4E9] text-sm">
+                                {{ __('Your specialization is not set. To help others understand your expertise, please') }}
+                                <a href="{{ route('trainers.edit', $currentTrainer) }}" class="text-[#F5B301] underline hover:text-[#F5B301]/80">
+                                    {{ __('update your profile') }}
+                                </a>
+                                {{ __('and add your training specialization.') }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             <div class="bg-[#512B58] border border-[#F5B301]/30 rounded-xl p-6 shadow-lg">
                 <flux:heading size="lg" class="mb-4 text-white">{{ __('Program Details') }}</flux:heading>
             
@@ -26,7 +49,14 @@
                 <flux:select wire:model.defer="trainer_id" :label="__('Trainer')" required>
                     <option value="">{{ __('Select Trainer') }}</option>
                     @foreach ($trainers as $trainer)
-                        <option value="{{ $trainer->id }}">{{ $trainer->user?->name }} - {{ $trainer->specialization }}</option>
+                        <option value="{{ $trainer->id }}">
+                            {{ $trainer->user?->name }} 
+                            @if($trainer->specialization)
+                                - {{ $trainer->specialization }}
+                            @else
+                                <span class="text-neutral-400">({{ __('Specialization Not Set') }})</span>
+                            @endif
+                        </option>
                     @endforeach
                 </flux:select>
 
@@ -37,7 +67,18 @@
                     @endforeach
                 </flux:select>
 
-                <flux:input wire:model.defer="program_type" :label="__('Program Type')" placeholder="e.g., Housekeeping, Childcare" required />
+                <flux:select wire:model.defer="program_type" :label="__('Program Type')" required>
+                    <option value="">{{ __('Select Training Type') }}</option>
+                    <option value="Orientation">{{ __('Orientation') }}</option>
+                    <option value="Housekeeping Training">{{ __('Housekeeping Training') }}</option>
+                    <option value="Childcare Training">{{ __('Childcare Training') }}</option>
+                    <option value="Cooking Training">{{ __('Cooking Training') }}</option>
+                    <option value="Elderly Care Training">{{ __('Elderly Care Training') }}</option>
+                    <option value="Language Training">{{ __('Language Training') }}</option>
+                    <option value="Safety & First Aid">{{ __('Safety & First Aid') }}</option>
+                    <option value="Professional Development">{{ __('Professional Development') }}</option>
+                    <option value="Customer Service">{{ __('Customer Service') }}</option>
+                </flux:select>
                 
                 <flux:select wire:model.defer="status" :label="__('Status')" required>
                     <option value="scheduled">{{ __('Scheduled') }}</option>

@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'profile_picture',
     ];
 
     /**
@@ -68,6 +69,17 @@ class User extends Authenticatable
             ->take(2)
             ->map(fn ($word) => Str::substr($word, 0, 1))
             ->implode('');
+    }
+
+    /**
+     * Get the profile picture URL
+     */
+    public function getProfilePictureUrlAttribute(): ?string
+    {
+        if ($this->profile_picture) {
+            return \Storage::url($this->profile_picture);
+        }
+        return null;
     }
 
     /**

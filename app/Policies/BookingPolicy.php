@@ -13,8 +13,9 @@ class BookingPolicy
      */
     public function viewAny(User $user): bool
     {
-        // Admin can view all bookings, clients can view their own
-        return $user->role === 'admin' || $user->role === 'client';
+        // Admin can view all bookings, clients can view their own, trainers with permission
+        return $user->role === 'admin' || $user->role === 'client' ||
+               ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
     /**
@@ -22,13 +23,19 @@ class BookingPolicy
      */
     public function view(User $user, Booking $booking): bool
     {
-        // Admin can view all, clients can only view their own bookings
+        // Admin can view all
         if ($user->role === 'admin') {
             return true;
         }
 
+        // Clients can only view their own bookings
         if ($user->role === 'client') {
             return $booking->client->user_id === $user->id;
+        }
+
+        // Trainers with permission can view all
+        if ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings')) {
+            return true;
         }
 
         return false;
@@ -39,8 +46,9 @@ class BookingPolicy
      */
     public function create(User $user): bool
     {
-        // Admin can create bookings for any client, clients can create their own
-        return $user->role === 'admin' || $user->role === 'client';
+        // Admin can create bookings, clients can create their own, trainers with permission
+        return $user->role === 'admin' || $user->role === 'client' ||
+               ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
     /**
@@ -48,13 +56,19 @@ class BookingPolicy
      */
     public function update(User $user, Booking $booking): bool
     {
-        // Admin can update any booking, clients can update their own pending bookings
+        // Admin can update any booking
         if ($user->role === 'admin') {
             return true;
         }
 
+        // Clients can update their own pending bookings
         if ($user->role === 'client') {
             return $booking->client->user_id === $user->id && $booking->status === 'pending';
+        }
+
+        // Trainers with permission can update all
+        if ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings')) {
+            return true;
         }
 
         return false;
@@ -65,8 +79,9 @@ class BookingPolicy
      */
     public function delete(User $user, Booking $booking): bool
     {
-        // Only admin can delete bookings
-        return $user->role === 'admin';
+        // Admin can delete, trainers with permission can delete
+        return $user->role === 'admin' ||
+               ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
     /**

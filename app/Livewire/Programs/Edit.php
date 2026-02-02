@@ -42,10 +42,22 @@ class Edit extends Component
 
     protected function rules(): array
     {
+        $allowedProgramTypes = [
+            'Orientation',
+            'Housekeeping Training',
+            'Childcare Training',
+            'Cooking Training',
+            'Elderly Care Training',
+            'Language Training',
+            'Safety & First Aid',
+            'Professional Development',
+            'Customer Service',
+        ];
+
         return [
             'trainer_id' => ['required', 'exists:trainers,id'],
             'maid_id' => ['required', 'exists:maids,id'],
-            'program_type' => ['required', 'string', 'max:255'],
+            'program_type' => ['required', 'string', Rule::in($allowedProgramTypes)],
             'start_date' => ['required', 'date'],
             'end_date' => ['nullable', 'date', 'after_or_equal:start_date'],
             'status' => ['required', Rule::in(['scheduled', 'in-progress', 'completed', 'cancelled'])],

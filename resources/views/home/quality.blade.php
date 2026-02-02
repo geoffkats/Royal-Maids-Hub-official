@@ -1,6 +1,6 @@
 @extends('components.layouts.simple')
 
-@section('title', 'Quality Assurance - Royal Maids Hub')
+@section('title', 'Quality Assurance')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-[#512B58] via-[#3B0A45] to-[#2D1B69]">

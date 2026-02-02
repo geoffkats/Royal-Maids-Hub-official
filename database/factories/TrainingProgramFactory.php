@@ -20,7 +20,17 @@ class TrainingProgramFactory extends Factory
         return [
             'trainer_id' => Trainer::factory(),
             'maid_id' => Maid::factory(),
-            'program_type' => $this->faker->randomElement(['Orientation', 'Housekeeping', 'Childcare', 'Cooking', 'Elderly Care']),
+            'program_type' => $this->faker->randomElement([
+                'Orientation',
+                'Housekeeping Training',
+                'Childcare Training',
+                'Cooking Training',
+                'Elderly Care Training',
+                'Language Training',
+                'Safety & First Aid',
+                'Professional Development',
+                'Customer Service',
+            ]),
             'start_date' => $startDate,
             'end_date' => $endDate,
             'status' => $this->faker->randomElement(['scheduled', 'in-progress', 'completed', 'cancelled']),

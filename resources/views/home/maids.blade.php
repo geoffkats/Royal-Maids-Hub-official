@@ -1,6 +1,6 @@
 @extends('components.layouts.simple')
 
-@section('title', 'Our Maids - Available & In Training')
+@section('title', 'Our Maids')
 
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-[#512B58] via-[#3B0A45] to-[#2D1B69]">

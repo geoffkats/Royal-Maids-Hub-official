@@ -1,11 +1,24 @@
 @php
     $settings = \App\Models\CompanySetting::current();
+    $companyName = $settings->company_name ?? config('app.name', 'Laravel');
+    
+    // If $title is set and doesn't already contain the company name, append it
+    if (isset($title)) {
+        $pageTitle = $title;
+        // Only append company name if it's not already in the title
+        if (!str_contains($title, $companyName)) {
+            $pageTitle = $title . ' - ' . $companyName;
+        }
+    } else {
+        // Use meta_title or company_name as fallback
+        $pageTitle = $settings->meta_title ?? $companyName;
+    }
 @endphp
 
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-<title>{{ $title ?? $settings->meta_title ?? config('app.name') }}</title>
+<title>{{ $pageTitle }}</title>
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
 

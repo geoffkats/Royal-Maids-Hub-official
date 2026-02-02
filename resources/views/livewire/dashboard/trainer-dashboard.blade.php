@@ -5,7 +5,15 @@
             <div>
                 <h1 class="text-3xl font-bold mb-2">{{ __('Trainer Dashboard') }}</h1>
                 <p class="text-[#D1C4E9]">{{ __('Train & Develop Maids for Excellence') }}</p>
-                <p class="text-sm text-[#D1C4E9]/80 mt-1">{{ __('Welcome back,') }} {{ $trainer->full_name ?? auth()->user()->name }}</p>
+                <p class="text-sm text-[#D1C4E9]/80 mt-1">
+                    {{ __('Welcome back,') }} {{ $trainer->full_name ?? auth()->user()->name }}
+                    @if(!$trainer->specialization)
+                        <span class="text-[#F5B301]">•</span>
+                        <a href="{{ route('trainers.edit', $trainer) }}" class="text-[#F5B301] hover:underline">
+                            {{ __('Complete your profile') }}
+                        </a>
+                    @endif
+                </p>
             </div>
             <div class="text-right">
                 <div class="w-16 h-16 bg-[#F5B301] rounded-full flex items-center justify-center">

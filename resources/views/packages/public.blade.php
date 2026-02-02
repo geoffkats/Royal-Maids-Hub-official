@@ -1,6 +1,6 @@
 @extends('components.layouts.simple')
 
-@section('title', 'Our Packages - Royal Maids Hub')
+@section('title', 'Our Packages')
 
 @section('content')
 <div class="min-h-screen bg-white">

@@ -48,7 +48,16 @@
             <flux:heading size="lg" class="mb-4">{{ __('Professional Details') }}</flux:heading>
             
             <div class="grid gap-4 md:grid-cols-2">
-                <flux:input wire:model.defer="specialization" :label="__('Specialization')" />
+                <flux:select wire:model.defer="specialization" :label="__('Specialization')" placeholder="{{ __('Select your training specialty') }}">
+                    <option value="">{{ __('Select Specialization') }}</option>
+                    <option value="Housekeeping">{{ __('Housekeeping') }}</option>
+                    <option value="Childcare">{{ __('Childcare') }}</option>
+                    <option value="Elderly Care">{{ __('Elderly Care') }}</option>
+                    <option value="Cooking">{{ __('Cooking') }}</option>
+                    <option value="Language Training">{{ __('Language Training') }}</option>
+                    <option value="Professional Development">{{ __('Professional Development') }}</option>
+                    <option value="General Training">{{ __('General Training') }}</option>
+                </flux:select>
                 <flux:input type="number" min="0" wire:model.defer="experience_years" :label="__('Experience (years)')" />
             </div>
             

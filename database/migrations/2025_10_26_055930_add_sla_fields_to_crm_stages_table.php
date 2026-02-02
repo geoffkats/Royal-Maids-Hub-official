@@ -12,9 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('crm_stages', function (Blueprint $table) {
-            // SLA fields already exist, only add missing fields
-            $table->boolean('is_closed')->default(false)->after('sla_follow_up_hours');
-            $table->integer('probability_default')->nullable()->after('is_closed')->comment('Default probability % when entering this stage');
+            // Check if columns don't already exist before adding
+            if (!Schema::hasColumn('crm_stages', 'is_closed')) {
+                $table->boolean('is_closed')->default(false)->after('sla_follow_up_hours');
+            }
+            if (!Schema::hasColumn('crm_stages', 'probability_default')) {
+                $table->integer('probability_default')->nullable()->after('sla_follow_up_hours')->comment('Default probability % when entering this stage');
+            }
         });
     }
 

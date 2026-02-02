@@ -10,16 +10,25 @@ class PackagePolicy
 {
     /**
      * Determine whether the user can view any models.
-     * Admins can view all, clients can view active packages.
+     * Admins can view all, clients can view active packages, trainers with permission can view all.
      */
     public function viewAny(User $user): bool
     {
-        return $user->role === 'admin' || $user->role === 'client';
+        if ($user->role === 'admin' || $user->role === 'client') {
+            return true;
+        }
+
+        // Trainers with packages permission
+        if ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('packages')) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
      * Determine whether the user can view the model.
-     * Admins can view all, clients can only view active packages.
+     * Admins can view all, clients can only view active packages, trainers with permission can view all.
      */
     public function view(User $user, Package $package): bool
     {
@@ -27,7 +36,16 @@ class PackagePolicy
             return true;
         }
 
-        return $user->role === 'client' && $package->is_active;
+        if ($user->role === 'client') {
+            return $package->is_active;
+        }
+
+        // Trainers with packages permission
+        if ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('packages')) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

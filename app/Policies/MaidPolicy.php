@@ -13,7 +13,18 @@ class MaidPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->hasRole(['admin', 'trainer', 'client']);
+        // Admin can view all
+        if ($user->hasRole('admin')) {
+            return true;
+        }
+
+        // Trainers with 'maids' permission can view all
+        if ($user->hasRole('trainer') && $user->trainer && $user->trainer->hasAccessTo('maids')) {
+            return true;
+        }
+
+        // Clients can browse available maids
+        return $user->hasRole('client');
     }
 
     /**
@@ -26,10 +37,8 @@ class MaidPolicy
             return true;
         }
 
-        // Trainer can view assigned trainees
-        if ($user->hasRole('trainer')) {
-            // For now, trainers can view all maids in training
-            // Later this can be refined to only assigned trainees
+        // Trainer with 'maids' permission can view all maids in training
+        if ($user->hasRole('trainer') && $user->trainer && $user->trainer->hasAccessTo('maids')) {
             return $maid->status === 'in-training';
         }
 

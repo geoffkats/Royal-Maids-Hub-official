@@ -1,0 +1,11 @@
+{
+    "agents": [
+        "copilot"
+    ],
+    "editors": [
+        "cursor"
+    ],
+    "guidelines": [
+        "laravel/fortify"
+    ]
+}

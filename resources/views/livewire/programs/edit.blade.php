@@ -26,7 +26,14 @@
                     <flux:select wire:model.defer="trainer_id" :label="__('Trainer')" required>
                         <option value="">{{ __('Select Trainer') }}</option>
                         @foreach ($trainers as $trainer)
-                            <option value="{{ $trainer->id }}">{{ $trainer->user?->name }} - {{ $trainer->specialization }}</option>
+                            <option value="{{ $trainer->id }}">
+                                {{ $trainer->user?->name }}
+                                @if($trainer->specialization)
+                                    - {{ $trainer->specialization }}
+                                @else
+                                    ({{ __('Specialization Not Set') }})
+                                @endif
+                            </option>
                         @endforeach
                     </flux:select>
 
@@ -37,7 +44,18 @@
                         @endforeach
                     </flux:select>
 
-                    <flux:input wire:model.defer="program_type" :label="__('Program Type')" required />
+                    <flux:select wire:model.defer="program_type" :label="__('Program Type')" required>
+                        <option value="">{{ __('Select Training Type') }}</option>
+                        <option value="Orientation">{{ __('Orientation') }}</option>
+                        <option value="Housekeeping Training">{{ __('Housekeeping Training') }}</option>
+                        <option value="Childcare Training">{{ __('Childcare Training') }}</option>
+                        <option value="Cooking Training">{{ __('Cooking Training') }}</option>
+                        <option value="Elderly Care Training">{{ __('Elderly Care Training') }}</option>
+                        <option value="Language Training">{{ __('Language Training') }}</option>
+                        <option value="Safety & First Aid">{{ __('Safety & First Aid') }}</option>
+                        <option value="Professional Development">{{ __('Professional Development') }}</option>
+                        <option value="Customer Service">{{ __('Customer Service') }}</option>
+                    </flux:select>
                     
                     <flux:select wire:model.defer="status" :label="__('Status')" required>
                         <option value="scheduled">{{ __('Scheduled') }}</option>

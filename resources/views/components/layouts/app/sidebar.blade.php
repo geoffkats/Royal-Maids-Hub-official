@@ -88,6 +88,9 @@
                         <flux:navlist.item icon="map-pin" :href="$href('deployments.index')" :current="$is('deployments.*')">
                             {{ __('Deployments') }}
                         </flux:navlist.item>
+                        <flux:navlist.item icon="shield-check" :href="$href('admin.trainer-permissions')" :current="$is('admin.trainer-permissions')" wire:navigate>
+                            {{ __('Trainer Permissions') }}
+                        </flux:navlist.item>
                     </flux:navlist.group>
 
                     <flux:navlist.group :heading="__('Analytics & Reports')" class="mb-4">
@@ -176,47 +179,137 @@
                         <flux:navlist.item icon="users" :href="$href('trainees.index')" :current="$is('trainees.*')">
                             {{ __('My Maids') }}
                         </flux:navlist.item>
-                        <flux:navlist.item icon="clipboard-document-list" :href="$href('programs.index')" :current="$is('programs.*')">
-                            {{ __('Training Programs') }}
-                        </flux:navlist.item>
+                        @if (Auth::user()->trainer->hasAccessTo('my_programs'))
+                            <flux:navlist.item icon="clipboard-document-list" :href="$href('programs.index')" :current="$is('programs.*')">
+                                {{ __('Training Programs') }}
+                            </flux:navlist.item>
+                        @endif
                         <flux:navlist.item icon="calendar-days" :href="$href('schedule.index')" :current="$is('schedule.*')">
                             {{ __('Schedule') }}
                         </flux:navlist.item>
-                        <flux:navlist.item icon="clipboard-document-check" :href="$href('weekly-board.index')" :current="$is('weekly-board.index')">
-                            {{ __('Weekly Task Board') }}
-                        </flux:navlist.item>
+                        @if (Auth::user()->trainer->hasAccessTo('weekly_board'))
+                            <flux:navlist.item icon="clipboard-document-check" :href="$href('weekly-board.index')" :current="$is('weekly-board.index')">
+                                {{ __('Weekly Task Board') }}
+                            </flux:navlist.item>
+                        @endif
                     </flux:navlist.group>
+
+                    <!-- Management (if permissions granted) -->
+                    @if (Auth::user()->trainer->hasAccessTo('clients') || Auth::user()->trainer->hasAccessTo('maids') || Auth::user()->trainer->hasAccessTo('trainers') || Auth::user()->trainer->hasAccessTo('bookings'))
+                        <flux:navlist.group :heading="__('Management')" class="mb-4">
+                            @if (Auth::user()->trainer->hasAccessTo('maids'))
+                                <flux:navlist.item icon="users" :href="$href('maids.index')" :current="$is('maids.*')">
+                                    {{ __('Maids') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('trainers'))
+                                <flux:navlist.item icon="academic-cap" :href="$href('trainers.index')" :current="$is('trainers.*')">
+                                    {{ __('Trainers') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('clients'))
+                                <flux:navlist.item icon="user-group" :href="$href('clients.index')" :current="$is('clients.*')">
+                                    {{ __('Clients') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('bookings'))
+                                <flux:navlist.item icon="calendar-days" :href="$href('bookings.index')" :current="$is('bookings.*')">
+                                    {{ __('Bookings') }}
+                                </flux:navlist.item>
+                            @endif
+                        </flux:navlist.group>
+                    @endif
 
                     <flux:navlist.group :heading="__('Evaluations')" class="mb-4">
-                        <flux:navlist.item icon="clipboard-document-check" :href="$href('evaluations.index')" :current="$is('evaluations.*')">
-                            {{ __('Evaluations') }}
-                        </flux:navlist.item>
-                        <flux:navlist.item icon="map-pin" :href="$href('deployments.index')" :current="$is('deployments.*')">
-                            {{ __('Deployments') }}
-                        </flux:navlist.item>
+                        @if (Auth::user()->trainer->hasAccessTo('my_evaluations'))
+                            <flux:navlist.item icon="clipboard-document-check" :href="$href('evaluations.index')" :current="$is('evaluations.*')">
+                                {{ __('Evaluations') }}
+                            </flux:navlist.item>
+                        @endif
+                        @if (Auth::user()->trainer->hasAccessTo('deployments'))
+                            <flux:navlist.item icon="map-pin" :href="$href('deployments.index')" :current="$is('deployments.*')">
+                                {{ __('Deployments') }}
+                            </flux:navlist.item>
+                        @endif
                     </flux:navlist.group>
 
-                    <flux:navlist.group :heading="__('Reports')" class="mb-4">
-                        <flux:navlist.item icon="chart-bar" :href="$href('reports.trainer')" :current="$is('reports.trainer')">
-                            {{ __('Trainer Performance Dashboard') }}
-                        </flux:navlist.item>
-                        <!-- <flux:navlist.item icon="chart-pie" :href="$href('reports.kpi-dashboard')" :current="$is('reports.kpi-dashboard')">
-                            {{ __('KPI Dashboard') }}
-                        </flux:navlist.item> -->
-                    </flux:navlist.group>
+                    @if (Auth::user()->trainer->hasAccessTo('reports') || Auth::user()->trainer->hasAccessTo('kpi_dashboard'))
+                        <flux:navlist.group :heading="__('Analytics & Reports')" class="mb-4">
+                            @if (Auth::user()->trainer->hasAccessTo('reports'))
+                                <flux:navlist.item icon="chart-bar" :href="$href('reports.trainer')" :current="$is('reports.trainer')">
+                                    {{ __('Reports') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('kpi_dashboard'))
+                                <flux:navlist.item icon="chart-pie" :href="$href('reports.kpi-dashboard')" :current="$is('reports.kpi-dashboard')">
+                                    {{ __('KPI Dashboard') }}
+                                </flux:navlist.item>
+                            @endif
+                        </flux:navlist.group>
+                    @endif
 
-                    <flux:navlist.group :heading="__('Support & Tickets')" class="mb-4">
-                        <flux:navlist.item icon="plus" :href="$href('tickets.create')" :current="$is('tickets.create')">
-                            {{ __('Create Ticket') }}
-                        </flux:navlist.item>
-                        <flux:navlist.item icon="lifebuoy" :href="$href('tickets.index')" :current="$is('tickets.index')">
-                            {{ __('All Tickets') }}
-                        </flux:navlist.item>
-                        <flux:navlist.item icon="inbox" :href="$href('tickets.inbox')" :current="$is('tickets.inbox')">
-                            {{ __('My Inbox') }}
-                        </flux:navlist.item>
-                     
-                    </flux:navlist.group>
+                    @if (Auth::user()->trainer->hasAccessTo('tickets') || Auth::user()->trainer->hasAccessTo('tickets_inbox') || Auth::user()->trainer->hasAccessTo('contact_inquiries') || Auth::user()->trainer->hasAccessTo('ticket_analytics'))
+                        <flux:navlist.group :heading="__('Support & Tickets')" class="mb-4">
+                            @if (Auth::user()->trainer->hasAccessTo('tickets'))
+                                <flux:navlist.item icon="lifebuoy" :href="$href('tickets.index')" :current="$is('tickets.index')">
+                                    {{ __('All Tickets') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('tickets_inbox'))
+                                <flux:navlist.item icon="inbox" :href="$href('tickets.inbox')" :current="$is('tickets.inbox')">
+                                    {{ __('My Inbox') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('contact_inquiries'))
+                                <flux:navlist.item icon="envelope" :href="$href('contact-submissions.index')" :current="$is('contact-submissions.*')">
+                                    {{ __('Contact Inquiries') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('ticket_analytics'))
+                                <flux:navlist.item icon="chart-bar" :href="$href('tickets.analytics')" :current="$is('tickets.analytics')">
+                                    {{ __('Ticket Analytics') }}
+                                </flux:navlist.item>
+                            @endif
+                        </flux:navlist.group>
+                    @endif
+
+                    @if (Auth::user()->trainer->hasAccessTo('crm_pipeline') || Auth::user()->trainer->hasAccessTo('crm_leads') || Auth::user()->trainer->hasAccessTo('crm_opportunities') || Auth::user()->trainer->hasAccessTo('crm_activities') || Auth::user()->trainer->hasAccessTo('crm_reports'))
+                        <flux:navlist.group :heading="__('CRM')" class="mb-4">
+                            @if (Auth::user()->trainer->hasAccessTo('crm_pipeline'))
+                                <flux:navlist.item icon="funnel" :href="$href('crm.pipeline')" :current="$is('crm.pipeline')">
+                                    {{ __('Pipeline Board') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('crm_leads'))
+                                <flux:navlist.item icon="user-plus" href="/crm/leads" :current="$is('crm.leads.*')">
+                                    {{ __('Leads') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('crm_opportunities'))
+                                <flux:navlist.item icon="chart-bar" href="/crm/opportunities" :current="$is('crm.opportunities.*')">
+                                    {{ __('Opportunities') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('crm_activities'))
+                                <flux:navlist.item icon="clipboard-document-list" href="/crm/activities" :current="$is('crm.activities.*')">
+                                    {{ __('Activities') }}
+                                </flux:navlist.item>
+                            @endif
+                            @if (Auth::user()->trainer->hasAccessTo('crm_reports'))
+                                <flux:navlist.item icon="chart-pie" :href="$href('crm.reports.funnel')" :current="$is('crm.reports.*')">
+                                    {{ __('CRM Reports') }}
+                                </flux:navlist.item>
+                            @endif
+                        </flux:navlist.group>
+                    @endif
+
+                    @if (Auth::user()->trainer->hasAccessTo('packages'))
+                        <flux:navlist.group :heading="__('Business')" class="mb-4">
+                            <flux:navlist.item icon="folder" :href="$href('packages.index')" :current="$is('packages.*')">
+                                {{ __('Packages') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
+                    @endif
 
                     <flux:navlist.group :heading="__('My Profile')" class="mb-4">
                         <flux:navlist.item icon="user" href="/settings/profile" :current="$is('profile.*')">
@@ -289,9 +382,15 @@
                         <div class="p-0 text-sm font-normal">
                             <div class="flex items-center gap-3 px-1 py-2 text-start text-sm">
                                 <span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-lg">
-                                    <span class="flex h-full w-full items-center justify-center rounded-lg bg-gradient-gold text-[#3B0A45] font-bold">
-                                        {{ auth()->user()->initials() }}
-                                    </span>
+                                    @if(auth()->user()->profile_picture)
+                                        <img src="{{ Storage::url(auth()->user()->profile_picture) }}" 
+                                             alt="{{ auth()->user()->name }}" 
+                                             class="h-full w-full object-cover rounded-lg">
+                                    @else
+                                        <span class="flex h-full w-full items-center justify-center rounded-lg bg-gradient-gold text-[#3B0A45] font-bold">
+                                            {{ auth()->user()->initials() }}
+                                        </span>
+                                    @endif
                                 </span>
 
                                 <div class="grid flex-1 text-start text-sm leading-tight">
@@ -355,9 +454,15 @@
                         <div class="p-0 text-sm font-normal">
                             <div class="flex items-center gap-3 px-1 py-2 text-start text-sm">
                                 <span class="relative flex h-10 w-10 shrink-0 overflow-hidden rounded-lg">
-                                    <span class="flex h-full w-full items-center justify-center rounded-lg bg-gradient-gold text-[#3B0A45] font-bold">
-                                        {{ auth()->user()->initials() }}
-                                    </span>
+                                    @if(auth()->user()->profile_picture)
+                                        <img src="{{ Storage::url(auth()->user()->profile_picture) }}" 
+                                             alt="{{ auth()->user()->name }}" 
+                                             class="h-full w-full object-cover rounded-lg">
+                                    @else
+                                        <span class="flex h-full w-full items-center justify-center rounded-lg bg-gradient-gold text-[#3B0A45] font-bold">
+                                            {{ auth()->user()->initials() }}
+                                        </span>
+                                    @endif
                                 </span>
 
                                 <div class="grid flex-1 text-start text-sm leading-tight">

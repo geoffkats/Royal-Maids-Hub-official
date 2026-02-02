@@ -626,18 +626,6 @@
         }
     });
 
-    // Listen for Livewire updates
-    document.addEventListener('livewire:navigated', function() {
-        setTimeout(() => {
-            location.reload();
-        }, 100);
-    });
-    
-    document.addEventListener('livewire:updated', function() {
-        setTimeout(() => {
-            location.reload();
-        }, 100);
-    });
     </script>
 
     <!-- Export Modal -->
