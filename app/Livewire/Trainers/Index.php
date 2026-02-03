@@ -25,6 +25,11 @@ class Index extends Component
     public ?int $deleteId = null;
     public ?string $deleteName = null;
 
+    public function mount(): void
+    {
+        $this->authorize('viewAny', Trainer::class);
+    }
+
     public function updating($name, $value): void
     {
         if (in_array($name, ['search', 'perPage'], true)) {

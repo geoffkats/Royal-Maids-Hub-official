@@ -4,6 +4,7 @@ namespace App\Livewire\Maids;
 
 use App\Models\Maid;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -11,6 +12,7 @@ use Livewire\WithPagination;
 class Index extends Component
 {
     use WithPagination;
+    use AuthorizesRequests;
 
     #[Url]
     public string $search = '';
@@ -27,6 +29,11 @@ class Index extends Component
     // Bulk selection state
     public array $selected = [];
     public bool $selectPage = false;
+
+    public function mount(): void
+    {
+        $this->authorize('viewAny', Maid::class);
+    }
 
     public function updating($name, $value): void
     {

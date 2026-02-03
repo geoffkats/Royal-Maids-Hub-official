@@ -31,6 +31,11 @@ class Index extends Component
     public ?int $deleteId = null;
     public ?string $deleteName = null;
 
+    public function mount(): void
+    {
+        $this->authorize('viewAny', Client::class);
+    }
+
     public function updating($name, $value): void
     {
         // Reset to first page whenever filters or search change
