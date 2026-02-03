@@ -1,11 +1,14 @@
 <div class="p-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <!-- Back Button and Actions -->
     <div class="mb-4 flex items-center justify-between">
-        <a href="{{ route('tickets.index') }}" class="text-[#64B5F6] hover:text-[#F5B301] transition">
+        <a href="{{ route($prefix . 'tickets.index') }}" class="text-[#64B5F6] hover:text-[#F5B301] transition">
             ← Back to Tickets
         </a>
         <div class="flex gap-2">
-            <flux:button as="a" :href="route('tickets.edit', $ticket)" variant="primary" icon="pencil-square">
+            <flux:button as="a" :href="route($prefix . 'tickets.edit', $ticket)" variant="primary" icon="pencil-square">
                 {{ __('Edit Ticket') }}
             </flux:button>
         </div>
@@ -212,11 +215,11 @@
                                             {{ $ticket->requester->full_name }}
                                         </a>
                                     @elseif($ticket->requester_type === 'client')
-                                        <a href="{{ route('clients.show', $ticket->requester) }}" class="text-[#64B5F6] hover:text-[#F5B301]">
+                                        <a href="{{ route($prefix . 'clients.show', $ticket->requester) }}" class="text-[#64B5F6] hover:text-[#F5B301]">
                                             {{ $ticket->requester->contact_person }}
                                         </a>
                                     @elseif($ticket->requester_type === 'maid')
-                                        <a href="{{ route('maids.show', $ticket->requester) }}" class="text-[#64B5F6] hover:text-[#F5B301]">
+                                        <a href="{{ route($prefix . 'maids.show', $ticket->requester) }}" class="text-[#64B5F6] hover:text-[#F5B301]">
                                             {{ $ticket->requester->first_name }} {{ $ticket->requester->last_name }}
                                         </a>
                                     @elseif($ticket->requester_type === 'user')
@@ -231,7 +234,7 @@
                     @if($ticket->client)
                         <div>
                             <span class="text-[#D1C4E9]">Client:</span>
-                            <a href="{{ route('clients.show', $ticket->client) }}" class="text-[#64B5F6] hover:text-[#F5B301] ml-2">
+                            <a href="{{ route($prefix . 'clients.show', $ticket->client) }}" class="text-[#64B5F6] hover:text-[#F5B301] ml-2">
                                 {{ $ticket->client->contact_person }}
                             </a>
                         </div>
@@ -240,7 +243,7 @@
                     @if($ticket->maid)
                         <div>
                             <span class="text-[#D1C4E9]">Maid:</span>
-                            <a href="{{ route('maids.show', $ticket->maid) }}" class="text-[#64B5F6] hover:text-[#F5B301] ml-2">
+                            <a href="{{ route($prefix . 'maids.show', $ticket->maid) }}" class="text-[#64B5F6] hover:text-[#F5B301] ml-2">
                                 {{ $ticket->maid->first_name }} {{ $ticket->maid->last_name }}
                             </a>
                         </div>
@@ -249,7 +252,7 @@
                     @if($ticket->booking)
                         <div>
                             <span class="text-[#D1C4E9]">Booking:</span>
-                            <a href="{{ route('bookings.show', $ticket->booking) }}" class="text-[#64B5F6] hover:text-[#F5B301] ml-2">
+                            <a href="{{ route($prefix . 'bookings.show', $ticket->booking) }}" class="text-[#64B5F6] hover:text-[#F5B301] ml-2">
                                 #{{ $ticket->booking->id }}
                             </a>
                         </div>

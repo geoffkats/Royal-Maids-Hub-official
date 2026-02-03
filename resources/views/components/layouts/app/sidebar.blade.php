@@ -73,7 +73,7 @@
                         <flux:navlist.item icon="user-group" :href="$href('clients.index')" :current="$is('clients.*')">
                             {{ __('Clients') }}
                         </flux:navlist.item>
-                        <flux:navlist.item icon="calendar-days" :href="$href('bookings.index')" :current="$is('bookings.*')">
+                        <flux:navlist.item icon="calendar-days" :href="route('bookings.index')" :current="$is('bookings.*')">
                             {{ __('Bookings') }}
                         </flux:navlist.item>
                     </flux:navlist.group>
@@ -198,22 +198,22 @@
                     @if (Auth::user()->trainer->hasAccessTo('clients') || Auth::user()->trainer->hasAccessTo('maids') || Auth::user()->trainer->hasAccessTo('trainers') || Auth::user()->trainer->hasAccessTo('bookings'))
                         <flux:navlist.group :heading="__('Management')" class="mb-4">
                             @if (Auth::user()->trainer->hasAccessTo('maids'))
-                                <flux:navlist.item icon="users" :href="$href('maids.index')" :current="$is('maids.*')">
+                                <flux:navlist.item icon="users" :href="route('trainer.maids.index')" :current="$is('trainer.maids.*')">
                                     {{ __('Maids') }}
                                 </flux:navlist.item>
                             @endif
                             @if (Auth::user()->trainer->hasAccessTo('trainers'))
-                                <flux:navlist.item icon="academic-cap" :href="$href('trainers.index')" :current="$is('trainers.*')">
+                                <flux:navlist.item icon="academic-cap" :href="route('trainer.trainers.index')" :current="$is('trainer.trainers.*')">
                                     {{ __('Trainers') }}
                                 </flux:navlist.item>
                             @endif
                             @if (Auth::user()->trainer->hasAccessTo('clients'))
-                                <flux:navlist.item icon="user-group" :href="$href('clients.index')" :current="$is('clients.*')">
+                                <flux:navlist.item icon="user-group" :href="route('trainer.clients.index')" :current="$is('trainer.clients.*')">
                                     {{ __('Clients') }}
                                 </flux:navlist.item>
                             @endif
                             @if (Auth::user()->trainer->hasAccessTo('bookings'))
-                                <flux:navlist.item icon="calendar-days" :href="$href('bookings.index')" :current="$is('bookings.*')">
+                                <flux:navlist.item icon="calendar-days" :href="route('bookings.index')" :current="$is('bookings.*')">
                                     {{ __('Bookings') }}
                                 </flux:navlist.item>
                             @endif
@@ -305,7 +305,7 @@
 
                     @if (Auth::user()->trainer->hasAccessTo('packages'))
                         <flux:navlist.group :heading="__('Business')" class="mb-4">
-                            <flux:navlist.item icon="folder" :href="$href('packages.index')" :current="$is('packages.*')">
+                            <flux:navlist.item icon="folder" :href="route('trainer.packages.index')" :current="$is('trainer.packages.*')">
                                 {{ __('Packages') }}
                             </flux:navlist.item>
                         </flux:navlist.group>

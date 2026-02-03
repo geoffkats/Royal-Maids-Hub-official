@@ -1,4 +1,8 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
+
     <!-- Header Section -->
     <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
         <div class="flex items-center gap-3">
@@ -743,7 +747,7 @@
             <!-- Form Actions -->
             <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6">
                 <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                    <a href="{{ route('maids.index') }}" 
+                    <a href="{{ route($prefix . 'maids.index') }}" 
                        class="inline-flex items-center justify-center px-6 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
                         <x-flux::icon.x-mark class="w-5 h-5 mr-2" />
                             Cancel

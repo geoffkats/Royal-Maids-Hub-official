@@ -1,4 +1,7 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
             <flux:heading size="xl">{{ __('Bookings') }}</flux:heading>
@@ -6,7 +9,7 @@
         </div>
 
         @can('create', App\Models\Booking::class)
-            <flux:button as="a" href="{{ route('bookings.create') }}" variant="primary" icon="plus">
+            <flux:button as="a" href="{{ route($prefix . 'bookings.create') }}" variant="primary" icon="plus">
                 {{ __('New Booking') }}
             </flux:button>
         @endcan
@@ -146,7 +149,7 @@
                         </td>
                         <td class="whitespace-nowrap px-3 md:px-6 py-4 text-sm hidden md:table-cell">
                             @if($booking->maid)
-                                <a href="{{ route('maids.show', $booking->maid) }}" 
+                                <a href="{{ route($prefix . 'maids.show', $booking->maid) }}" 
                                    class="font-medium text-[#64B5F6] hover:text-[#F5B301] transition-colors" 
                                    wire:navigate>
                                     {{ $booking->maid->full_name }}
@@ -213,7 +216,7 @@
                                 @can('view', $booking)
                                     <flux:button
                                         as="a"
-                                        :href="route('bookings.show', $booking)"
+                                        :href="route($prefix . 'bookings.show', $booking)"
                                         variant="ghost"
                                         size="sm"
                                         icon="eye"
@@ -224,7 +227,7 @@
                                 @can('update', $booking)
                                     <flux:button
                                         as="a"
-                                        :href="route('bookings.edit', $booking)"
+                                        :href="route($prefix . 'bookings.edit', $booking)"
                                         variant="ghost"
                                         size="sm"
                                         icon="pencil-square"

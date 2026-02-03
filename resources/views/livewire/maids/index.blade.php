@@ -1,4 +1,8 @@
     <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
+
         <!-- Success Message -->
         @if (session('message'))
             <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 text-green-800 dark:text-green-200 px-6 py-4 rounded-xl shadow-sm flex items-center gap-3">
@@ -194,7 +198,7 @@
                     
                     <flux:button 
                         as="a"
-                        :href="route('maids.export.pdf')"
+                        :href="route($prefix . 'maids.export.pdf')"
                         variant="primary" 
                         size="sm"
                         icon="arrow-down-tray"
@@ -278,7 +282,7 @@
                                         </div>
                                         <div class="ml-4">
                                             <div class="text-sm font-medium text-neutral-900 dark:text-white">
-                                                <a href="{{ route('maids.show', $maid) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:underline transition-colors duration-150">
+                                                <a href="{{ route($prefix . 'maids.show', $maid) }}" class="text-indigo-600 hover:text-indigo-900 dark:text-indigo-400 dark:hover:text-indigo-300 hover:underline transition-colors duration-150">
                                                     {{ $maid->full_name }}
                                                 </a>
                                             </div>
@@ -332,7 +336,7 @@
                             </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                 <div class="flex items-center space-x-1.5">
-                                    <a href="{{ route('maids.show', $maid) }}" 
+                                    <a href="{{ route($prefix . 'maids.show', $maid) }}" 
                                        class="inline-flex items-center justify-center p-2 text-blue-600 hover:text-blue-900 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md transition-colors duration-150"
                                        title="View" aria-label="View">
                                         <x-flux::icon.eye class="w-4 h-4" />

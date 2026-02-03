@@ -399,7 +399,8 @@ class Edit extends Component
         $this->booking->update($data);
 
         session()->flash('success', __('Booking updated successfully.'));
-        $this->redirect(route('bookings.show', $this->booking), navigate: true);
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+        $this->redirect(route($prefix . 'bookings.show', $this->booking), navigate: true);
     }
 
     #[Layout('components.layouts.app')]

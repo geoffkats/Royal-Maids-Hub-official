@@ -72,7 +72,7 @@ class Create extends Component
         ]);
 
         session()->flash('success', __('Trainer created successfully.'));
-        $this->redirectRoute('trainers.index', navigate: true);
+        $this->redirectRoute((auth()->user()->role === 'trainer' ? 'trainer.' : '') . 'trainers.index', navigate: true);
     }
 
     #[Layout('components.layouts.app')]

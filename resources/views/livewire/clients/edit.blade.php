@@ -1,4 +1,8 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
+
     <div class="flex items-center justify-between">
         <flux:heading size="xl">{{ __('Edit Client') }}</flux:heading>
     </div>
@@ -116,7 +120,7 @@
         </div>
 
         <div class="flex items-center justify-end gap-3">
-            <flux:button as="a" :href="route('clients.index')" variant="outline">{{ __('Cancel') }}</flux:button>
+            <flux:button as="a" :href="route($prefix . 'clients.index')" variant="outline">{{ __('Cancel') }}</flux:button>
             <flux:button variant="primary" type="submit">{{ __('Save Changes') }}</flux:button>
         </div>
     </form>

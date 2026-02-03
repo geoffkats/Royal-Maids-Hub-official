@@ -1,4 +1,8 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
+
     <!-- Header Section -->
     <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
         <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -33,10 +37,10 @@
                 <flux:button as="a" :href="route('tickets.create', ['client_id' => $client->id])" variant="primary" icon="ticket">
                     {{ __('Create Ticket') }}
                 </flux:button>
-                <flux:button as="a" :href="route('clients.edit', $client)" variant="outline" icon="pencil-square">
+                <flux:button as="a" :href="route($prefix . 'clients.edit', $client)" variant="outline" icon="pencil-square">
                     {{ __('Edit Client') }}
                 </flux:button>
-                <flux:button as="a" :href="route('clients.index')" variant="outline" icon="arrow-left">
+                <flux:button as="a" :href="route($prefix . 'clients.index')" variant="outline" icon="arrow-left">
                     {{ __('Back') }}
                 </flux:button>
             </div>

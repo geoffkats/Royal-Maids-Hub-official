@@ -243,7 +243,7 @@ class Create extends Component
 
         session()->flash('message', 'Maid created successfully!');
         
-        return redirect()->route('maids.index');
+        return redirect()->route((auth()->user()->role === 'trainer' ? 'trainer.' : '') . 'maids.index');
     }
 
     /**

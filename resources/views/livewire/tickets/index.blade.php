@@ -1,11 +1,14 @@
 <div class="p-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <!-- Header -->
     <div class="mb-6 flex items-center justify-between">
         <div>
             <h1 class="text-3xl font-bold text-white">Support Tickets</h1>
             <p class="text-[#D1C4E9] mt-1">Manage and track all support requests</p>
         </div>
-        <a href="{{ route('tickets.create') }}" class="px-6 py-3 rounded-lg bg-gradient-to-r from-[#F5B301] to-[#FFD54F] text-[#3B0A45] font-bold shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-200 flex items-center gap-2">
+        <a href="{{ route($prefix . 'tickets.create') }}" class="px-6 py-3 rounded-lg bg-gradient-to-r from-[#F5B301] to-[#FFD54F] text-[#3B0A45] font-bold shadow-lg hover:shadow-xl hover:scale-105 transform transition-all duration-200 flex items-center gap-2">
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
             </svg>
@@ -131,7 +134,7 @@
                     
                     $rowClasses = "hover:bg-[#3B0A45]/30 transition cursor-pointer {$priorityBg} {$statusBg} {$slaBreach}";
                 @endphp
-                <tr class="{{ $rowClasses }}" onclick="window.location='{{ route('tickets.show', $ticket) }}'">
+                <tr class="{{ $rowClasses }}" onclick="window.location='{{ route($prefix . 'tickets.show', $ticket) }}'">
                     <td class="px-4 py-3 whitespace-nowrap">
                         <div class="flex items-center gap-2">
                             <span class="text-white font-mono text-sm">{{ $ticket->ticket_number }}</span>
@@ -262,7 +265,7 @@
                         {{ $ticket->created_at->diffForHumans() }}
                     </td>
                     <td class="px-4 py-3 whitespace-nowrap text-center">
-                        <a href="{{ route('tickets.show', $ticket) }}" 
+                        <a href="{{ route($prefix . 'tickets.show', $ticket) }}" 
                            class="inline-flex items-center justify-center w-10 h-10 rounded-lg hover:bg-[#F5B301]/20 text-[#64B5F6] hover:text-[#F5B301] transition-all duration-200 transform hover:scale-105"
                            title="View Ticket">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

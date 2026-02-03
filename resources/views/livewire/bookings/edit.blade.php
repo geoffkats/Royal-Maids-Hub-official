@@ -1,4 +1,7 @@
 <div class="min-h-screen bg-gradient-to-br from-[#512B58] via-[#3B0A45] to-[#2D1B69] py-8">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <div class="container mx-auto px-4">
         <div class="max-w-6xl mx-auto space-y-6">
             <!-- Header -->
@@ -7,7 +10,7 @@
                     <h1 class="text-4xl font-bold text-white mb-2">{{ __('Edit Booking #') . $booking->id }}</h1>
                     <p class="text-lg text-[#D1C4E9]">{{ __('Update comprehensive booking details') }}</p>
                 </div>
-                <flux:button as="a" :href="route('bookings.show', $booking)" variant="ghost" icon="arrow-left" class="text-white border-white/30 hover:bg-white/10">
+                <flux:button as="a" :href="route($prefix . 'bookings.show', $booking)" variant="ghost" icon="arrow-left" class="text-white border-white/30 hover:bg-white/10">
                     {{ __('Back') }}
                 </flux:button>
             </div>

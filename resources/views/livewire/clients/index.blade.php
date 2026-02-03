@@ -1,11 +1,15 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
+
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
             <flux:heading size="xl">{{ __('Clients') }}</flux:heading>
             <flux:subheading class="mt-1">{{ __('Manage and search client records') }}</flux:subheading>
         </div>
 
-        <flux:button as="a" :href="route('clients.create')" variant="primary" icon="plus">
+        <flux:button as="a" :href="route($prefix . 'clients.create')" variant="primary" icon="plus">
             {{ __('New Client') }}
         </flux:button>
     </div>
@@ -145,7 +149,7 @@
                                     </div>
                                 @endif
                                 <div>
-                                    <a href="{{ route('clients.show', $client) }}" class="font-medium hover:underline">
+                                    <a href="{{ route($prefix . 'clients.show', $client) }}" class="font-medium hover:underline">
                                         {{ $client->contact_person }}
                                     </a>
                                     <div class="text-xs text-[#D1C4E9]">{{ $client->user->email }}</div>
@@ -186,7 +190,7 @@
                             <div class="flex items-center justify-end gap-2">
                                 <flux:button
                                     as="a"
-                                    :href="route('clients.edit', $client)"
+                                    :href="route($prefix . 'clients.edit', $client)"
                                     variant="ghost"
                                     size="sm"
                                     icon="pencil-square"

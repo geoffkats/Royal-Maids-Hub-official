@@ -1,5 +1,8 @@
 
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <!-- Header Section -->
     <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
         <div class="flex items-center gap-3">
@@ -359,7 +362,7 @@
                     <span>{{ __('Fill in all required fields to submit your ticket') }}</span>
                 </div>
                 <div class="flex items-center gap-3">
-                    <flux:button as="a" :href="route('tickets.index')" variant="outline" icon="arrow-left">
+                    <flux:button as="a" :href="route($prefix . 'tickets.index')" variant="outline" icon="arrow-left">
                         {{ __('Cancel') }}
                     </flux:button>
                     <flux:button type="submit" variant="primary" icon="check">

@@ -1,4 +1,7 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
             <flux:heading size="xl">{{ $trainer->user?->name }}</flux:heading>
@@ -6,10 +9,10 @@
         </div>
 
         <div class="flex gap-2">
-            <flux:button as="a" :href="route('trainers.edit', $trainer)" variant="primary" icon="pencil">
+            <flux:button as="a" :href="route($prefix . 'trainers.edit', $trainer)" variant="primary" icon="pencil">
                 {{ __('Edit') }}
             </flux:button>
-            <flux:button as="a" :href="route('trainers.index')" variant="ghost" icon="arrow-left">
+            <flux:button as="a" :href="route($prefix . 'trainers.index')" variant="ghost" icon="arrow-left">
                 {{ __('Back') }}
             </flux:button>
         </div>

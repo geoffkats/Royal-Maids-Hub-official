@@ -112,7 +112,8 @@ class Create extends Component
         ]);
 
         session()->flash('success', __('Client created successfully.'));
-        $this->redirectRoute('clients.index', navigate: true);
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+        $this->redirectRoute($prefix . 'clients.index', navigate: true);
     }
 
     /**

@@ -68,7 +68,8 @@ class Create extends Component
         $client->increment('active_bookings');
 
         session()->flash('success', __('Booking created successfully.'));
-        $this->redirect(route('bookings.index'), navigate: true);
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+        $this->redirect(route($prefix . 'bookings.index'), navigate: true);
     }
 
     #[Layout('components.layouts.app')]

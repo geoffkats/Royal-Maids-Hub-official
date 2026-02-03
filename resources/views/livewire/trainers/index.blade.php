@@ -1,4 +1,7 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <!-- Success Message -->
     @if (session('success'))
         <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-700 text-green-800 dark:text-green-200 px-6 py-4 rounded-xl shadow-sm flex items-center gap-3">
@@ -21,7 +24,7 @@
             <flux:subheading class="mt-1">{{ __('Manage trainer profiles') }}</flux:subheading>
         </div>
 
-        <flux:button as="a" :href="route('trainers.create')" variant="primary" icon="plus">
+        <flux:button as="a" :href="route($prefix . 'trainers.create')" variant="primary" icon="plus">
             {{ __('New Trainer') }}
         </flux:button>
     </div>
@@ -145,7 +148,7 @@
                 @forelse ($trainers as $trainer)
                     <tr class="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-900/30">
                         <td class="whitespace-nowrap px-6 py-4 text-sm">
-                            <a href="{{ route('trainers.show', $trainer) }}" wire:navigate class="flex items-center gap-3 font-medium text-neutral-900 hover:underline dark:text-white">
+                            <a href="{{ route($prefix . 'trainers.show', $trainer) }}" wire:navigate class="flex items-center gap-3 font-medium text-neutral-900 hover:underline dark:text-white">
                                 <img src="{{ $trainer->photo_url }}" alt="{{ $trainer->user?->name }}" class="h-8 w-8 rounded-full object-cover ring-1 ring-neutral-200 dark:ring-neutral-700">
                                 <span>{{ $trainer->user?->name }}</span>
                             </a>
@@ -162,7 +165,7 @@
                             <div class="flex items-center justify-end gap-2">
                                 <flux:button
                                     as="a"
-                                    :href="route('trainers.edit', $trainer)"
+                                    :href="route($prefix . 'trainers.edit', $trainer)"
                                     variant="ghost"
                                     size="sm"
                                     icon="pencil-square"

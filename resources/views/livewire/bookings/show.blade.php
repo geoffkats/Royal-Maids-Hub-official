@@ -1,4 +1,7 @@
 <div class="min-h-screen bg-gradient-to-br from-[#512B58] via-[#3B0A45] to-[#2D1B69] py-8">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <div class="container mx-auto px-4">
         <div class="max-w-7xl mx-auto space-y-6">
             {{-- Header Section --}}
@@ -41,13 +44,13 @@
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
-                    <flux:button as="a" :href="route('tickets.create', ['booking_id' => $booking->id, 'client_id' => $booking->client_id])" variant="primary" icon="ticket" class="bg-gradient-to-r from-[#F5B301] to-[#FFD700] text-[#512B58] border-none hover:from-[#FFD700] hover:to-[#F5B301]">
+                    <flux:button as="a" :href="route($prefix . 'tickets.create', ['booking_id' => $booking->id, 'client_id' => $booking->client_id])" variant="primary" icon="ticket" class="bg-gradient-to-r from-[#F5B301] to-[#FFD700] text-[#512B58] border-none hover:from-[#FFD700] hover:to-[#F5B301]">
                         {{ __('Create Ticket') }}
                     </flux:button>
-                    <flux:button as="a" :href="route('bookings.edit', $booking)" variant="outline" icon="pencil-square" class="border-white/30 text-white hover:bg-white/10">
+                    <flux:button as="a" :href="route($prefix . 'bookings.edit', $booking)" variant="outline" icon="pencil-square" class="border-white/30 text-white hover:bg-white/10">
                         {{ __('Edit') }}
                     </flux:button>
-                    <flux:button as="a" :href="route('bookings.index')" variant="ghost" icon="arrow-left" class="text-white border-white/30 hover:bg-white/10">
+                    <flux:button as="a" :href="route($prefix . 'bookings.index')" variant="ghost" icon="arrow-left" class="text-white border-white/30 hover:bg-white/10">
                         {{ __('Back') }}
                     </flux:button>
                 </div>
@@ -338,7 +341,7 @@
                                 <div>
                                     <div class="text-xs font-semibold text-[#D1C4E9] mb-1">{{ __('Name') }}</div>
                                     <div class="text-base font-semibold text-white">
-                                        <a href="{{ route('maids.show', $booking->maid) }}" class="text-[#F5B301] hover:text-[#FFD700] hover:underline">
+                                        <a href="{{ route($prefix . 'maids.show', $booking->maid) }}" class="text-[#F5B301] hover:text-[#FFD700] hover:underline">
                                             {{ $booking->maid->full_name }}
                                         </a>
                                     </div>

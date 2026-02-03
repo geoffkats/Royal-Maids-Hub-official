@@ -251,6 +251,36 @@ Route::middleware(['auth', 'verified', 'role:trainer'])->prefix('trainer')->name
             Route::get('create', \App\Livewire\Packages\Create::class)->name('packages.create');
             Route::get('{package}/edit', \App\Livewire\Packages\Edit::class)->name('packages.edit');
         });
+
+    // Bookings routes (trainers with permission)
+    Route::prefix('bookings')
+        ->middleware(['trainer-sidebar:bookings'])
+        ->group(function () {
+            Route::get('/', \App\Livewire\Bookings\Index::class)->name('bookings.index');
+            Route::get('create', \App\Livewire\Bookings\Create::class)->name('bookings.create');
+            Route::get('{booking}', \App\Livewire\Bookings\Show::class)->name('bookings.show');
+            Route::get('{booking}/edit', \App\Livewire\Bookings\Edit::class)->name('bookings.edit');
+        });
+
+    // Tickets routes (trainers with permission)
+    Route::prefix('tickets')
+        ->middleware(['trainer-sidebar:tickets'])
+        ->group(function () {
+            Route::get('/', \App\Livewire\Tickets\Index::class)->name('tickets.index');
+            Route::get('create', \App\Livewire\Tickets\Create::class)->name('tickets.create');
+            Route::get('{ticket}', \App\Livewire\Tickets\Show::class)->name('tickets.show');
+            Route::get('{ticket}/edit', \App\Livewire\Tickets\Edit::class)->name('tickets.edit');
+            
+            // Inbox
+            Route::get('inbox', \App\Livewire\Tickets\Inbox::class)
+                ->middleware(['trainer-sidebar:tickets_inbox'])
+                ->name('tickets.inbox');
+                
+            // Analytics
+            Route::get('analytics', \App\Livewire\Tickets\Analytics::class)
+                ->middleware(['trainer-sidebar:ticket_analytics'])
+                ->name('tickets.analytics');
+        });
 });
 
 Route::middleware(['auth', 'verified', 'role:client'])->group(function () {

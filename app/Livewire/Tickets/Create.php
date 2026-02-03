@@ -278,8 +278,9 @@ class Create extends Component
         // - Notify client if created on behalf
         // - Send email/SMS notifications
 
+        $prefix = $user->role === 'trainer' ? 'trainer.' : '';
         session()->flash('success', 'Ticket created successfully! Ticket #' . $ticket->ticket_number);
-        return redirect()->route('tickets.show', $ticket);
+        return redirect()->route($prefix . 'tickets.show', $ticket);
     }
 
     public function render()

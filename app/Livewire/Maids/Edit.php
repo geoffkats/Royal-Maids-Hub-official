@@ -404,7 +404,7 @@ class Edit extends Component
 
         session()->flash('message', 'Maid updated successfully!');
         
-        return redirect()->route('maids.index');
+        return redirect()->route((auth()->user()->role === 'trainer' ? 'trainer.' : '') . 'maids.index');
     }
 
     public function removeProfileImage()

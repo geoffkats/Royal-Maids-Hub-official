@@ -145,8 +145,9 @@ class Edit extends Component
             }
         }
 
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
         session()->flash('success', 'Ticket updated successfully!');
-        return redirect()->route('tickets.show', $this->ticket);
+        return redirect()->route($prefix . 'tickets.show', $this->ticket);
     }
 
     public function render()

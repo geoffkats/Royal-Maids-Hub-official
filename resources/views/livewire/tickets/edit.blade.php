@@ -1,4 +1,7 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
     <!-- Header Section -->
     <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
         <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -13,10 +16,10 @@
             </div>
 
             <div class="flex items-center gap-2">
-                <flux:button as="a" :href="route('tickets.show', $ticket)" variant="outline" icon="eye">
+                <flux:button as="a" :href="route($prefix . 'tickets.show', $ticket)" variant="outline" icon="eye">
                     {{ __('View Ticket') }}
                 </flux:button>
-                <flux:button as="a" :href="route('tickets.index')" variant="outline" icon="arrow-left">
+                <flux:button as="a" :href="route($prefix . 'tickets.index')" variant="outline" icon="arrow-left">
                     {{ __('Back to Tickets') }}
                 </flux:button>
             </div>
@@ -292,7 +295,7 @@
 
         <!-- Action Buttons -->
         <div class="flex items-center justify-end gap-4">
-            <flux:button as="a" :href="route('tickets.show', $ticket)" variant="outline">
+            <flux:button as="a" :href="route($prefix . 'tickets.show', $ticket)" variant="outline">
                 {{ __('Cancel') }}
             </flux:button>
             <flux:button type="submit" variant="primary">
