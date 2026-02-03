@@ -14,17 +14,17 @@ class MaidPolicy
     public function viewAny(User $user): bool
     {
         // Admin can view all
-        if ($user->hasRole('admin')) {
+        if ($user->role === User::ROLE_ADMIN) {
             return true;
         }
 
         // Trainers with 'maids' permission can view all
-        if ($user->hasRole('trainer') && $user->trainer && $user->trainer->hasAccessTo('maids')) {
+        if ($user->role === User::ROLE_TRAINER && $user->trainer && $user->trainer->hasAccessTo('maids')) {
             return true;
         }
 
         // Clients can browse available maids
-        return $user->hasRole('client');
+        return $user->role === User::ROLE_CLIENT;
     }
 
     /**
@@ -33,17 +33,17 @@ class MaidPolicy
     public function view(User $user, Maid $maid): bool
     {
         // Admin can view all maids
-        if ($user->hasRole('admin')) {
+        if ($user->role === User::ROLE_ADMIN) {
             return true;
         }
 
         // Trainer with 'maids' permission can view all maids in training
-        if ($user->hasRole('trainer') && $user->trainer && $user->trainer->hasAccessTo('maids')) {
+        if ($user->role === User::ROLE_TRAINER && $user->trainer && $user->trainer->hasAccessTo('maids')) {
             return $maid->status === 'in-training';
         }
 
         // Client can only view available maids
-        if ($user->hasRole('client')) {
+        if ($user->role === User::ROLE_CLIENT) {
             return $maid->status === 'available';
         }
 
@@ -55,7 +55,7 @@ class MaidPolicy
      */
     public function create(User $user): bool
     {
-        return $user->hasRole('admin');
+        return $user->role === User::ROLE_ADMIN;
     }
 
     /**
@@ -63,7 +63,7 @@ class MaidPolicy
      */
     public function update(User $user, Maid $maid): bool
     {
-        return $user->hasRole('admin');
+        return $user->role === User::ROLE_ADMIN;
     }
 
     /**
@@ -71,7 +71,7 @@ class MaidPolicy
      */
     public function delete(User $user, Maid $maid): bool
     {
-        return $user->hasRole('admin');
+        return $user->role === User::ROLE_ADMIN;
     }
 
     /**
@@ -79,7 +79,7 @@ class MaidPolicy
      */
     public function restore(User $user, Maid $maid): bool
     {
-        return $user->hasRole('admin');
+        return $user->role === User::ROLE_ADMIN;
     }
 
     /**
@@ -87,7 +87,7 @@ class MaidPolicy
      */
     public function forceDelete(User $user, Maid $maid): bool
     {
-        return $user->hasRole('admin');
+        return $user->role === User::ROLE_ADMIN;
     }
 
     /**
@@ -95,7 +95,7 @@ class MaidPolicy
      */
     public function browse(User $user): bool
     {
-        return $user->hasRole(['admin', 'client']);
+        return $user->role === User::ROLE_ADMIN || $user->role === User::ROLE_CLIENT;
     }
 
     /**
@@ -103,6 +103,6 @@ class MaidPolicy
      */
     public function manageTrainees(User $user): bool
     {
-        return $user->hasRole(['admin', 'trainer']);
+        return $user->role === User::ROLE_ADMIN || $user->role === User::ROLE_TRAINER;
     }
 }
