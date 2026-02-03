@@ -211,13 +211,14 @@ Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function ()
 });
 
 // Trainer-accessible management routes (with permission checks)
-Route::middleware(['auth', 'verified', 'role:trainer'])->group(function () {
+Route::middleware(['auth', 'verified', 'role:trainer'])->prefix('trainer')->name('trainer.')->group(function () {
     // Maids routes (trainers with permission)
     Route::prefix('maids')
         ->middleware(['trainer-sidebar:maids'])
         ->group(function () {
             Route::get('/', \App\Livewire\Maids\Index::class)->name('maids.index');
             Route::get('create', \App\Livewire\Maids\Create::class)->name('maids.create');
+            Route::get('export/pdf', [\App\Http\Controllers\MaidController::class, 'exportPdf'])->name('maids.export.pdf');
             Route::get('{maid}', \App\Livewire\Maids\Show::class)->name('maids.show');
             Route::get('{maid}/edit', \App\Livewire\Maids\Edit::class)->name('maids.edit');
         });
