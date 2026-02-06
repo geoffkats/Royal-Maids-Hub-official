@@ -12,7 +12,10 @@ class ClientEvaluationPolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->role === User::ROLE_TRAINER;
+        return $user->isSuperAdmin()
+            || $user->isOperationsManager()
+            || $user->isCustomerSupport()
+            || $user->role === User::ROLE_TRAINER;
     }
 
     /**
@@ -20,7 +23,7 @@ class ClientEvaluationPolicy
      */
     public function view(User $user, ClientEvaluation $clientEvaluation): bool
     {
-        if ($user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() || $user->isOperationsManager() || $user->isCustomerSupport()) {
             return true;
         }
 
@@ -32,7 +35,9 @@ class ClientEvaluationPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isSuperAdmin() || $user->role === User::ROLE_TRAINER;
+        return $user->isSuperAdmin()
+            || $user->isOperationsManager()
+            || $user->role === User::ROLE_TRAINER;
     }
 
     /**
@@ -40,7 +45,7 @@ class ClientEvaluationPolicy
      */
     public function update(User $user, ClientEvaluation $clientEvaluation): bool
     {
-        if ($user->isSuperAdmin()) {
+        if ($user->isSuperAdmin() || $user->isOperationsManager()) {
             return true;
         }
 

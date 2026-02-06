@@ -87,43 +87,79 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // Temporary placeholder routes for navigation items until features are implemented
-Route::middleware(['auth', 'verified', 'role:admin'])->group(function () {
-    // Users management
-    Route::get('/users', \App\Livewire\Users\Index::class)->name('users.index');
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Users management (admin only)
+    Route::get('/users', \App\Livewire\Users\Index::class)
+        ->middleware(['role:admin'])
+        ->name('users.index');
 
-    // Maids routes
-    Route::get('/maids', \App\Livewire\Maids\Index::class)->name('maids.index');
-    Route::get('/maids/create', \App\Livewire\Maids\Create::class)->name('maids.create');
-    Route::get('/maids/{maid}', \App\Livewire\Maids\Show::class)->name('maids.show');
-    Route::get('/maids/{maid}/edit', \App\Livewire\Maids\Edit::class)->name('maids.edit');
-    Route::get('/maids/export/pdf', [\App\Http\Controllers\MaidController::class, 'exportPdf'])->name('maids.export.pdf');
+    // Maids routes (admin, operations)
+    Route::get('/maids', \App\Livewire\Maids\Index::class)
+        ->middleware(['role:admin,operations_manager'])
+        ->name('maids.index');
+    Route::get('/maids/create', \App\Livewire\Maids\Create::class)
+        ->middleware(['role:admin,operations_manager'])
+        ->name('maids.create');
+    Route::get('/maids/{maid}', \App\Livewire\Maids\Show::class)
+        ->middleware(['role:admin,operations_manager'])
+        ->name('maids.show');
+    Route::get('/maids/{maid}/edit', \App\Livewire\Maids\Edit::class)
+        ->middleware(['role:admin,operations_manager'])
+        ->name('maids.edit');
+    Route::get('/maids/export/pdf', [\App\Http\Controllers\MaidController::class, 'exportPdf'])
+        ->middleware(['role:admin,operations_manager'])
+        ->name('maids.export.pdf');
     
-    // Trainers routes
-    Route::get('/trainers', \App\Livewire\Trainers\Index::class)->name('trainers.index');
-    Route::get('/trainers/create', \App\Livewire\Trainers\Create::class)->name('trainers.create');
-    Route::get('/trainers/{trainer}', \App\Livewire\Trainers\Show::class)->name('trainers.show');
-    Route::get('/trainers/{trainer}/edit', \App\Livewire\Trainers\Edit::class)->name('trainers.edit');
-    Route::get('/trainer-permissions', \App\Livewire\Admin\Trainers\ManagePermissions::class)->name('admin.trainer-permissions');
+    // Trainers routes (admin only)
+    Route::get('/trainers', \App\Livewire\Trainers\Index::class)
+        ->middleware(['role:admin'])
+        ->name('trainers.index');
+    Route::get('/trainers/create', \App\Livewire\Trainers\Create::class)
+        ->middleware(['role:admin'])
+        ->name('trainers.create');
+    Route::get('/trainers/{trainer}', \App\Livewire\Trainers\Show::class)
+        ->middleware(['role:admin'])
+        ->name('trainers.show');
+    Route::get('/trainers/{trainer}/edit', \App\Livewire\Trainers\Edit::class)
+        ->middleware(['role:admin'])
+        ->name('trainers.edit');
+    Route::get('/trainer-permissions', \App\Livewire\Admin\Trainers\ManagePermissions::class)
+        ->middleware(['role:admin'])
+        ->name('admin.trainer-permissions');
     
-    // Clients routes
-    Route::get('/clients', \App\Livewire\Clients\Index::class)->name('clients.index');
-    Route::get('/clients/create', \App\Livewire\Clients\Create::class)->name('clients.create');
-    Route::get('/clients/{client}', \App\Livewire\Clients\Show::class)->name('clients.show');
-    Route::get('/clients/{client}/edit', \App\Livewire\Clients\Edit::class)->name('clients.edit');
+    // Clients routes (role-aware)
+    Route::get('/clients', \App\Livewire\Clients\Index::class)
+        ->middleware(['role:admin,operations_manager,customer_support,finance_officer'])
+        ->name('clients.index');
+    Route::get('/clients/create', \App\Livewire\Clients\Create::class)
+        ->middleware(['role:admin,operations_manager'])
+        ->name('clients.create');
+    Route::get('/clients/{client}', \App\Livewire\Clients\Show::class)
+        ->middleware(['role:admin,operations_manager,customer_support,finance_officer'])
+        ->name('clients.show');
+    Route::get('/clients/{client}/edit', \App\Livewire\Clients\Edit::class)
+        ->middleware(['role:admin,operations_manager'])
+        ->name('clients.edit');
     
     // Bookings routes (moved to authenticated group below)
     
     // Reports routes (moved to admin,trainer group below)
     
     // Packages routes (admin management)
-    Route::get('/packages', \App\Livewire\Packages\Index::class)->name('packages.index');
-    Route::get('/packages/create', \App\Livewire\Packages\Create::class)->name('packages.create');
-    Route::get('/packages/{package}/edit', \App\Livewire\Packages\Edit::class)->name('packages.edit');
+    Route::get('/packages', \App\Livewire\Packages\Index::class)
+        ->middleware(['role:admin'])
+        ->name('packages.index');
+    Route::get('/packages/create', \App\Livewire\Packages\Create::class)
+        ->middleware(['role:admin'])
+        ->name('packages.create');
+    Route::get('/packages/{package}/edit', \App\Livewire\Packages\Edit::class)
+        ->middleware(['role:admin'])
+        ->name('packages.edit');
     
 });
 
-// Tickets routes (admin and trainer access)
-Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function () {
+// Tickets routes (admin, trainer, ops, support access)
+Route::middleware(['auth', 'verified', 'role:admin,trainer,operations_manager,customer_support'])->group(function () {
     // My Inbox (trainers with permission)
     Route::middleware(['trainer-sidebar:tickets_inbox'])->group(function () {
         Route::get('/tickets/inbox', \App\Livewire\Tickets\Inbox::class)->name('tickets.inbox');
@@ -156,8 +192,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/bookings/{booking}/edit', \App\Livewire\Bookings\Edit::class)->name('bookings.edit'); // Edit booking
 });
 
-Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function () {
-    Route::get('/trainees', \App\Livewire\Maids\Index::class)->name('trainees.index');
+Route::middleware(['auth', 'verified', 'role:admin,trainer,operations_manager,finance_officer'])->group(function () {
+    Route::get('/trainees', \App\Livewire\Maids\Index::class)
+        ->middleware(['role:admin,trainer,operations_manager'])
+        ->name('trainees.index');
     
     // Weekly Task Board routes (trainer only)
     Route::prefix('weekly-board')
@@ -171,7 +209,7 @@ Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function ()
             Route::post('/start-next-week', [\App\Http\Controllers\WeeklyTaskBoardController::class, 'startNextWeek'])->name('weekly-board.start-next-week');
         });
     
-    // Reports routes - accessible to admin and trainers
+    // Reports routes - accessible to admin, trainers, ops, finance
     Route::get('/reports', \App\Livewire\Reports\Index::class)->name('reports');
     Route::get('/reports/kpi-dashboard', \App\Livewire\Reports\KpiDashboard::class)->name('reports.kpi-dashboard');
     
@@ -197,7 +235,7 @@ Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function ()
     
     // Training Programs routes
     Route::prefix('programs')
-        ->middleware(['trainer-sidebar:my_programs'])
+        ->middleware(['role:admin,trainer,operations_manager', 'trainer-sidebar:my_programs'])
         ->group(function () {
             Route::get('/', \App\Livewire\Programs\Index::class)->name('programs.index');
             Route::get('create', \App\Livewire\Programs\Create::class)->name('programs.create');
@@ -207,7 +245,7 @@ Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function ()
     
     // Evaluations routes
     Route::prefix('evaluations')
-        ->middleware(['trainer-sidebar:my_evaluations'])
+        ->middleware(['role:admin,trainer,operations_manager', 'trainer-sidebar:my_evaluations'])
         ->group(function () {
             Route::get('/', \App\Livewire\Evaluations\Index::class)->name('evaluations.index');
             Route::get('create', \App\Livewire\Evaluations\Create::class)->name('evaluations.create');
@@ -216,13 +254,6 @@ Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function ()
             Route::get('{evaluation}/edit', \App\Livewire\Evaluations\Edit::class)->name('evaluations.edit');
         });
 
-    // Client evaluations routes
-    Route::prefix('client-evaluations')->group(function () {
-        Route::get('/', \App\Livewire\ClientEvaluations\Index::class)->name('client-evaluations.index');
-        Route::get('create', \App\Livewire\ClientEvaluations\Create::class)->name('client-evaluations.create');
-        Route::get('{evaluation}', \App\Livewire\ClientEvaluations\Show::class)->name('client-evaluations.show');
-    });
-
     // Client evaluation question bank (admin only)
     Route::prefix('client-evaluation-questions')
         ->middleware(['role:admin'])
@@ -230,17 +261,10 @@ Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function ()
             Route::get('/', \App\Livewire\ClientEvaluationQuestions\Index::class)->name('client-evaluation-questions.index');
         });
 
-    // Client feedback responses (admin only)
-    Route::prefix('client-feedback')
-        ->middleware(['role:admin'])
-        ->group(function () {
-            Route::get('/', \App\Livewire\ClientEvaluationResponses\Index::class)->name('client-feedback.index');
-            Route::get('{response}', \App\Livewire\ClientEvaluationResponses\Show::class)
-                ->whereNumber('response')
-                ->name('client-feedback.show');
-        });
     
-    Route::get('/schedule', \App\Livewire\Schedule\Index::class)->name('schedule.index');
+    Route::get('/schedule', \App\Livewire\Schedule\Index::class)
+        ->middleware(['role:admin,trainer,operations_manager'])
+        ->name('schedule.index');
     
     // Trainer reports route (with permission check)
     Route::prefix('reports')
@@ -250,11 +274,33 @@ Route::middleware(['auth', 'verified', 'role:admin,trainer'])->group(function ()
         });
 
     // CRM Reports (admin and trainer)
-    Route::prefix('crm/reports')->name('crm.reports.')->group(function () {
+    Route::prefix('crm/reports')
+        ->middleware(['role:admin,trainer'])
+        ->name('crm.reports.')
+        ->group(function () {
         Route::get('/funnel', \App\Livewire\CRM\Reports\LeadFunnel::class)->name('funnel');
         Route::get('/sales-performance', \App\Livewire\CRM\Reports\SalesPerformance::class)->name('sales-performance');
         Route::get('/activity-metrics', \App\Livewire\CRM\Reports\ActivityMetrics::class)->name('activity-metrics');
         Route::get('/revenue-forecasting', \App\Livewire\CRM\Reports\RevenueForecasting::class)->name('revenue-forecasting');
+    });
+});
+
+// Client evaluations routes (admin, trainer, ops, support)
+Route::middleware(['auth', 'verified', 'role:admin,trainer,operations_manager,customer_support'])->group(function () {
+    Route::prefix('client-evaluations')->group(function () {
+        Route::get('/', \App\Livewire\ClientEvaluations\Index::class)->name('client-evaluations.index');
+        Route::get('create', \App\Livewire\ClientEvaluations\Create::class)->name('client-evaluations.create');
+        Route::get('{evaluation}', \App\Livewire\ClientEvaluations\Show::class)->name('client-evaluations.show');
+    });
+});
+
+// Client feedback responses (admin, ops, support)
+Route::middleware(['auth', 'verified', 'role:admin,operations_manager,customer_support'])->group(function () {
+    Route::prefix('client-feedback')->group(function () {
+        Route::get('/', \App\Livewire\ClientEvaluationResponses\Index::class)->name('client-feedback.index');
+        Route::get('{response}', \App\Livewire\ClientEvaluationResponses\Show::class)
+            ->whereNumber('response')
+            ->name('client-feedback.show');
     });
 });
 

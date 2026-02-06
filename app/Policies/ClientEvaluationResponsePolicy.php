@@ -13,7 +13,9 @@ class ClientEvaluationResponsePolicy
      */
     public function viewAny(User $user): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || $user->isCustomerSupport();
     }
 
     /**
@@ -21,7 +23,9 @@ class ClientEvaluationResponsePolicy
      */
     public function view(User $user, ClientEvaluationResponse $clientEvaluationResponse): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || $user->isCustomerSupport();
     }
 
     /**

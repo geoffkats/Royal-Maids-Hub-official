@@ -14,8 +14,12 @@ class BookingPolicy
     public function viewAny(User $user): bool
     {
         // Admin can view all bookings, clients can view their own, trainers with permission
-        return $user->isAdminLike() || $user->role === 'client' ||
-               ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || $user->isCustomerSupport()
+            || $user->isFinanceOfficer()
+            || $user->role === 'client'
+            || ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
     /**
@@ -25,6 +29,10 @@ class BookingPolicy
     {
         // Admin can view all
         if ($user->isAdminLike()) {
+            return true;
+        }
+
+        if ($user->isOperationsManager() || $user->isCustomerSupport() || $user->isFinanceOfficer()) {
             return true;
         }
 
@@ -47,8 +55,11 @@ class BookingPolicy
     public function create(User $user): bool
     {
         // Admin can create bookings, clients can create their own, trainers with permission
-        return $user->isAdminLike() || $user->role === 'client' ||
-               ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || $user->isCustomerSupport()
+            || $user->role === 'client'
+            || ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
     /**
@@ -58,6 +69,10 @@ class BookingPolicy
     {
         // Admin can update any booking
         if ($user->isAdminLike()) {
+            return true;
+        }
+
+        if ($user->isOperationsManager() || $user->isCustomerSupport()) {
             return true;
         }
 
@@ -80,8 +95,9 @@ class BookingPolicy
     public function delete(User $user, Booking $booking): bool
     {
         // Admin can delete, trainers with permission can delete
-        return $user->isAdminLike() ||
-               ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
     /**
