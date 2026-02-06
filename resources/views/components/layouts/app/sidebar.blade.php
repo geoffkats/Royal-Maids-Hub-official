@@ -42,6 +42,10 @@
             @php
                 $user = auth()->user();
                 $role = $user?->role ?? 'client';
+                $isOperationsManager = $role === 'operations_manager';
+                $isFinanceOfficer = $role === 'finance_officer';
+                $isCustomerSupport = $role === 'customer_support';
+                $isStaff = $isOperationsManager || $isFinanceOfficer || $isCustomerSupport;
                 $is = fn(string $name) => request()->routeIs($name);
                 $href = function (string $name, string $fallback = '#') {
                     return \Illuminate\Support\Facades\Route::has($name) ? route($name) : $fallback;
@@ -347,6 +351,127 @@
                         </flux:navlist.item>
                     </flux:navlist.group>
 
+                    @elseif ($isStaff)
+                    <!-- Staff Navigation -->
+                    <flux:navlist.group :heading="__('Staff Tools')" class="mb-4">
+                        <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                            {{ __('Dashboard') }}
+                        </flux:navlist.item>
+                    </flux:navlist.group>
+
+                    @if ($isOperationsManager)
+                        <flux:navlist.group :heading="__('Operations')" class="mb-4">
+                            <flux:navlist.item icon="calendar-days" :href="$href('bookings.index')" :current="$is('bookings.*')">
+                                {{ __('Bookings') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="user-group" :href="$href('clients.index')" :current="$is('clients.*')">
+                                {{ __('Clients') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="users" :href="$href('maids.index')" :current="$is('maids.*')">
+                                {{ __('Maids') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="map-pin" :href="$href('deployments.index')" :current="$is('deployments.*')">
+                                {{ __('Deployments') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="document-text" :href="$href('contracts.index')" :current="$is('contracts.*')">
+                                {{ __('Maid Contracts') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="calendar-days" :href="$href('schedule.index')" :current="$is('schedule.*')">
+                                {{ __('Schedule') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
+
+                        <flux:navlist.group :heading="__('Training & Evaluations')" class="mb-4">
+                            <flux:navlist.item icon="clipboard-document-list" :href="$href('programs.index')" :current="$is('programs.*')">
+                                {{ __('Training Programs') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="clipboard-document-check" :href="$href('evaluations.index')" :current="$is('evaluations.*')">
+                                {{ __('Evaluations') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="calendar-days" :href="$href('evaluations.tasks')" :current="$is('evaluations.tasks')">
+                                {{ __('Evaluation Tasks') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
+
+                        <flux:navlist.group :heading="__('Support & Tickets')" class="mb-4">
+                            <flux:navlist.item icon="lifebuoy" :href="$href('tickets.index')" :current="$is('tickets.index')">
+                                {{ __('All Tickets') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="inbox" :href="$href('tickets.inbox')" :current="$is('tickets.inbox')">
+                                {{ __('My Inbox') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
+
+                        <flux:navlist.group :heading="__('Reports & Analytics')" class="mb-4">
+                            <flux:navlist.item icon="chart-bar" :href="$href('reports')" :current="$is('reports')">
+                                {{ __('Reports') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="chart-pie" :href="$href('reports.kpi-dashboard')" :current="$is('reports.kpi-dashboard')">
+                                {{ __('KPI Dashboard') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
+                    @endif
+
+                    @if ($isFinanceOfficer)
+                        <flux:navlist.group :heading="__('Finance')" class="mb-4">
+                            <flux:navlist.item icon="document-text" :href="$href('contracts.index')" :current="$is('contracts.*')">
+                                {{ __('Maid Contracts') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="map-pin" :href="$href('deployments.index')" :current="$is('deployments.*')">
+                                {{ __('Deployments') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="chart-bar" :href="$href('reports')" :current="$is('reports')">
+                                {{ __('Reports') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="chart-pie" :href="$href('reports.kpi-dashboard')" :current="$is('reports.kpi-dashboard')">
+                                {{ __('KPI Dashboard') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
+
+                        <flux:navlist.group :heading="__('Audit Context')" class="mb-4">
+                            <flux:navlist.item icon="calendar-days" :href="$href('bookings.index')" :current="$is('bookings.*')">
+                                {{ __('Bookings') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="user-group" :href="$href('clients.index')" :current="$is('clients.*')">
+                                {{ __('Clients') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
+                    @endif
+
+                    @if ($isCustomerSupport)
+                        <flux:navlist.group :heading="__('Customer Support')" class="mb-4">
+                            <flux:navlist.item icon="user-group" :href="$href('clients.index')" :current="$is('clients.*')">
+                                {{ __('Clients') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="calendar-days" :href="$href('bookings.index')" :current="$is('bookings.*')">
+                                {{ __('Bookings') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="lifebuoy" :href="$href('tickets.index')" :current="$is('tickets.index')">
+                                {{ __('All Tickets') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="inbox" :href="$href('tickets.inbox')" :current="$is('tickets.inbox')">
+                                {{ __('My Inbox') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="clipboard-document-check" :href="$href('client-evaluations.index')" :current="$is('client-evaluations.*')">
+                                {{ __('Client Evaluations') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="chat-bubble-left-right" :href="$href('client-feedback.index')" :current="$is('client-feedback.*')">
+                                {{ __('Client Feedback') }}
+                            </flux:navlist.item>
+                        </flux:navlist.group>
+                    @endif
+
+                    <flux:navlist.group :heading="__('My Profile')" class="mb-4">
+                        <flux:navlist.item icon="user" href="/settings/profile" :current="$is('profile.*')">
+                            {{ __('View Profile') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="cog-6-tooth" href="/settings/profile" :current="$is('profile.*')">
+                            {{ __('Edit Profile') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="key" href="/settings/password" :current="$is('password.*')">
+                            {{ __('Change Password') }}
+                        </flux:navlist.item>
+                    </flux:navlist.group>
                     @else
                     <!-- Client Navigation -->
                     <flux:navlist.group :heading="__('Bookings')" class="mb-4">

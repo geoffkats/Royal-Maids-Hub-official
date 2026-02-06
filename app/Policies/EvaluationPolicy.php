@@ -13,7 +13,9 @@ class EvaluationPolicy
     public function viewAny(User $user): bool
     {
         // Admin and trainers can view evaluations
-        return $user->isAdminLike() || $user->role === User::ROLE_TRAINER;
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || $user->role === User::ROLE_TRAINER;
     }
 
     /**
@@ -22,7 +24,7 @@ class EvaluationPolicy
     public function view(User $user, Evaluation $evaluation): bool
     {
         // Admin can view all
-        if ($user->isAdminLike()) {
+        if ($user->isAdminLike() || $user->isOperationsManager()) {
             return true;
         }
 
@@ -40,7 +42,9 @@ class EvaluationPolicy
     public function create(User $user): bool
     {
         // Admin and trainers can create evaluations
-        return $user->isAdminLike() || $user->role === User::ROLE_TRAINER;
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || $user->role === User::ROLE_TRAINER;
     }
 
     /**
@@ -49,7 +53,7 @@ class EvaluationPolicy
     public function update(User $user, Evaluation $evaluation): bool
     {
         // Admin can update all
-        if ($user->isAdminLike()) {
+        if ($user->isAdminLike() || $user->isOperationsManager()) {
             return true;
         }
 
@@ -67,6 +71,6 @@ class EvaluationPolicy
     public function delete(User $user, Evaluation $evaluation): bool
     {
         // Only admin can delete evaluations
-        return $user->isAdminLike();
+        return $user->isAdminLike() || $user->isOperationsManager();
     }
 }

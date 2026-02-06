@@ -29,7 +29,7 @@
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
             <flux:heading size="xl">{{ __('User Management') }}</flux:heading>
-            <flux:subheading class="mt-1">{{ __('Create users, assign roles, and manage access.') }}</flux:subheading>
+            <flux:subheading class="mt-1">{{ __('Create staff users, assign roles, and manage access.') }}</flux:subheading>
         </div>
 
         <flux:button wire:click="openCreateModal" variant="primary" icon="plus">
@@ -43,7 +43,7 @@
         <div class="rounded-xl border border-[#F5B301]/25 bg-[#512B58]/60 p-5 shadow-lg">
             <div class="flex items-center justify-between">
                 <div>
-                    <p class="text-xs uppercase tracking-wide text-[#D1C4E9]">{{ __('Total Users') }}</p>
+                    <p class="text-xs uppercase tracking-wide text-[#D1C4E9]">{{ __('Total Staff') }}</p>
                     <p class="mt-2 text-2xl font-semibold text-white">{{ $totalUsers }}</p>
                 </div>
                 <div class="h-10 w-10 rounded-lg bg-[#F5B301]/20 flex items-center justify-center">
@@ -205,6 +205,7 @@
                                     variant="outline"
                                     size="sm"
                                     wire:click="openDeactivateModal({{ $user->id }})"
+                                    :disabled="$user->role === 'super_admin'"
                                 >
                                     {{ $user->is_active ? __('Deactivate') : __('Activate') }}
                                 </flux:button>
@@ -215,6 +216,7 @@
                                     class="!text-red-600 hover:!bg-red-50 dark:!text-red-400 dark:hover:!bg-red-950"
                                     title="{{ __('Delete') }}"
                                     wire:click="openDeleteModal({{ $user->id }})"
+                                    :disabled="$user->role === 'super_admin'"
                                 ></flux:button>
                             </div>
                         </td>

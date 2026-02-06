@@ -8,12 +8,14 @@ class TrainingProgramPolicy
 {
     public function viewAny(User $user): bool
     {
-        return $user->isAdminLike() || $user->role === User::ROLE_TRAINER;
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || $user->role === User::ROLE_TRAINER;
     }
 
     public function view(User $user, TrainingProgram $program): bool
     {
-        if ($user->isAdminLike()) {
+        if ($user->isAdminLike() || $user->isOperationsManager()) {
             return true;
         }
 
@@ -27,12 +29,14 @@ class TrainingProgramPolicy
 
     public function create(User $user): bool
     {
-        return $user->isAdminLike() || $user->role === User::ROLE_TRAINER;
+        return $user->isAdminLike()
+            || $user->isOperationsManager()
+            || $user->role === User::ROLE_TRAINER;
     }
 
     public function update(User $user, TrainingProgram $program): bool
     {
-        if ($user->isAdminLike()) {
+        if ($user->isAdminLike() || $user->isOperationsManager()) {
             return true;
         }
 
@@ -47,6 +51,6 @@ class TrainingProgramPolicy
     public function delete(User $user, TrainingProgram $program): bool
     {
         // Only admin can delete
-        return $user->isAdminLike();
+        return $user->isAdminLike() || $user->isOperationsManager();
     }
 }

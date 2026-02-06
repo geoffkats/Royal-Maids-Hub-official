@@ -241,7 +241,14 @@ class Index extends Component
     {
         // Admin and trainers can view reports
         // Trainers will see filtered data based on their programs/evaluations
-        if (!in_array(auth()->user()->role, ['admin', 'trainer'])) {
+        $user = auth()->user();
+        $allowedRoles = [
+            User::ROLE_TRAINER,
+            User::ROLE_OPERATIONS_MANAGER,
+            User::ROLE_FINANCE_OFFICER,
+        ];
+
+        if (!$user->isAdminLike() && !in_array($user->role, $allowedRoles, true)) {
             abort(403);
         }
 

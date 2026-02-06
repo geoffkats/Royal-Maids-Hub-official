@@ -14,7 +14,7 @@ class MaidPolicy
     public function viewAny(User $user): bool
     {
         // Admin can view all
-        if ($user->isAdminLike()) {
+        if ($user->isAdminLike() || $user->isOperationsManager()) {
             return true;
         }
 
@@ -33,7 +33,7 @@ class MaidPolicy
     public function view(User $user, Maid $maid): bool
     {
         // Admin can view all maids
-        if ($user->isAdminLike()) {
+        if ($user->isAdminLike() || $user->isOperationsManager()) {
             return true;
         }
 
@@ -55,7 +55,7 @@ class MaidPolicy
      */
     public function create(User $user): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdminLike() || $user->isOperationsManager();
     }
 
     /**
@@ -63,7 +63,7 @@ class MaidPolicy
      */
     public function update(User $user, Maid $maid): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdminLike() || $user->isOperationsManager();
     }
 
     /**
@@ -71,7 +71,7 @@ class MaidPolicy
      */
     public function delete(User $user, Maid $maid): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdminLike() || $user->isOperationsManager();
     }
 
     /**
@@ -79,7 +79,7 @@ class MaidPolicy
      */
     public function restore(User $user, Maid $maid): bool
     {
-        return $user->isAdminLike();
+        return $user->isAdminLike() || $user->isOperationsManager();
     }
 
     /**
