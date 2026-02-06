@@ -2,23 +2,21 @@
 
 namespace App\Livewire\Schedule;
 
+use App\Models\Deployment;
 use App\Models\TrainingProgram;
 use App\Models\Evaluation;
-use App\Models\Maid;
 use Livewire\Component;
-use Livewire\WithPagination;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Gate;
 
 class Index extends Component
 {
-    use WithPagination;
-
     public $view = 'calendar'; // 'calendar' or 'list'
     public $selectedDate;
     public $selectedMonth;
     public $search = '';
     public $statusFilter = 'all';
-    public $perPage = 10;
+    public $typeFilter = 'all';
 
     public function mount()
     {
@@ -28,22 +26,22 @@ class Index extends Component
 
     public function updatedView()
     {
-        $this->resetPage();
     }
 
     public function updatedSelectedMonth()
     {
-        $this->resetPage();
     }
 
     public function updatedSearch()
     {
-        $this->resetPage();
     }
 
     public function updatedStatusFilter()
     {
-        $this->resetPage();
+    }
+
+    public function updatedTypeFilter()
+    {
     }
 
     public function selectDate($date)
@@ -51,37 +49,20 @@ class Index extends Component
         $this->selectedDate = $date;
     }
 
-    public function getSessionsProperty()
+    public function getEventsProperty()
     {
-        $query = TrainingProgram::where('trainer_id', auth()->user()->trainer->id)
-            ->with(['maid']);
+        $startDate = now()->subMonths(6)->startOfDay();
+        $endDate = now()->addMonths(3)->endOfDay();
 
-        // Only show training programs from the last 6 months to current + 3 months ahead
-        $startDate = now()->subMonths(6);
-        $endDate = now()->addMonths(3);
-        $query->whereBetween('start_date', [$startDate, $endDate]);
+        return $this->buildEvents($startDate, $endDate);
+    }
 
-        // Apply search filter
-        if ($this->search) {
-            $query->whereHas('maid', function($q) {
-                $q->where('first_name', 'like', '%' . $this->search . '%')
-                  ->orWhere('last_name', 'like', '%' . $this->search . '%');
-            });
-        }
+    public function getMonthEventsProperty()
+    {
+        $startOfMonth = Carbon::parse($this->selectedMonth)->startOfMonth()->startOfDay();
+        $endOfMonth = Carbon::parse($this->selectedMonth)->endOfMonth()->endOfDay();
 
-        // Apply status filter
-        if ($this->statusFilter !== 'all') {
-            $query->where('status', $this->statusFilter);
-        }
-
-        // Apply month filter for calendar view
-        if ($this->view === 'calendar') {
-            $startOfMonth = Carbon::parse($this->selectedMonth)->startOfMonth();
-            $endOfMonth = Carbon::parse($this->selectedMonth)->endOfMonth();
-            $query->whereBetween('start_date', [$startOfMonth, $endOfMonth]);
-        }
-
-        return $query->orderBy('start_date')->get();
+        return $this->buildEvents($startOfMonth, $endOfMonth);
     }
 
     public function getCalendarDaysProperty()
@@ -89,13 +70,10 @@ class Index extends Component
         $startOfMonth = Carbon::parse($this->selectedMonth)->startOfMonth();
         $endOfMonth = Carbon::parse($this->selectedMonth)->endOfMonth();
         
-        // Get all sessions for the month (already filtered by date range in getSessionsProperty)
-        $sessions = TrainingProgram::where('trainer_id', auth()->user()->trainer->id)
-            ->whereBetween('start_date', [$startOfMonth, $endOfMonth])
-            ->with(['maid'])
-            ->get()
+        // Get all events for the month
+        $events = $this->monthEvents
             ->groupBy(function($session) {
-                return $session->start_date->format('Y-m-d');
+                return $session['date']->format('Y-m-d');
             });
         
         $days = [];
@@ -104,11 +82,11 @@ class Index extends Component
 
         while ($current->lte($end)) {
             $dateString = $current->format('Y-m-d');
-            $daySessions = $sessions->get($dateString, collect());
+            $dayEvents = $events->get($dateString, collect());
 
             $days[] = [
                 'date' => $current->copy(),
-                'sessions' => $daySessions,
+                'events' => $dayEvents,
                 'isCurrentMonth' => $current->month === $startOfMonth->month,
                 'isToday' => $current->isToday(),
                 'isSelected' => $dateString === $this->selectedDate,
@@ -120,33 +98,168 @@ class Index extends Component
         return $days;
     }
 
-    public function getSelectedDaySessionsProperty()
+    public function getSelectedDayEventsProperty()
     {
-        // Only show training programs from the last 6 months to current + 3 months ahead
-        $startDate = now()->subMonths(6);
-        $endDate = now()->addMonths(3);
-        
-        return TrainingProgram::where('trainer_id', auth()->user()->trainer->id)
-            ->whereDate('start_date', $this->selectedDate)
-            ->whereBetween('start_date', [$startDate, $endDate])
-            ->with(['maid'])
-            ->orderBy('start_date')
-            ->get();
+        if (!$this->selectedDate) {
+            return collect();
+        }
+
+        $date = Carbon::parse($this->selectedDate)->startOfDay();
+
+        return $this->buildEvents($date, $date->copy()->endOfDay());
     }
 
-    public function getUpcomingSessionsProperty()
+    public function getUpcomingEventsProperty()
     {
-        // Only show upcoming training programs within the next 3 months
-        $endDate = now()->addMonths(3);
-        
-        return TrainingProgram::where('trainer_id', auth()->user()->trainer->id)
-            ->where('status', 'scheduled')
-            ->whereDate('start_date', '>=', now())
-            ->whereDate('start_date', '<=', $endDate)
-            ->with(['maid'])
-            ->orderBy('start_date')
-            ->limit(5)
-            ->get();
+        $endDate = now()->addMonths(3)->endOfDay();
+
+        return $this->buildEvents(now()->startOfDay(), $endDate)
+            ->sortBy('date')
+            ->take(5)
+            ->values();
+    }
+
+    protected function isTrainer(): bool
+    {
+        return auth()->user()->role === 'trainer' && auth()->user()->trainer;
+    }
+
+    protected function buildEvents(Carbon $startDate, Carbon $endDate)
+    {
+        $events = collect();
+
+        $trainingQuery = TrainingProgram::with(['maid'])
+            ->whereBetween('start_date', [$startDate, $endDate]);
+
+        if ($this->isTrainer()) {
+            $trainingQuery->where('trainer_id', auth()->user()->trainer->id);
+        }
+
+        if ($this->search) {
+            $search = $this->search;
+            $trainingQuery->whereHas('maid', function ($q) use ($search) {
+                $q->where('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $trainingQuery->get()->each(function ($program) use ($events) {
+            $events->push([
+                'key' => 'training-' . $program->id,
+                'type' => 'training',
+                'date' => $program->start_date,
+                'title' => $program->maid?->full_name ?? __('Unknown Maid'),
+                'subtitle' => $program->program_type,
+                'status' => $program->status,
+                'model' => $program,
+            ]);
+        });
+
+        $evaluationQuery = Evaluation::with(['maid', 'program'])
+            ->whereBetween('evaluation_date', [$startDate, $endDate]);
+
+        if ($this->isTrainer()) {
+            $evaluationQuery->where('trainer_id', auth()->user()->trainer->id);
+        }
+
+        if ($this->search) {
+            $search = $this->search;
+            $evaluationQuery->whereHas('maid', function ($q) use ($search) {
+                $q->where('first_name', 'like', '%' . $search . '%')
+                    ->orWhere('last_name', 'like', '%' . $search . '%');
+            });
+        }
+
+        $evaluationQuery->get()->each(function ($evaluation) use ($events) {
+            $events->push([
+                'key' => 'evaluation-' . $evaluation->id,
+                'type' => 'evaluation',
+                'date' => $evaluation->evaluation_date,
+                'title' => $evaluation->maid?->full_name ?? __('Unknown Maid'),
+                'subtitle' => $evaluation->program?->program_type ?? __('Evaluation'),
+                'status' => $evaluation->status,
+                'model' => $evaluation,
+            ]);
+        });
+
+        $deploymentQuery = Deployment::with(['maid', 'client'])
+            ->whereNotNull('deployment_date')
+            ->whereBetween('deployment_date', [$startDate, $endDate]);
+
+        if ($this->isTrainer()) {
+            $deploymentQuery->whereHas('maid.trainingPrograms', function ($q) {
+                $q->where('trainer_id', auth()->user()->trainer->id);
+            });
+        }
+
+        if ($this->search) {
+            $search = $this->search;
+            $deploymentQuery->where(function ($q) use ($search) {
+                $q->whereHas('maid', function ($maidQuery) use ($search) {
+                    $maidQuery->where('first_name', 'like', '%' . $search . '%')
+                        ->orWhere('last_name', 'like', '%' . $search . '%');
+                })
+                ->orWhere('client_name', 'like', '%' . $search . '%')
+                ->orWhereHas('client', function ($clientQuery) use ($search) {
+                    $clientQuery->where('company_name', 'like', '%' . $search . '%')
+                        ->orWhere('name', 'like', '%' . $search . '%');
+                });
+            });
+        }
+
+        $deploymentQuery->get()->each(function ($deployment) use ($events) {
+            $events->push([
+                'key' => 'deployment-' . $deployment->id,
+                'type' => 'deployment',
+                'date' => $deployment->deployment_date,
+                'title' => $deployment->maid?->full_name ?? __('Unknown Maid'),
+                'subtitle' => $deployment->client?->company_name ?? $deployment->client_name ?? __('Client'),
+                'status' => $deployment->status,
+                'model' => $deployment,
+            ]);
+
+            $hasFinance = $deployment->monthly_salary
+                || $deployment->maid_salary
+                || $deployment->client_payment
+                || $deployment->service_paid
+                || $deployment->payment_status
+                || $deployment->salary_paid_date;
+
+            if ($hasFinance && Gate::allows('viewSensitiveFinancials', $deployment)) {
+                $events->push([
+                    'key' => 'finance-' . $deployment->id,
+                    'type' => 'finance',
+                    'date' => $deployment->salary_paid_date ?? $deployment->deployment_date,
+                    'title' => $deployment->maid?->full_name ?? __('Unknown Maid'),
+                    'subtitle' => $deployment->client?->company_name ?? $deployment->client_name ?? __('Client'),
+                    'status' => $deployment->payment_status ?? 'pending',
+                    'model' => $deployment,
+                    'finance' => [
+                        'monthly_salary' => $deployment->monthly_salary,
+                        'maid_salary' => $deployment->maid_salary,
+                        'client_payment' => $deployment->client_payment,
+                        'service_paid' => $deployment->service_paid,
+                        'payment_status' => $deployment->payment_status,
+                        'salary_paid_date' => $deployment->salary_paid_date,
+                        'currency' => $deployment->currency,
+                    ],
+                ]);
+            }
+        });
+
+        $events = $events->filter(function ($event) {
+            if ($this->typeFilter !== 'all' && $event['type'] !== $this->typeFilter) {
+                return false;
+            }
+
+            if ($this->statusFilter !== 'all' && ($event['status'] ?? null) !== $this->statusFilter) {
+                return false;
+            }
+
+            return true;
+        });
+
+        return $events->sortBy('date')->values();
     }
 
 

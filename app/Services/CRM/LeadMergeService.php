@@ -51,12 +51,8 @@ class LeadMergeService
                 'created_by' => auth()->id() ?? $primaryLead->owner_id,
             ]);
 
-            // Soft delete or hard delete the duplicate
-            if ($options['soft_delete'] ?? true) {
-                $duplicateLead->delete(); // Soft delete if using SoftDeletes trait
-            } else {
-                $duplicateLead->forceDelete();
-            }
+            // Always soft delete to protect data integrity.
+            $duplicateLead->delete();
 
             DB::commit();
 

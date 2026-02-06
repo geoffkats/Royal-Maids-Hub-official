@@ -30,6 +30,8 @@ return new class extends Migration
             $table->foreignId('interested_package_id')->nullable()->constrained('packages')->onDelete('set null');
             $table->text('notes')->nullable();
             $table->foreignId('client_id')->nullable()->constrained('clients')->onDelete('set null'); // audit link after conversion
+            // Enable soft deletes for recoverability and audit safety.
+            $table->softDeletes();
             $table->timestamps();
             
             $table->index('email');

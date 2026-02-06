@@ -7,6 +7,7 @@ use App\Models\Client;
 use App\Models\Deployment;
 use App\Models\Evaluation;
 use App\Models\Maid;
+use App\Models\MaidContract;
 use App\Models\Package;
 use App\Models\Trainer;
 use App\Models\TrainingProgram;
@@ -204,7 +205,15 @@ class AdminDashboard extends Component
         $activeDeployments = Deployment::where('status', 'active')->count();
         $completedDeployments = Deployment::where('status', 'completed')->count();
         $terminatedDeployments = Deployment::where('status', 'terminated')->count();
-        
+
+        // Contracts
+        $totalContracts = MaidContract::count();
+        $activeContracts = MaidContract::where('contract_status', 'active')->count();
+        $expiringContracts = MaidContract::where('contract_status', 'active')
+            ->whereNotNull('contract_end_date')
+            ->whereBetween('contract_end_date', [now(), now()->addDays(30)])
+            ->count();
+
         // Average Deployment Duration (for completed deployments)
         $avgDeploymentDays = Deployment::where('status', 'completed')
             ->whereNotNull('end_date')
@@ -290,6 +299,8 @@ class AdminDashboard extends Component
             'silverBookingCount', 'goldBookingCount', 'platinumBookingCount',
             // Deployments
             'activeDeployments', 'completedDeployments', 'terminatedDeployments', 'avgDeploymentDuration',
+            // Contracts
+            'totalContracts', 'activeContracts', 'expiringContracts',
             // Tickets
             'totalTickets', 'openTickets', 'slaBreachedTickets', 'resolvedTickets',
             // CRM

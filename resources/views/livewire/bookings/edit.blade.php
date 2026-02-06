@@ -145,23 +145,60 @@
                             @enderror
                         </div>
 
-                        <div class="space-y-2 md:col-span-2">
-                            <label for="national_id" class="block text-sm font-semibold text-white">
-                                {{ __('National ID / Passport') }}
-                            </label>
-                            @if($existing_national_id_path)
-                                <div class="mt-2 mb-3 flex items-center gap-3 rounded-xl border border-[#F5B301]/30 bg-white/5 p-3">
-                                    <flux:icon.document-text class="size-5 text-[#F5B301]" />
-                                    <span class="text-sm text-white">{{ __('Current document on file') }}</span>
-                                    <a href="{{ \Storage::url($existing_national_id_path) }}" target="_blank" class="ml-auto text-sm text-[#F5B301] hover:text-[#FFD700] underline">
-                                        {{ __('View') }}
-                                    </a>
-                                </div>
-                            @endif
-                            <input type="file" 
-                                   wire:model="national_id" 
-                                   id="national_id"
-                                   accept=".pdf,.jpg,.jpeg,.png"
+                        @can('updateSensitiveIdentity')
+                            <div class="space-y-2">
+                                <label for="identity_type" class="block text-sm font-semibold text-white">
+                                    {{ __('Identity Type') }}
+                                </label>
+                                <select wire:model="identity_type"
+                                        id="identity_type"
+                                        class="w-full px-4 py-3 bg-white/10 border border-[#F5B301]/30 rounded-xl focus:ring-2 focus:ring-[#F5B301] focus:border-transparent text-white transition-all duration-300">
+                                    <option value="" class="bg-[#512B58] text-white">{{ __('Select identity type') }}</option>
+                                    <option value="nin" class="bg-[#512B58] text-white">{{ __('NIN') }}</option>
+                                    <option value="passport" class="bg-[#512B58] text-white">{{ __('Passport') }}</option>
+                                </select>
+                                @error('identity_type') 
+                                    <div class="flex items-center gap-2 text-red-400 text-sm mt-1">
+                                        <flux:icon.exclamation-circle class="size-4" />
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="identity_number" class="block text-sm font-semibold text-white">
+                                    {{ __('Identity Number') }}
+                                </label>
+                                <input type="text" 
+                                       wire:model="identity_number" 
+                                       id="identity_number"
+                                       class="w-full px-4 py-3 bg-white/10 border border-[#F5B301]/30 rounded-xl focus:ring-2 focus:ring-[#F5B301] focus:border-transparent text-white placeholder-[#D1C4E9]/60 transition-all duration-300"
+                                       placeholder="{{ __('Enter identity number') }}">
+                                @error('identity_number') 
+                                    <div class="flex items-center gap-2 text-red-400 text-sm mt-1">
+                                        <flux:icon.exclamation-circle class="size-4" />
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+
+                            <div class="space-y-2 md:col-span-2">
+                                <label for="national_id" class="block text-sm font-semibold text-white">
+                                    {{ __('National ID / Passport') }}
+                                </label>
+                                @if($existing_national_id_path)
+                                    <div class="mt-2 mb-3 flex items-center gap-3 rounded-xl border border-[#F5B301]/30 bg-white/5 p-3">
+                                        <flux:icon.document-text class="size-5 text-[#F5B301]" />
+                                        <span class="text-sm text-white">{{ __('Current document on file') }}</span>
+                                        <a href="{{ \Storage::url($existing_national_id_path) }}" target="_blank" class="ml-auto text-sm text-[#F5B301] hover:text-[#FFD700] underline">
+                                            {{ __('View') }}
+                                        </a>
+                                    </div>
+                                @endif
+                                <input type="file" 
+                                       wire:model="national_id" 
+                                       id="national_id"
+                                       accept=".pdf,.jpg,.jpeg,.png"
                                    class="w-full px-4 py-3 bg-white/10 border border-[#F5B301]/30 rounded-xl focus:ring-2 focus:ring-[#F5B301] focus:border-transparent text-white transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#F5B301] file:text-[#512B58] hover:file:bg-[#FFD700]">
                             <p class="mt-1 text-xs text-[#D1C4E9]/60">{{ __('Upload new file to replace existing (PDF, JPG, PNG - Max 2MB)') }}</p>
                             @error('national_id') 
@@ -171,6 +208,7 @@
                                 </div>
                             @enderror
                         </div>
+                        @endcan
                     </div>
                 </div>
 
@@ -867,7 +905,7 @@
                 {{-- Action Buttons --}}
                 <div class="flex items-center justify-end gap-3 pt-6">
                     <flux:button as="a" 
-                                 :href="route('bookings.show', $booking)" 
+                                 :href="route($prefix . 'bookings.show', $booking)" 
                                  variant="outline"
                                  class="border-white/30 text-white hover:bg-white/10">
                         {{ __('Cancel') }}

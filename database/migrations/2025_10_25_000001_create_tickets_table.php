@@ -63,6 +63,7 @@ return new class extends Migration {
             $table->tinyInteger('satisfaction_rating')->nullable();
             
             $table->timestamps();
+            // Enable soft deletes for recoverability and audit safety.
             $table->softDeletes();
 
             // Indexes

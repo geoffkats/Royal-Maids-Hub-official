@@ -5,9 +5,16 @@
             <flux:subheading class="mt-1">{{ __('Manage training programs and assignments') }}</flux:subheading>
         </div>
 
-        <flux:button as="a" :href="route('programs.create')" variant="primary" icon="plus">
-            {{ __('New Program') }}
-        </flux:button>
+        <div class="flex items-center gap-2">
+            @if(auth()->user()->role === 'admin')
+                <flux:button wire:click="openHubProgramModal" variant="outline" icon="academic-cap">
+                    {{ __('Assign Hub Training') }}
+                </flux:button>
+            @endif
+            <flux:button as="a" :href="route('programs.create')" variant="primary" icon="plus">
+                {{ __('New Program') }}
+            </flux:button>
+        </div>
     </div>
 
     <flux:separator variant="subtle" />
@@ -308,6 +315,36 @@
             </flux:button>
             <flux:button wire:click="delete" variant="danger">
                 {{ __('Delete Program') }}
+            </flux:button>
+        </div>
+    </flux:modal>
+
+    {{-- Hub Training Modal --}}
+    <flux:modal name="hub-training" wire:model="showHubProgramModal" class="space-y-6">
+        <div>
+            <flux:heading size="lg">{{ __('Assign Royal Maids Hub Training') }}</flux:heading>
+            <flux:subheading class="mt-2">
+                {{ __('Create a default training program for all in-training maids.') }}
+            </flux:subheading>
+        </div>
+
+        <flux:field>
+            <flux:label>{{ __('Trainer') }} <span class="text-red-500">*</span></flux:label>
+            <flux:select wire:model.defer="hubTrainerId">
+                <option value="">{{ __('Select Trainer') }}</option>
+                @foreach ($trainers as $trainer)
+                    <option value="{{ $trainer->id }}">{{ $trainer->user?->name }}</option>
+                @endforeach
+            </flux:select>
+            <flux:error name="hubTrainerId" />
+        </flux:field>
+
+        <div class="flex gap-2 justify-end">
+            <flux:button wire:click="$set('showHubProgramModal', false)" variant="ghost">
+                {{ __('Cancel') }}
+            </flux:button>
+            <flux:button wire:click="createHubPrograms" variant="primary">
+                {{ __('Create Programs') }}
             </flux:button>
         </div>
     </flux:modal>

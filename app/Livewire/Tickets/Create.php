@@ -240,7 +240,7 @@ class Create extends Component
             'description' => $this->description,
             'priority' => $this->priority,
             'requester_id' => $user->id,
-            'requester_type' => $user->role,
+            'requester_type' => $this->normalizeRequesterType($user->role),
             'created_on_behalf_of' => $this->on_behalf_type === 'client' ? $this->on_behalf_client_id : 
                                      ($this->on_behalf_type === 'maid' ? $this->on_behalf_maid_id : null),
             'created_on_behalf_type' => $this->on_behalf_type === 'client' ? 'client' : 
@@ -281,6 +281,16 @@ class Create extends Component
         $prefix = $user->role === 'trainer' ? 'trainer.' : '';
         session()->flash('success', 'Ticket created successfully! Ticket #' . $ticket->ticket_number);
         return redirect()->route($prefix . 'tickets.show', $ticket);
+    }
+
+    private function normalizeRequesterType(string $role): string
+    {
+        return match ($role) {
+            'client' => 'client',
+            'trainer' => 'trainer',
+            'maid' => 'maid',
+            default => 'admin',
+        };
     }
 
     public function render()

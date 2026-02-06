@@ -88,7 +88,10 @@
             <flux:field>
                 <flux:label>{{ __('Maid') }}</flux:label>
                 <div class="text-sm">
-                    <a href="{{ route('maids.show', $program->maid) }}" wire:navigate class="font-medium text-neutral-900 hover:underline dark:text-white">
+                    @php
+                        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+                    @endphp
+                    <a href="{{ route($prefix . 'maids.show', $program->maid) }}" wire:navigate class="font-medium text-neutral-900 hover:underline dark:text-white">
                         {{ $program->maid?->first_name }} {{ $program->maid?->last_name }}
                     </a>
                     <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ ucfirst($program->maid?->status) }}</div>

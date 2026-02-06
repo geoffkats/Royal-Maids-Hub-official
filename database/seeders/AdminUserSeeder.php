@@ -13,7 +13,7 @@ class AdminUserSeeder extends Seeder
             'name' => 'Admin User',
             'email' => 'admin@royalmaidshub.com',
             'password' => bcrypt('password'),
-            'role' => 'admin',
+            'role' => User::ROLE_SUPER_ADMIN,
             'email_verified_at' => now(),
         ]);
 

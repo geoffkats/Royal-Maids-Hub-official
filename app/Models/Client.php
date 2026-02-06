@@ -7,10 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Auth\Access\AuthorizationException;
 
+/**
+ * Soft deletes protect client records from hard removal.
+ */
 class Client extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -25,6 +31,8 @@ class Client extends Model
         'address',
         'city',
         'district',
+        'identity_type',
+        'identity_number',
         'package_id',
         'subscription_tier',
         'subscription_status',
@@ -35,6 +43,8 @@ class Client extends Model
         'total_bookings',
         'active_bookings',
         'notes',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -44,6 +54,34 @@ class Client extends Model
         'total_bookings' => 'integer',
         'active_bookings' => 'integer',
     ];
+
+    /**
+     * Hide sensitive identity data from default serialization.
+     * Access is controlled via policies and gates.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'identity_type',
+        'identity_number',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $client): void {
+            $user = auth()->user();
+
+            if (!$user) {
+                return;
+            }
+
+            $identityChanged = $client->isDirty('identity_type') || $client->isDirty('identity_number');
+
+            if ($identityChanged && Gate::denies('updateSensitiveIdentity', $client)) {
+                throw new AuthorizationException('Unauthorized to update identity fields.');
+            }
+        });
+    }
 
     /**
      * Get the user that owns the client profile.
@@ -67,6 +105,14 @@ class Client extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * Get client feedback responses.
+     */
+    public function evaluationResponses(): HasMany
+    {
+        return $this->hasMany(ClientEvaluationResponse::class);
     }
 
     /**

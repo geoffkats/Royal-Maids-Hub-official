@@ -126,11 +126,49 @@
         @enderror
     </div>
 
-    <!-- National ID/Passport Upload -->
-    <div class="space-y-2 md:col-span-2">
-        <label for="national_id" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-            National ID / Passport (Optional)
-        </label>
+    @can('updateSensitiveIdentity')
+        <!-- Identity Fields -->
+        <div class="space-y-2">
+            <label for="identity_type" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Identity Type
+            </label>
+            <select wire:model="identity_type"
+                    id="identity_type"
+                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
+                <option value="">Select identity type</option>
+                <option value="nin">NIN</option>
+                <option value="passport">Passport</option>
+            </select>
+            @error('identity_type') 
+                <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
+                    <x-flux::icon.exclamation-triangle class="w-4 h-4" />
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+
+        <div class="space-y-2">
+            <label for="identity_number" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                Identity Number
+            </label>
+            <input type="text" 
+                   wire:model="identity_number" 
+                   id="identity_number" 
+                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500"
+                   placeholder="Enter identity number">
+            @error('identity_number') 
+                <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
+                    <x-flux::icon.exclamation-triangle class="w-4 h-4" />
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+
+        <!-- National ID/Passport Upload -->
+        <div class="space-y-2 md:col-span-2">
+            <label for="national_id" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                National ID / Passport (Optional)
+            </label>
         <div class="flex items-start gap-4">
             <!-- Preview -->
             @if ($national_id)
@@ -184,7 +222,8 @@
                 {{ $message }}
             </div>
         @enderror
-    </div>
+        </div>
+    @endcan
 
     <!-- Validation Alert Modal -->
     <flux:modal name="validation-alert" wire:model="showValidationModal" class="max-w-md">

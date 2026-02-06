@@ -61,7 +61,7 @@
                     {{ __('Dashboard') }}
                 </flux:navlist.item>
 
-                    @if ($role === 'admin')
+                    @if ($user?->isAdminLike())
                     <!-- Admin Navigation -->
                     <flux:navlist.group :heading="__('Management')" class="mb-4">
                         <flux:navlist.item icon="users" :href="$href('maids.index')" :current="$is('maids.*')">
@@ -70,11 +70,23 @@
                         <flux:navlist.item icon="academic-cap" :href="$href('trainers.index')" :current="$is('trainers.*')">
                             {{ __('Trainers') }}
                         </flux:navlist.item>
+                        <flux:navlist.item icon="calendar-days" :href="route('bookings.index')" :current="$is('bookings.*')">
+                            {{ __('Bookings') }}
+                        </flux:navlist.item>
+                    </flux:navlist.group>
+
+                    <flux:navlist.group :heading="__('Clients')" class="mb-4">
                         <flux:navlist.item icon="user-group" :href="$href('clients.index')" :current="$is('clients.*')">
                             {{ __('Clients') }}
                         </flux:navlist.item>
-                        <flux:navlist.item icon="calendar-days" :href="route('bookings.index')" :current="$is('bookings.*')">
-                            {{ __('Bookings') }}
+                        <flux:navlist.item icon="clipboard-document-check" :href="$href('client-evaluations.index')" :current="$is('client-evaluations.*')">
+                            {{ __('Client Evaluations') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="chat-bubble-left-right" :href="$href('client-feedback.index')" :current="$is('client-feedback.*')">
+                            {{ __('Client Feedback') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="clipboard-document-list" :href="$href('client-evaluation-questions.index')" :current="$is('client-evaluation-questions.*')">
+                            {{ __('Client Evaluation Questions') }}
                         </flux:navlist.item>
                     </flux:navlist.group>
 
@@ -85,8 +97,14 @@
                         <flux:navlist.item icon="clipboard-document-check" :href="$href('evaluations.index')" :current="$is('evaluations.*')">
                             {{ __('Evaluations') }}
                         </flux:navlist.item>
+                        <flux:navlist.item icon="calendar-days" :href="$href('evaluations.tasks')" :current="$is('evaluations.tasks')">
+                            {{ __('Evaluation Tasks') }}
+                        </flux:navlist.item>
                         <flux:navlist.item icon="map-pin" :href="$href('deployments.index')" :current="$is('deployments.*')">
                             {{ __('Deployments') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="document-text" :href="$href('contracts.index')" :current="$is('contracts.*')">
+                            {{ __('Maid Contracts') }}
                         </flux:navlist.item>
                         <flux:navlist.item icon="shield-check" :href="$href('admin.trainer-permissions')" :current="$is('admin.trainer-permissions')" wire:navigate>
                             {{ __('Trainer Permissions') }}
@@ -143,6 +161,9 @@
                     <flux:navlist.group :heading="__('System')" expandable class="mt-4">
                         <flux:navlist.item icon="building-office-2" href="/settings/company" :current="$is('settings.company')">
                             {{ __('Company Settings') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="users" :href="$href('users.index')" :current="$is('users.*')">
+                            {{ __('User Management') }}
                         </flux:navlist.item>
                     </flux:navlist.group>
                     
@@ -224,6 +245,9 @@
                         @if (Auth::user()->trainer->hasAccessTo('my_evaluations'))
                             <flux:navlist.item icon="clipboard-document-check" :href="$href('evaluations.index')" :current="$is('evaluations.*')">
                                 {{ __('Evaluations') }}
+                            </flux:navlist.item>
+                            <flux:navlist.item icon="calendar-days" :href="$href('evaluations.tasks')" :current="$is('evaluations.tasks')">
+                                {{ __('Evaluation Tasks') }}
                             </flux:navlist.item>
                         @endif
                         @if (Auth::user()->trainer->hasAccessTo('deployments'))

@@ -5,11 +5,17 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Auth\Access\AuthorizationException;
 
+/**
+ * Soft deletes protect bookings from hard removal.
+ */
 class Booking extends Model
 {
     /** @use HasFactory<\Database\Factories\BookingFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         // Original V3.0 fields (keeping for compatibility)
@@ -32,6 +38,8 @@ class Booking extends Model
         'division',
         'parish',
         'national_id_path',
+        'identity_type',
+        'identity_number',
         
         // Section 2: Home & Environment
         'home_type',
@@ -63,6 +71,8 @@ class Booking extends Model
         'manage_tasks',
         'unspoken_rules',
         'anything_else',
+        'created_by',
+        'updated_by',
     ];
 
     protected $casts = [
@@ -75,6 +85,37 @@ class Booking extends Model
         'work_days' => 'array',
         'responsibilities' => 'array',
     ];
+
+    /**
+     * Hide sensitive identity data from default serialization.
+     * Access is controlled via policies and gates.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'national_id_path',
+        'identity_type',
+        'identity_number',
+    ];
+
+    protected static function booted(): void
+    {
+        static::saving(function (self $booking): void {
+            $user = auth()->user();
+
+            if (!$user) {
+                return;
+            }
+
+            $identityChanged = $booking->isDirty('identity_type')
+                || $booking->isDirty('identity_number')
+                || $booking->isDirty('national_id_path');
+
+            if ($identityChanged && Gate::denies('updateSensitiveIdentity', $booking)) {
+                throw new AuthorizationException('Unauthorized to update identity fields.');
+            }
+        });
+    }
 
     /**
      * Get the client that owns the booking.

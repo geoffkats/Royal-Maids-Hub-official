@@ -4,6 +4,7 @@ namespace App\Livewire\Admin\Trainers;
 
 use App\Models\Trainer;
 use App\Models\TrainerSidebarPermission;
+use App\Models\User;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Url;
 use Livewire\Component;
@@ -22,6 +23,12 @@ class ManagePermissions extends Component
 
     public function mount(): void
     {
+        $user = auth()->user();
+
+        if (! $user || $user->role !== User::ROLE_SUPER_ADMIN) {
+            abort(403, 'Unauthorized');
+        }
+
         $this->authorize('viewAny', Trainer::class);
         $this->loadPermissions();
     }
@@ -102,10 +109,40 @@ class ManagePermissions extends Component
         return $query->orderBy('id')->get();
     }
 
+    /**
+     * Get non-trainer staff for visibility on this page.
+     *
+     * @return \Illuminate\Database\Eloquent\Collection<int, \App\Models\User>
+     */
+    private function getNonTrainerUsers()
+    {
+        $term = trim($this->search);
+
+        $query = User::query()
+            ->whereIn('role', [
+                User::ROLE_SUPER_ADMIN,
+                User::ROLE_ADMIN,
+                User::ROLE_OPERATIONS_MANAGER,
+                User::ROLE_FINANCE_OFFICER,
+                User::ROLE_CUSTOMER_SUPPORT,
+            ]);
+
+        if ($term !== '') {
+            $like = '%' . str_replace(['%', '_'], ['\\%', '\\_'], $term) . '%';
+            $query->where(function ($q) use ($like) {
+                $q->where('name', 'like', $like)
+                    ->orWhere('email', 'like', $like);
+            });
+        }
+
+        return $query->orderBy('name')->get();
+    }
+
     public function render()
     {
         return view('livewire.admin.trainers.manage-permissions', [
             'trainers' => $this->getTrainers(),
+            'nonTrainerUsers' => $this->getNonTrainerUsers(),
             'availableItems' => TrainerSidebarPermission::getAllItems(),
             'itemsBySection' => $this->groupItemsBySection(),
         ]);

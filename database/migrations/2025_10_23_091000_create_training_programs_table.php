@@ -18,6 +18,8 @@ return new class extends Migration {
             $table->text('notes')->nullable();
             $table->unsignedInteger('hours_completed')->default(0);
             $table->unsignedInteger('hours_required')->default(40);
+            // Enable soft deletes for recoverability and audit safety.
+            $table->softDeletes();
             $table->timestamps();
         });
     }

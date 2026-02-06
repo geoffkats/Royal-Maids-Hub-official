@@ -59,12 +59,8 @@ class Index extends Component
         $trainer = Trainer::with('user')->findOrFail($trainerId);
         $this->authorize('delete', $trainer);
 
-        // Deleting the user will cascade and delete the trainer via FK
-        if ($trainer->user) {
-            $trainer->user->delete();
-        } else {
-            $trainer->delete();
-        }
+        // Soft delete the trainer record to avoid hard-deleting related users.
+        $trainer->delete();
 
         session()->flash('success', __('Trainer deleted successfully.'));
         

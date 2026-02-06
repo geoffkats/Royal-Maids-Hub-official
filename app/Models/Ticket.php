@@ -7,10 +7,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Soft deletes protect tickets from hard removal.
+ */
 class Ticket extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'ticket_number',
@@ -81,6 +85,12 @@ class Ticket extends Model
             
             // Calculate SLA deadlines based on priority and tier
             $ticket->calculateSLADeadlines();
+        });
+
+        static::created(function ($ticket) {
+            // Auto-assign ticket if enabled
+            $assignmentService = app(\App\Services\TicketAutoAssignmentService::class);
+            $assignmentService->assign($ticket);
         });
 
         static::updating(function ($ticket) {
@@ -230,23 +240,84 @@ class Ticket extends Model
         }
         
         $breached = false;
+        $breachType = null;
+        $hoursOverdue = 0;
         
         // Check if response SLA breached
         if (!$this->first_response_at && $this->sla_response_due && now()->isAfter($this->sla_response_due)) {
             $breached = true;
+            $breachType = 'response';
+            $hoursOverdue = now()->diffInHours($this->sla_response_due);
         }
         
         // Check if resolution SLA breached
         if (!$this->resolved_at && $this->sla_resolution_due && now()->isAfter($this->sla_resolution_due)) {
             $breached = true;
+            $breachType = 'resolution';
+            $hoursOverdue = now()->diffInHours($this->sla_resolution_due);
         }
         
         if ($breached && !$this->sla_breached) {
             $this->sla_breached = true;
             $this->save();
             
-            // TODO: Send SLA breach notification
+            // Send SLA breach notification to assigned staff and manager
+            if ($this->assigned_to) {
+                $assignedUser = $this->assignedTo;
+                if ($assignedUser) {
+                    $assignedUser->notify(new \App\Notifications\TicketSLABreachedNotification($this, $breachType, $hoursOverdue));
+                }
+            }
+            
+            // Also notify admin/manager for critical SLAs
+            if (in_array($this->priority, ['critical', 'urgent']) || $this->tier_based_priority === 'platinum') {
+                $managers = \App\Models\User::whereIn('role', ['admin'])->get();
+                foreach ($managers as $manager) {
+                    $manager->notify(new \App\Notifications\TicketSLABreachedNotification($this, $breachType, $hoursOverdue));
+                }
+            }
         }
+    }
+
+    /**
+     * Get the SLA status of the ticket
+     * Returns: 'breached', 'at-risk', or 'on-track'
+     */
+    public function getSLAStatus(): string
+    {
+        // Closed/resolved tickets are not subject to SLA
+        if (!$this->isOpen()) {
+            return 'on-track';
+        }
+
+        // If already marked as breached
+        if ($this->sla_breached) {
+            return 'breached';
+        }
+
+        // Check response SLA
+        if (!$this->first_response_at && $this->sla_response_due) {
+            if (now()->isAfter($this->sla_response_due)) {
+                return 'breached';
+            }
+            // Check if within 1 hour of deadline (at-risk)
+            if (now()->addHour()->isAfter($this->sla_response_due)) {
+                return 'at-risk';
+            }
+        }
+
+        // Check resolution SLA
+        if (!$this->resolved_at && $this->sla_resolution_due) {
+            if (now()->isAfter($this->sla_resolution_due)) {
+                return 'breached';
+            }
+            // Check if within 1 hour of deadline (at-risk)
+            if (now()->addHour()->isAfter($this->sla_resolution_due)) {
+                return 'at-risk';
+            }
+        }
+
+        return 'on-track';
     }
 
     // Relationships

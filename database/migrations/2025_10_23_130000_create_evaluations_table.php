@@ -27,6 +27,8 @@ return new class extends Migration
             $table->text('general_comments')->nullable();
             $table->text('strengths')->nullable();
             $table->text('areas_for_improvement')->nullable();
+            // Enable soft deletes for recoverability and audit safety.
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['trainer_id', 'evaluation_date']);

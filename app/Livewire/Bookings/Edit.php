@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Maid;
 use App\Models\Package;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
@@ -31,6 +32,8 @@ class Edit extends Component
     public $city;
     public $division;
     public $parish;
+    public $identity_type;
+    public $identity_number;
     public $national_id;
     public $existing_national_id_path;
     
@@ -97,6 +100,8 @@ class Edit extends Component
         $this->city = $this->booking->city ?? $client?->city ?? '';
         $this->division = $this->booking->division ?? $client?->district ?? '';
         $this->parish = $this->booking->parish ?? '';
+        $this->identity_type = $this->booking->identity_type ?? $client?->identity_type;
+        $this->identity_number = $this->booking->identity_number ?? $client?->identity_number;
         $this->existing_national_id_path = $this->booking->national_id_path ?? '';
         
         // Section 2: Home Details - map from booking model fields
@@ -281,6 +286,8 @@ class Edit extends Component
             'city' => 'required|string|max:100',
             'division' => 'required|string|max:100',
             'parish' => 'required|string|max:100',
+            'identity_type' => ['nullable', 'required_with:identity_number', Rule::in(['nin', 'passport'])],
+            'identity_number' => ['nullable', 'string', 'max:50'],
             'national_id' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
             
             // Section 2: Home Details
@@ -353,6 +360,8 @@ class Edit extends Component
             'city' => $this->city,
             'division' => $this->division,
             'parish' => $this->parish,
+            'identity_type' => $this->identity_type,
+            'identity_number' => $this->identity_number,
             
             // Section 2: Home - map to booking model fields
             'home_type' => strtolower($this->house_type),
@@ -383,6 +392,7 @@ class Edit extends Component
             'manage_tasks' => $this->manage_tasks,
             'unspoken_rules' => $this->unspoken_rules,
             'anything_else' => $this->additional_requirements ?: $this->special_needs,
+            'updated_by' => auth()->id(),
         ];
 
         // Handle file upload if new file provided

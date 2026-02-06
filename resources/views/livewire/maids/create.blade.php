@@ -135,19 +135,21 @@
                             @enderror
                         </div>
 
-                        <div class="space-y-2">
-                            <label for="nin_number" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                National ID Number <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" wire:model="nin_number" id="nin_number" 
-                                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
-                            @error('nin_number') 
-                                <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
-                                    <x-flux::icon.exclamation-triangle class="w-4 h-4" />
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                        </div>
+                        @can('updateSensitiveIdentity')
+                            <div class="space-y-2">
+                                <label for="nin_number" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    National ID Number <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" wire:model="nin_number" id="nin_number" 
+                                       class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                                @error('nin_number') 
+                                    <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
+                                        <x-flux::icon.exclamation-triangle class="w-4 h-4" />
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        @endcan
 
                         <div class="space-y-2">
                             <label for="marital_status" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -308,6 +310,60 @@
                                 </div>
                             @enderror
                         </div>
+
+                        <div class="md:col-span-2 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    Additional Family Members
+                                </label>
+                                <button type="button" wire:click="addFamilyMember"
+                                        class="inline-flex items-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-900/20 dark:text-purple-200">
+                                    <x-flux::icon.plus class="w-4 h-4" />
+                                    Add
+                                </button>
+                            </div>
+
+                            <div class="space-y-3">
+                                @foreach($family_members as $index => $member)
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                                        <div class="space-y-2">
+                                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Name</label>
+                                            <input type="text" wire:model="family_members.{{ $index }}.name"
+                                                   class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white" />
+                                            @error('family_members.' . $index . '.name')
+                                                <div class="text-xs text-red-600">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Relationship</label>
+                                            <input type="text" wire:model="family_members.{{ $index }}.relationship"
+                                                   class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white" />
+                                            @error('family_members.' . $index . '.relationship')
+                                                <div class="text-xs text-red-600">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Phone</label>
+                                            <input type="text" wire:model="family_members.{{ $index }}.phone"
+                                                   class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white" />
+                                            @error('family_members.' . $index . '.phone')
+                                                <div class="text-xs text-red-600">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="md:col-span-3 flex justify-end">
+                                            <button type="button" wire:click="removeFamilyMember({{ $index }})"
+                                                    class="text-xs font-semibold text-red-600 hover:text-red-700">
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                @if(empty($family_members))
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">No additional family members added.</p>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -347,7 +403,7 @@
                             <label for="experience_years" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Years of Experience <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" wire:model="experience_years" id="experience_years" min="0" 
+                            <input type="number" wire:model="experience_years" id="experience_years" min="0" step="0.1"
                                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
                             @error('experience_years') 
                                 <div class="flex items-center gap-2 text-red-600 text-sm mt-1">

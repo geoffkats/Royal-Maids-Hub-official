@@ -33,6 +33,8 @@ class CreateWizard extends Component
     public $city = '';
     public $division = '';
     public $parish = '';
+    public $identity_type = '';
+    public $identity_number = '';
     public $national_id; // File upload
     public $national_id_path = '';
     public $existing_national_id_path = '';
@@ -111,6 +113,10 @@ class CreateWizard extends Component
         $this->existing_national_id_path = $this->booking->national_id_path ?? '';
         $this->national_id_path = $this->existing_national_id_path;
 
+        // Identity fields
+        $this->identity_type = $this->booking->identity_type ?? '';
+        $this->identity_number = $this->booking->identity_number ?? '';
+
         // Load client data
         $client = $this->booking->client;
         if ($client) {
@@ -120,6 +126,12 @@ class CreateWizard extends Component
             $this->email = $client->user?->email ?? '';
             $this->city = $client->city ?? '';
             $this->division = $client->district ?? '';
+            if (!$this->identity_type && $client->identity_type) {
+                $this->identity_type = $client->identity_type;
+            }
+            if (!$this->identity_number && $client->identity_number) {
+                $this->identity_number = $client->identity_number;
+            }
             // parish stored on booking snapshot if provided later
         }
 
@@ -188,6 +200,8 @@ class CreateWizard extends Component
                     $this->full_name = $client->contact_person ?? auth()->user()->name;
                     $this->phone = $client->phone ?? '';
                     $this->email = $client->user?->email ?? auth()->user()->email;
+                    $this->identity_type = $client->identity_type ?? '';
+                    $this->identity_number = $client->identity_number ?? '';
                 }
             }
         } catch (\Exception $e) {
@@ -241,6 +255,8 @@ class CreateWizard extends Component
                         'email' => 'required|email|max:255',
                         'city' => 'required|string|max:255',
                         'division' => 'required|string|max:255',
+                        'identity_type' => ['nullable', 'required_with:identity_number', 'in:nin,passport'],
+                        'identity_number' => 'nullable|string|max:50',
                     ]);
                     break;
                 case 2:
@@ -313,6 +329,8 @@ class CreateWizard extends Component
                 'email' => 'required|email|max:255',
                 'city' => 'required|string|max:255',
                 'division' => 'required|string|max:255',
+                'identity_type' => ['nullable', 'required_with:identity_number', 'in:nin,passport'],
+                'identity_number' => 'nullable|string|max:50',
                 'home_type' => 'required|string',
                 'bedrooms' => 'required|integer|min:0',
                 'bathrooms' => 'required|integer|min:0',
@@ -390,6 +408,10 @@ class CreateWizard extends Component
             'city' => $this->city,
             'division' => $this->division,
             'parish' => $this->parish,
+            'identity_type' => $this->identity_type ?: null,
+            'identity_number' => $this->identity_number ?: null,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
 
             // Home & environment
             'home_type' => $this->home_type,
@@ -447,6 +469,9 @@ class CreateWizard extends Component
             'city' => $this->city,
             'division' => $this->division,
             'parish' => $this->parish,
+            'identity_type' => $this->identity_type ?: null,
+            'identity_number' => $this->identity_number ?: null,
+            'updated_by' => auth()->id(),
 
             // Home & environment
             'home_type' => $this->home_type,
@@ -487,7 +512,13 @@ class CreateWizard extends Component
             'phone' => $this->phone,
             'city' => $this->city,
             'district' => $this->division,
+            'updated_by' => auth()->id(),
         ];
+
+        if (!empty($this->identity_number)) {
+            $clientData['identity_type'] = $this->identity_type;
+            $clientData['identity_number'] = $this->identity_number;
+        }
 
         if ($this->isEditing && $this->booking) {
             $client = $this->booking->client;
@@ -497,6 +528,8 @@ class CreateWizard extends Component
             $clientData['user_id'] = auth()->id();
             $clientData['subscription_tier'] = 'basic';
             $clientData['status'] = 'active';
+            $clientData['created_by'] = auth()->id();
+            $clientData['updated_by'] = auth()->id();
             return Client::create($clientData);
         }
     }

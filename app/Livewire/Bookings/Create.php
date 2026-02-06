@@ -6,6 +6,7 @@ use App\Models\Booking;
 use App\Models\Client;
 use App\Models\Maid;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 
@@ -20,6 +21,8 @@ class Create extends Component
     public $end_date = '';
     public $amount = '';
     public $notes = '';
+    public ?string $identity_type = null;
+    public ?string $identity_number = null;
 
     public function mount(): void
     {
@@ -30,6 +33,8 @@ class Create extends Component
             $client = Client::where('user_id', auth()->id())->first();
             if ($client) {
                 $this->client_id = $client->id;
+                $this->identity_type = $client->identity_type;
+                $this->identity_number = $client->identity_number;
             }
         }
     }
@@ -44,7 +49,24 @@ class Create extends Component
             'end_date' => 'nullable|date|after:start_date',
             'amount' => 'nullable|numeric|min:0',
             'notes' => 'nullable|string|max:1000',
+            'identity_type' => ['nullable', 'required_with:identity_number', Rule::in(['nin', 'passport'])],
+            'identity_number' => ['nullable', 'string', 'max:50'],
         ];
+    }
+
+    public function updatedClientId($clientId): void
+    {
+        if (!$clientId) {
+            $this->identity_type = null;
+            $this->identity_number = null;
+            return;
+        }
+
+        $client = Client::find($clientId);
+        if ($client) {
+            $this->identity_type = $client->identity_type;
+            $this->identity_number = $client->identity_number;
+        }
     }
 
     public function save(): void
@@ -60,6 +82,10 @@ class Create extends Component
             'amount' => $this->amount,
             'status' => 'pending',
             'notes' => $this->notes,
+            'identity_type' => $this->identity_type,
+            'identity_number' => $this->identity_number,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
         ]);
 
         // Update client counters

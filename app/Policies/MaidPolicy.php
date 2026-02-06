@@ -14,7 +14,7 @@ class MaidPolicy
     public function viewAny(User $user): bool
     {
         // Admin can view all
-        if ($user->role === User::ROLE_ADMIN) {
+        if ($user->isAdminLike()) {
             return true;
         }
 
@@ -33,13 +33,13 @@ class MaidPolicy
     public function view(User $user, Maid $maid): bool
     {
         // Admin can view all maids
-        if ($user->role === User::ROLE_ADMIN) {
+        if ($user->isAdminLike()) {
             return true;
         }
 
-        // Trainer with 'maids' permission can view all maids in training
+        // Trainer with 'maids' permission can view all maids
         if ($user->role === User::ROLE_TRAINER && $user->trainer && $user->trainer->hasAccessTo('maids')) {
-            return $maid->status === 'in-training';
+            return true;
         }
 
         // Client can only view available maids
@@ -55,7 +55,7 @@ class MaidPolicy
      */
     public function create(User $user): bool
     {
-        return $user->role === User::ROLE_ADMIN;
+        return $user->isAdminLike();
     }
 
     /**
@@ -63,7 +63,7 @@ class MaidPolicy
      */
     public function update(User $user, Maid $maid): bool
     {
-        return $user->role === User::ROLE_ADMIN;
+        return $user->isAdminLike();
     }
 
     /**
@@ -71,7 +71,7 @@ class MaidPolicy
      */
     public function delete(User $user, Maid $maid): bool
     {
-        return $user->role === User::ROLE_ADMIN;
+        return $user->isAdminLike();
     }
 
     /**
@@ -79,7 +79,7 @@ class MaidPolicy
      */
     public function restore(User $user, Maid $maid): bool
     {
-        return $user->role === User::ROLE_ADMIN;
+        return $user->isAdminLike();
     }
 
     /**
@@ -87,7 +87,23 @@ class MaidPolicy
      */
     public function forceDelete(User $user, Maid $maid): bool
     {
-        return $user->role === User::ROLE_ADMIN;
+        return false;
+    }
+
+    /**
+     * Sensitive identity fields should only be visible to super admins.
+     */
+    public function viewSensitiveIdentity(User $user, Maid $maid): bool
+    {
+        return $user->isSuperAdmin();
+    }
+
+    /**
+     * Sensitive identity fields should only be editable by super admins.
+     */
+    public function updateSensitiveIdentity(User $user, Maid $maid): bool
+    {
+        return $user->isSuperAdmin();
     }
 
     /**

@@ -3,6 +3,13 @@
         $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
     @endphp
 
+    {{-- Soft Delete Notice --}}
+    @if($maid->trashed())
+        <flux:callout variant="warning">
+            {{ __('This maid has been deleted. Click "Restore Maid" to undelete it.') }}
+        </flux:callout>
+    @endif
+
         <!-- Header Section -->
         <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -39,12 +46,18 @@
                     </div>
                 </div>
                 <div class="mt-4 md:mt-0 flex gap-3">
-                    <flux:button as="a" :href="route('tickets.create', ['maid_id' => $maid->id])" variant="primary" icon="ticket">
-                        {{ __('Create Ticket') }}
-                    </flux:button>
-                    <flux:button as="a" :href="route($prefix . 'maids.edit', $maid)" variant="outline" icon="pencil-square">
-                        {{ __('Edit') }}
-                    </flux:button>
+                    @if($maid->trashed())
+                        <flux:button wire:click="restore" variant="filled" icon="arrow-path">
+                            {{ __('Restore Maid') }}
+                        </flux:button>
+                    @else
+                        <flux:button as="a" :href="route($prefix . 'tickets.create', ['maid_id' => $maid->id])" variant="primary" icon="ticket">
+                            {{ __('Create Ticket') }}
+                        </flux:button>
+                        <flux:button as="a" :href="route($prefix . 'maids.edit', $maid)" variant="outline" icon="pencil-square">
+                            {{ __('Edit') }}
+                        </flux:button>
+                    @endif
                     <flux:button as="a" :href="route($prefix . 'maids.index')" variant="outline" icon="arrow-left">
                         {{ __('Back to List') }}
                     </flux:button>
@@ -103,7 +116,19 @@
             </div>
         </div>
 
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" wire:click="setActiveTab('overview')"
+                    class="rounded-lg px-4 py-2 text-sm font-semibold border {{ $activeTab === 'overview' ? 'bg-[#F5B301]/20 text-[#F5B301] border-[#F5B301]/40' : 'bg-[#3B0A45] text-[#D1C4E9] border-[#F5B301]/20' }}">
+                {{ __('Overview') }}
+            </button>
+            <button type="button" wire:click="setActiveTab('tickets')"
+                    class="rounded-lg px-4 py-2 text-sm font-semibold border {{ $activeTab === 'tickets' ? 'bg-[#F5B301]/20 text-[#F5B301] border-[#F5B301]/40' : 'bg-[#3B0A45] text-[#D1C4E9] border-[#F5B301]/20' }}">
+                {{ __('Tickets') }}
+            </button>
+        </div>
+
         <!-- Main Content Grid -->
+        @if($activeTab === 'overview')
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <!-- Left Column - Personal Information -->
             <div class="lg:col-span-2 space-y-6">
@@ -183,6 +208,25 @@
                             <p class="mt-1 text-sm text-neutral-900 dark:text-white">{{ $maid->father_name_phone ?? '—' }}</p>
                         </div>
                     </div>
+
+                    @if(!empty($maid->family_members))
+                        <div class="mt-6">
+                            <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400">{{ __('Additional Family Members') }}</label>
+                            <div class="mt-3 space-y-2">
+                                @foreach($maid->family_members as $member)
+                                    <div class="rounded-md border border-neutral-200 dark:border-neutral-700 p-3 text-sm">
+                                        <div class="font-semibold text-neutral-900 dark:text-white">{{ $member['name'] ?? '—' }}</div>
+                                        <div class="text-neutral-600 dark:text-neutral-400">
+                                            {{ $member['relationship'] ?? '—' }}
+                                            @if(!empty($member['phone']))
+                                                • {{ $member['phone'] }}
+                                            @endif
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                        </div>
+                    @endif
                 </div>
 
                 <!-- Education & Experience -->
@@ -331,15 +375,12 @@
                     <!-- Additional Documents -->
                     @if($maid->additional_documents && count($maid->additional_documents) > 0)
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">{{ __('Additional Documents') }}</label>
-                        <div class="space-y-2">
+                        <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-3">{{ __('Additional Documents') }}</label>
+                        <div class="flex flex-wrap gap-2">
                             @foreach($maid->additional_documents as $index => $document)
-                            <div class="flex items-center justify-between p-2 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                                <span class="text-sm text-neutral-900 dark:text-white">{{ $document }}</span>
-                                <a href="{{ Storage::url($document) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                    <x-flux::icon.arrow-top-right-on-square class="w-4 h-4" />
-                                </a>
-                            </div>
+                                <flux:button as="a" href="{{ Storage::url($document) }}" target="_blank" variant="outline" size="sm" icon="arrow-top-right-on-square">
+                                    {{ __('View doc') }} {{ $index + 1 }}
+                                </flux:button>
                             @endforeach
                         </div>
                     </div>
@@ -348,15 +389,12 @@
                     <!-- ID Scans -->
                     @if($maid->id_scans && count($maid->id_scans) > 0)
                     <div>
-                        <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-2">{{ __('ID Scans') }}</label>
-                        <div class="space-y-2">
+                        <label class="block text-sm font-medium text-neutral-600 dark:text-neutral-400 mb-3">{{ __('ID Scans') }}</label>
+                        <div class="flex flex-wrap gap-2">
                             @foreach($maid->id_scans as $index => $scan)
-                            <div class="flex items-center justify-between p-2 bg-neutral-50 dark:bg-neutral-700 rounded-lg">
-                                <span class="text-sm text-neutral-900 dark:text-white">{{ $scan }}</span>
-                                <a href="{{ Storage::url($scan) }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300">
-                                    <x-flux::icon.arrow-top-right-on-square class="w-4 h-4" />
-                                </a>
-                            </div>
+                                <flux:button as="a" href="{{ Storage::url($scan) }}" target="_blank" variant="outline" size="sm" icon="arrow-top-right-on-square">
+                                    {{ __('ID') }} {{ $index + 1 }}
+                                </flux:button>
                             @endforeach
                         </div>
                     </div>
@@ -366,6 +404,114 @@
                     <p class="text-sm text-neutral-500 dark:text-neutral-400 italic">{{ __('No documents uploaded') }}</p>
                     @endif
                 </div>
+            </div>
+
+
+            <!-- Contracts Section -->
+            <div class="details-card">
+                <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
+                    <x-flux::icon.document-text class="w-5 h-5 text-purple-600" />
+                    {{ __('Maid Contracts') }}
+                </h3>
+
+                @if($contracts->isEmpty())
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400 italic">{{ __('No contracts for this maid yet.') }}</p>
+                @else
+                    <div class="space-y-3">
+                        @foreach($contracts as $contract)
+                            <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-4 hover:bg-neutral-50 dark:hover:bg-neutral-900/30 transition-colors">
+                                <div class="flex items-start justify-between">
+                                    <div class="flex-1">
+                                        <a href="{{ route('contracts.show', $contract) }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                            {{ $contract->getClient()?->company_name ?? 'Contract #' . $contract->id }}
+                                        </a>
+                                        <div class="mt-2 grid gap-2 grid-cols-3 text-xs">
+                                            <div>
+                                                <span class="text-neutral-600 dark:text-neutral-400">{{ __('Start') }}:</span>
+                                                <span class="ml-1 text-neutral-900 dark:text-white">{{ $contract->contract_start_date?->format('M d, Y') }}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-neutral-600 dark:text-neutral-400">{{ __('End') }}:</span>
+                                                <span class="ml-1 text-neutral-900 dark:text-white">{{ $contract->contract_end_date?->format('M d, Y') }}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-neutral-600 dark:text-neutral-400">{{ __('Status') }}:</span>
+                                                <flux:badge size="sm" :color="$contract->contract_status === 'active' ? 'green' : 'gray'" class="ml-1">{{ ucfirst($contract->contract_status) }}</flux:badge>
+                                            </div>
+                                            <div>
+                                                <span class="text-neutral-600 dark:text-neutral-400">{{ __('Worked') }}:</span>
+                                                <span class="ml-1 text-neutral-900 dark:text-white">{{ $contract->worked_days ?? 0 }} {{ __('days') }}</span>
+                                            </div>
+                                            <div>
+                                                <span class="text-neutral-600 dark:text-neutral-400">{{ __('Pending') }}:</span>
+                                                <span class="ml-1 text-neutral-900 dark:text-white">{{ $contract->pending_days ?? 0 }} {{ __('days') }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                @endif
+            </div>
+
+            <!-- Training & Deployment Info -->
+            <div class="details-card">
+                <h3 class="text-lg font-semibold text-neutral-900 dark:text-white mb-4 flex items-center gap-2">
+                    <x-flux::icon.academic-cap class="w-5 h-5 text-blue-600" />
+                    {{ __('Training & Deployment') }}
+                </h3>
+
+                @if($deployment)
+                    <div class="mb-6 rounded-lg border border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/10 p-4">
+                        <h4 class="font-medium text-green-900 dark:text-green-300 mb-3">{{ __('Current Deployment') }}</h4>
+                        <div class="grid gap-3 text-sm">
+                            <div>
+                                <span class="text-green-700 dark:text-green-400">{{ __('Client') }}:</span>
+                                <span class="ml-2 text-neutral-900 dark:text-white">{{ $deployment->client->company_name ?? 'N/A' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-green-700 dark:text-green-400">{{ __('Location') }}:</span>
+                                <span class="ml-2 text-neutral-900 dark:text-white">{{ $deployment->deployment_location ?? 'N/A' }}</span>
+                            </div>
+                            <div>
+                                <span class="text-green-700 dark:text-green-400">{{ __('Start Date') }}:</span>
+                                <span class="ml-2 text-neutral-900 dark:text-white">{{ $deployment->deployment_start_date?->format('M d, Y') }}</span>
+                            </div>
+                            @if($deployment->deployment_start_date)
+                                <div>
+                                    <span class="text-green-700 dark:text-green-400">{{ __('Days on Deployment') }}:</span>
+                                    <span class="ml-2 text-neutral-900 dark:text-white font-medium">{{ $deployment->deployment_start_date->diffInDays(now()) }} {{ __('days') }}</span>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                @endif
+
+                @if($trainingPrograms->isNotEmpty())
+                    <div>
+                        <h4 class="font-medium text-neutral-900 dark:text-white mb-3">{{ __('Training Programs') }}</h4>
+                        <div class="space-y-2">
+                            @foreach($trainingPrograms as $program)
+                                <div class="rounded-lg border border-neutral-200 dark:border-neutral-700 p-3">
+                                    <div class="flex items-center justify-between">
+                                        <a href="{{ route('programs.show', $program) }}" class="text-sm font-medium text-blue-600 dark:text-blue-400 hover:underline">
+                                            {{ $program->name }}
+                                        </a>
+                                        <flux:badge size="sm" :color="$program->status === 'completed' ? 'green' : 'yellow'">
+                                            {{ ucfirst($program->status) }}
+                                        </flux:badge>
+                                    </div>
+                                    <div class="mt-1 text-xs text-neutral-500 dark:text-neutral-400">
+                                        {{ $program->start_date?->format('M d, Y') }} - {{ $program->end_date?->format('M d, Y') }}
+                                    </div>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+                @else
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400 italic">{{ __('No training programs assigned.') }}</p>
+                @endif
             </div>
 
             <!-- Recent Bookings -->
@@ -412,7 +558,7 @@
                                         } }}">{{ ucfirst($booking->status) }}</span>
                                     </td>
                                     <td class="px-4 py-3 text-right">
-                                        <a href="{{ route('bookings.show', $booking) }}" class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm">
+                                        <a href="{{ route($prefix . 'bookings.show', $booking) }}" class="inline-flex items-center gap-1 text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 text-sm">
                                             <x-flux::icon.eye class="w-4 h-4" /> {{ __('View') }}
                                         </a>
                                     </td>
@@ -494,4 +640,51 @@
                 @endif
             </div>
         </div>
+        @endif
+
+        @if($activeTab === 'tickets')
+            <div class="details-card">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-neutral-900 dark:text-white flex items-center gap-2">
+                        <x-flux::icon.ticket class="w-5 h-5 text-red-600" />
+                        {{ __('Support Tickets') }}
+                    </h3>
+                    <a href="{{ route($prefix . 'tickets.create', ['maid_id' => $maid->id]) }}" class="text-sm text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 font-medium">
+                        {{ __('Create Ticket') }}
+                    </a>
+                </div>
+
+                @if($tickets->count() === 0)
+                    <p class="text-sm text-neutral-500 dark:text-neutral-400 italic">{{ __('No tickets for this maid yet.') }}</p>
+                @else
+                    <div class="overflow-hidden rounded-lg border border-neutral-200 dark:border-neutral-700">
+                        <table class="min-w-full divide-y divide-neutral-200 dark:divide-neutral-700">
+                            <thead class="bg-neutral-50 dark:bg-neutral-900/50">
+                                <tr>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">{{ __('ID') }}</th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">{{ __('Subject') }}</th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">{{ __('Status') }}</th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">{{ __('Priority') }}</th>
+                                    <th class="px-4 py-2 text-left text-xs font-semibold uppercase tracking-wider text-neutral-700 dark:text-neutral-300">{{ __('Created') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-neutral-200 bg-white dark:divide-neutral-700 dark:bg-neutral-800">
+                                @foreach($tickets as $ticket)
+                                    <tr class="hover:bg-neutral-50 dark:hover:bg-neutral-700/50">
+                                        <td class="px-4 py-3 text-sm text-neutral-900 dark:text-white">{{ $ticket->id }}</td>
+                                        <td class="px-4 py-3 text-sm text-blue-600 dark:text-blue-400"><a href="{{ route($prefix . 'tickets.show', $ticket) }}">{{ $ticket->subject }}</a></td>
+                                        <td class="px-4 py-3 text-sm"><flux:badge>{{ ucfirst($ticket->status) }}</flux:badge></td>
+                                        <td class="px-4 py-3 text-sm"><flux:badge :color="$ticket->priority === 'high' ? 'red' : ($ticket->priority === 'medium' ? 'yellow' : 'green')">{{ ucfirst($ticket->priority) }}</flux:badge></td>
+                                        <td class="px-4 py-3 text-sm text-neutral-500 dark:text-neutral-400">{{ $ticket->created_at->diffForHumans() }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="mt-4">
+                        {{ $tickets->links() }}
+                    </div>
+                @endif
+            </div>
+        @endif
     </div>

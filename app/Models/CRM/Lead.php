@@ -8,10 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
+/**
+ * Soft deletes protect lead records from hard removal.
+ */
 class Lead extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
     protected $table = 'crm_leads';
 
     protected $fillable = [

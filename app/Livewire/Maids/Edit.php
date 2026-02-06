@@ -5,8 +5,11 @@ namespace App\Livewire\Maids;
 use App\Models\Maid;
 use App\Models\Deployment;
 use App\Models\Client;
+use App\Models\MaidContract;
+use App\Models\EvaluationTask;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class Edit extends Component
@@ -34,6 +37,7 @@ class Edit extends Component
     // Family Information
     public $mother_name_phone = '';
     public $father_name_phone = '';
+    public array $family_members = [];
 
     // Personal Details
     public $marital_status = 'single';
@@ -69,6 +73,12 @@ class Edit extends Component
     public $contract_end_date = '';
     public $deployment_special_instructions = '';
     public $deployment_notes = '';
+    public $maid_salary = null;
+    public $client_payment = null;
+    public $service_paid = null;
+    public $payment_status = 'pending';
+    public $salary_paid_date = '';
+    public $currency = 'UGX';
 
     // Medical Information
     public $hepatitis_b_result = null;
@@ -118,7 +128,13 @@ class Edit extends Component
         'Tororo', 'Wakiso', 'Yumbe', 'Zombo', 'Other'
     ];
 
-    public $education_levels = ['P.7', 'S.4', 'S.6', 'Certificate', 'Diploma'];
+    public $education_levels = [
+        'P.1', 'P.2', 'P.3', 'P.4', 'P.5', 'P.6', 'P.7',
+        'S.1', 'S.2', 'S.3', 'S.4', 'S.5', 'S.6',
+        'Certificate', 'Advanced Certificate', 'Community Polytechnic Certificate',
+        'Diploma', 'Higher Diploma', "Bachelor's Degree", 'Postgraduate Diploma',
+        "Master's Degree", 'Doctorate (PhD)'
+    ];
     public $marital_statuses = ['single', 'married'];
     public $roles = [
         'housekeeper', 'house_manager', 'nanny', 'chef',
@@ -156,6 +172,7 @@ class Edit extends Component
         $this->lc1_chairperson = $maid->lc1_chairperson;
         $this->mother_name_phone = $maid->mother_name_phone;
         $this->father_name_phone = $maid->father_name_phone;
+        $this->family_members = $maid->family_members ?? [];
         $this->marital_status = $maid->marital_status;
         $this->number_of_children = $maid->number_of_children;
         $this->education_level = $maid->education_level;
@@ -230,10 +247,16 @@ class Edit extends Component
             'contract_type' => 'required|in:full-time,part-time,live-in,live-out',
             'contract_start_date' => 'required|date',
             'contract_end_date' => 'nullable|date|after:contract_start_date',
+            'maid_salary' => 'nullable|numeric|min:0',
+            'client_payment' => 'nullable|numeric|min:0',
+            'service_paid' => 'nullable|numeric|min:0',
+            'payment_status' => 'required|in:pending,partial,paid',
+            'salary_paid_date' => 'nullable|date',
+            'currency' => 'required|string|max:3',
         ]);
 
         // Create deployment record
-        Deployment::create([
+        $deployment = Deployment::create([
             'maid_id' => $this->maid->id,
             'client_id' => $this->deployment_client_id,
             'deployment_date' => $this->deployment_date,
@@ -247,8 +270,31 @@ class Edit extends Component
             'contract_end_date' => $this->contract_end_date,
             'special_instructions' => $this->deployment_special_instructions,
             'notes' => $this->deployment_notes,
+            'maid_salary' => $this->maid_salary,
+            'client_payment' => $this->client_payment,
+            'service_paid' => $this->service_paid,
+            'payment_status' => $this->payment_status,
+            'salary_paid_date' => $this->salary_paid_date ?: null,
+            'currency' => $this->currency,
             'status' => 'active',
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
         ]);
+
+        EvaluationTask::createForDeployment($deployment);
+
+        $contract = MaidContract::create([
+            'maid_id' => $this->maid->id,
+            'contract_start_date' => $this->contract_start_date,
+            'contract_end_date' => $this->contract_end_date,
+            'contract_status' => 'active',
+            'contract_type' => $this->contract_type,
+            'notes' => $this->deployment_notes,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
+        ]);
+
+        $contract->recalculateDayCounts();
 
         // Update previous status and close modal
         $this->previousStatus = 'deployed';
@@ -269,6 +315,12 @@ class Edit extends Component
         $this->contract_type = 'full-time';
         $this->deployment_special_instructions = '';
         $this->deployment_notes = '';
+        $this->maid_salary = null;
+        $this->client_payment = null;
+        $this->service_paid = null;
+        $this->payment_status = 'pending';
+        $this->salary_paid_date = '';
+        $this->currency = 'UGX';
     }
 
     public function save()
@@ -277,6 +329,14 @@ class Edit extends Component
         if ($this->status === 'deployed' && $this->previousStatus !== 'deployed' && $this->showDeploymentModal) {
             // Don't proceed with save, wait for deployment modal to be filled
             return;
+        }
+
+        $canUpdateIdentity = Gate::allows('updateSensitiveIdentity', $this->maid);
+
+        if (!$canUpdateIdentity) {
+            $this->nin_number = $this->maid->nin_number;
+            $this->additional_documents = [];
+            $this->id_scans = [];
         }
 
         // Convert empty strings to null for medical test results
@@ -296,17 +356,23 @@ class Edit extends Component
             'date_of_birth' => 'required|date|before:today',
             'date_of_arrival' => 'required|date',
             'nationality' => 'required|string|max:50',
-            'nin_number' => 'required|string|max:50|unique:maids,nin_number,' . $this->maid->id,
+            'nin_number' => $canUpdateIdentity
+                ? 'required|string|max:50|unique:maids,nin_number,' . $this->maid->id
+                : 'nullable|string|max:50',
             'tribe' => 'required|string|max:100',
             'village' => 'required|string|max:100',
             'district' => 'required|string|max:100',
             'lc1_chairperson' => 'required|string',
             'mother_name_phone' => 'required|string|max:255',
             'father_name_phone' => 'required|string|max:255',
+            'family_members' => 'nullable|array',
+            'family_members.*.name' => 'required_with:family_members.*.relationship, family_members.*.phone|string|max:100',
+            'family_members.*.relationship' => 'required_with:family_members.*.name|string|max:100',
+            'family_members.*.phone' => 'nullable|string|max:20',
             'marital_status' => 'required|in:single,married',
             'number_of_children' => 'required|integer|min:0',
-            'education_level' => 'required|in:P.7,S.4,S.6,Certificate,Diploma',
-            'experience_years' => 'required|integer|min:0',
+            'education_level' => 'required|in:P.1,P.2,P.3,P.4,P.5,P.6,P.7,S.1,S.2,S.3,S.4,S.5,S.6,Certificate,Advanced Certificate,Community Polytechnic Certificate,Diploma,Higher Diploma,Bachelor\'s Degree,Postgraduate Diploma,Master\'s Degree,Doctorate (PhD)',
+            'experience_years' => 'required|numeric|min:0',
             'mother_tongue' => 'required|string|max:100',
             'english_proficiency' => 'required|integer|min:1|max:10',
             'previous_work' => 'nullable|string',
@@ -322,10 +388,12 @@ class Edit extends Component
             'urine_hcg_date' => 'nullable|date',
             'medical_notes' => 'nullable|string',
             'profile_image' => 'nullable|image|max:2048',
-            'additional_documents.*' => 'nullable|file|max:5120',
-            'id_scans.*' => 'nullable|file|max:5120',
+            'additional_documents.*' => $canUpdateIdentity ? 'nullable|file|max:5120' : 'nullable',
+            'id_scans.*' => $canUpdateIdentity ? 'nullable|file|max:5120' : 'nullable',
             'additional_notes' => 'nullable|string',
         ]);
+
+        $familyMembers = $this->normalizedFamilyMembers();
 
         // Prepare medical status
         $medicalStatus = [
@@ -355,14 +423,14 @@ class Edit extends Component
         }
 
         $additionalDocuments = $this->current_additional_documents;
-        if ($this->additional_documents) {
+        if ($canUpdateIdentity && $this->additional_documents) {
             foreach ($this->additional_documents as $document) {
                 $additionalDocuments[] = $document->store('maids/documents', 'public');
             }
         }
 
         $idScans = $this->current_id_scans;
-        if ($this->id_scans) {
+        if ($canUpdateIdentity && $this->id_scans) {
             foreach ($this->id_scans as $scan) {
                 $idScans[] = $scan->store('maids/id-scans', 'public');
             }
@@ -377,13 +445,14 @@ class Edit extends Component
             'date_of_birth' => $this->date_of_birth,
             'date_of_arrival' => $this->date_of_arrival,
             'nationality' => $this->nationality,
-            'nin_number' => $this->nin_number,
+            'nin_number' => $canUpdateIdentity ? $this->nin_number : $this->maid->nin_number,
             'tribe' => $this->tribe,
             'village' => $this->village,
             'district' => $this->district,
             'lc1_chairperson' => $this->lc1_chairperson,
             'mother_name_phone' => $this->mother_name_phone,
             'father_name_phone' => $this->father_name_phone,
+            'family_members' => $familyMembers,
             'marital_status' => $this->marital_status,
             'number_of_children' => $this->number_of_children,
             'education_level' => $this->education_level,
@@ -407,6 +476,31 @@ class Edit extends Component
         return redirect()->route((auth()->user()->role === 'trainer' ? 'trainer.' : '') . 'maids.index');
     }
 
+    public function addFamilyMember(): void
+    {
+        $this->family_members[] = [
+            'name' => '',
+            'relationship' => '',
+            'phone' => '',
+        ];
+    }
+
+    public function removeFamilyMember(int $index): void
+    {
+        if (isset($this->family_members[$index])) {
+            unset($this->family_members[$index]);
+            $this->family_members = array_values($this->family_members);
+        }
+    }
+
+    private function normalizedFamilyMembers(): array
+    {
+        return array_values(array_filter(
+            $this->family_members,
+            fn ($member) => !empty($member['name']) || !empty($member['relationship']) || !empty($member['phone'])
+        ));
+    }
+
     public function removeProfileImage()
     {
         if ($this->current_profile_image) {
@@ -419,6 +513,8 @@ class Edit extends Component
 
     public function removeDocument($index, $type)
     {
+        Gate::authorize('updateSensitiveIdentity', $this->maid);
+
         if ($type === 'additional_documents') {
             if (isset($this->current_additional_documents[$index])) {
                 Storage::disk('public')->delete($this->current_additional_documents[$index]);
@@ -431,6 +527,18 @@ class Edit extends Component
                 unset($this->current_id_scans[$index]);
                 $this->current_id_scans = array_values($this->current_id_scans);
             }
+        }
+    }
+
+    public function updatedDeploymentClientId(): void
+    {
+        if ($this->deployment_client_id) {
+            $client = Client::findOrFail($this->deployment_client_id);
+            $this->deployment_client_name = $client->contact_person ?? '';
+            $this->deployment_client_phone = $client->phone ?? '';
+        } else {
+            $this->deployment_client_name = '';
+            $this->deployment_client_phone = '';
         }
     }
 

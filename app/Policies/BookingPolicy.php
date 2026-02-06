@@ -14,7 +14,7 @@ class BookingPolicy
     public function viewAny(User $user): bool
     {
         // Admin can view all bookings, clients can view their own, trainers with permission
-        return $user->role === 'admin' || $user->role === 'client' ||
+        return $user->isAdminLike() || $user->role === 'client' ||
                ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
@@ -24,7 +24,7 @@ class BookingPolicy
     public function view(User $user, Booking $booking): bool
     {
         // Admin can view all
-        if ($user->role === 'admin') {
+        if ($user->isAdminLike()) {
             return true;
         }
 
@@ -47,7 +47,7 @@ class BookingPolicy
     public function create(User $user): bool
     {
         // Admin can create bookings, clients can create their own, trainers with permission
-        return $user->role === 'admin' || $user->role === 'client' ||
+        return $user->isAdminLike() || $user->role === 'client' ||
                ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
@@ -57,7 +57,7 @@ class BookingPolicy
     public function update(User $user, Booking $booking): bool
     {
         // Admin can update any booking
-        if ($user->role === 'admin') {
+        if ($user->isAdminLike()) {
             return true;
         }
 
@@ -80,7 +80,7 @@ class BookingPolicy
     public function delete(User $user, Booking $booking): bool
     {
         // Admin can delete, trainers with permission can delete
-        return $user->role === 'admin' ||
+        return $user->isAdminLike() ||
                ($user->role === 'trainer' && $user->trainer && $user->trainer->hasAccessTo('bookings'));
     }
 
@@ -98,5 +98,21 @@ class BookingPolicy
     public function forceDelete(User $user, Booking $booking): bool
     {
         return false;
+    }
+
+    /**
+     * Sensitive identity fields should only be visible to super admins.
+     */
+    public function viewSensitiveIdentity(User $user, Booking $booking): bool
+    {
+        return $user->isSuperAdmin();
+    }
+
+    /**
+     * Sensitive identity fields should only be editable by super admins.
+     */
+    public function updateSensitiveIdentity(User $user, Booking $booking): bool
+    {
+        return $user->isSuperAdmin();
     }
 }

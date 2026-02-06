@@ -5,6 +5,7 @@ namespace App\Livewire\Maids;
 use App\Models\Maid;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 
 class Create extends Component
@@ -33,6 +34,7 @@ class Create extends Component
     // Family Information
     public $mother_name_phone = '';
     public $father_name_phone = '';
+    public array $family_members = [];
 
     // Personal Details
     public $marital_status = 'single';
@@ -96,7 +98,13 @@ class Create extends Component
         'Tororo', 'Wakiso', 'Yumbe', 'Zombo', 'Other'
     ];
 
-    public $education_levels = ['P.7', 'S.4', 'S.6', 'Certificate', 'Diploma'];
+    public $education_levels = [
+        'P.1', 'P.2', 'P.3', 'P.4', 'P.5', 'P.6', 'P.7',
+        'S.1', 'S.2', 'S.3', 'S.4', 'S.5', 'S.6',
+        'Certificate', 'Advanced Certificate', 'Community Polytechnic Certificate',
+        'Diploma', 'Higher Diploma', "Bachelor's Degree", 'Postgraduate Diploma',
+        "Master's Degree", 'Doctorate (PhD)'
+    ];
     public $marital_statuses = ['single', 'married'];
     public $roles = [
         'housekeeper', 'house_manager', 'nanny', 'chef',
@@ -108,44 +116,55 @@ class Create extends Component
     ];
     public $work_statuses = ['brokerage', 'long-term', 'part-time', 'full-time'];
 
-    protected $rules = [
-        'first_name' => 'required|string|max:100',
-        'last_name' => 'required|string|max:100',
-        'phone' => 'required|string|max:20|unique:maids,phone',
-        'mobile_number_2' => 'nullable|string|max:20',
-        'date_of_birth' => 'required|date|before:today',
-        'date_of_arrival' => 'required|date',
-        'nationality' => 'required|string|max:50',
-        'nin_number' => 'required|string|max:50|unique:maids,nin_number',
-        'tribe' => 'required|string|max:100',
-        'village' => 'required|string|max:100',
-        'district' => 'required|string|max:100',
-        'lc1_chairperson' => 'required|string',
-        'mother_name_phone' => 'required|string|max:255',
-        'father_name_phone' => 'required|string|max:255',
-        'marital_status' => 'required|in:single,married',
-        'number_of_children' => 'required|integer|min:0',
-        'education_level' => 'required|in:P.7,S.4,S.6,Certificate,Diploma',
-        'experience_years' => 'required|integer|min:0',
-        'mother_tongue' => 'required|string|max:100',
-        'english_proficiency' => 'required|integer|min:1|max:10',
-        'previous_work' => 'nullable|string',
-        'role' => 'required|in:housekeeper,house_manager,nanny,chef,elderly_caretaker,nakawere_caretaker',
-        'status' => 'required|in:available,in-training,booked,deployed,absconded,terminated,on-leave',
-        'secondary_status' => 'required|in:booked,available,deployed,on-leave,absconded,terminated',
-        'work_status' => 'required|in:brokerage,long-term,part-time,full-time',
-        'hepatitis_b_result' => 'nullable|in:positive,negative,pending,not_tested',
-        'hepatitis_b_date' => 'nullable|date',
-        'hiv_result' => 'nullable|in:positive,negative,pending,not_tested',
-        'hiv_date' => 'nullable|date',
-        'urine_hcg_result' => 'nullable|in:positive,negative,pending,not_tested',
-        'urine_hcg_date' => 'nullable|date',
-        'medical_notes' => 'nullable|string',
-        'profile_image' => 'nullable|image|max:2048',
-        'additional_documents.*' => 'nullable|file|max:5120',
-        'id_scans.*' => 'nullable|file|max:5120',
-        'additional_notes' => 'nullable|string',
-    ];
+    protected function rules(): array
+    {
+        $canUpdateIdentity = Gate::allows('updateSensitiveIdentity');
+
+        return [
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'phone' => 'required|string|max:20|unique:maids,phone',
+            'mobile_number_2' => 'nullable|string|max:20',
+            'date_of_birth' => 'required|date|before:today',
+            'date_of_arrival' => 'required|date',
+            'nationality' => 'required|string|max:50',
+            'nin_number' => $canUpdateIdentity
+                ? 'required|string|max:50|unique:maids,nin_number'
+                : 'nullable|string|max:50',
+            'tribe' => 'required|string|max:100',
+            'village' => 'required|string|max:100',
+            'district' => 'required|string|max:100',
+            'lc1_chairperson' => 'required|string',
+            'mother_name_phone' => 'required|string|max:255',
+            'father_name_phone' => 'required|string|max:255',
+            'family_members' => 'nullable|array',
+            'family_members.*.name' => 'required_with:family_members.*.relationship, family_members.*.phone|string|max:100',
+            'family_members.*.relationship' => 'required_with:family_members.*.name|string|max:100',
+            'family_members.*.phone' => 'nullable|string|max:20',
+            'marital_status' => 'required|in:single,married',
+            'number_of_children' => 'required|integer|min:0',
+            'education_level' => 'required|in:P.1,P.2,P.3,P.4,P.5,P.6,P.7,S.1,S.2,S.3,S.4,S.5,S.6,Certificate,Advanced Certificate,Community Polytechnic Certificate,Diploma,Higher Diploma,Bachelor\'s Degree,Postgraduate Diploma,Master\'s Degree,Doctorate (PhD)',
+            'experience_years' => 'required|numeric|min:0',
+            'mother_tongue' => 'required|string|max:100',
+            'english_proficiency' => 'required|integer|min:1|max:10',
+            'previous_work' => 'nullable|string',
+            'role' => 'required|in:housekeeper,house_manager,nanny,chef,elderly_caretaker,nakawere_caretaker',
+            'status' => 'required|in:available,in-training,booked,deployed,absconded,terminated,on-leave',
+            'secondary_status' => 'required|in:booked,available,deployed,on-leave,absconded,terminated',
+            'work_status' => 'required|in:brokerage,long-term,part-time,full-time',
+            'hepatitis_b_result' => 'nullable|in:positive,negative,pending,not_tested',
+            'hepatitis_b_date' => 'nullable|date',
+            'hiv_result' => 'nullable|in:positive,negative,pending,not_tested',
+            'hiv_date' => 'nullable|date',
+            'urine_hcg_result' => 'nullable|in:positive,negative,pending,not_tested',
+            'urine_hcg_date' => 'nullable|date',
+            'medical_notes' => 'nullable|string',
+            'profile_image' => 'nullable|image|max:2048',
+            'additional_documents.*' => $canUpdateIdentity ? 'nullable|file|max:5120' : 'nullable',
+            'id_scans.*' => $canUpdateIdentity ? 'nullable|file|max:5120' : 'nullable',
+            'additional_notes' => 'nullable|string',
+        ];
+    }
 
     public function mount()
     {
@@ -155,6 +174,14 @@ class Create extends Component
 
     public function save()
     {
+        $canUpdateIdentity = Gate::allows('updateSensitiveIdentity');
+
+        if (!$canUpdateIdentity) {
+            $this->nin_number = null;
+            $this->additional_documents = [];
+            $this->id_scans = [];
+        }
+
         // Convert empty strings to null for medical test results
         $this->hepatitis_b_result = $this->hepatitis_b_result === '' ? null : $this->hepatitis_b_result;
         $this->hiv_result = $this->hiv_result === '' ? null : $this->hiv_result;
@@ -194,18 +221,20 @@ class Create extends Component
         }
 
         $additionalDocuments = [];
-        if ($this->additional_documents) {
+        if ($canUpdateIdentity && $this->additional_documents) {
             foreach ($this->additional_documents as $document) {
                 $additionalDocuments[] = $document->store('maids/documents', 'public');
             }
         }
 
         $idScans = [];
-        if ($this->id_scans) {
+        if ($canUpdateIdentity && $this->id_scans) {
             foreach ($this->id_scans as $scan) {
                 $idScans[] = $scan->store('maids/id-scans', 'public');
             }
         }
+
+        $familyMembers = $this->normalizedFamilyMembers();
 
         // Create the maid
         Maid::create([
@@ -216,13 +245,14 @@ class Create extends Component
             'date_of_birth' => $this->date_of_birth,
             'date_of_arrival' => $this->date_of_arrival,
             'nationality' => $this->nationality,
-            'nin_number' => $this->nin_number,
+            'nin_number' => $canUpdateIdentity ? $this->nin_number : null,
             'tribe' => $this->tribe,
             'village' => $this->village,
             'district' => $this->district,
             'lc1_chairperson' => $this->lc1_chairperson,
             'mother_name_phone' => $this->mother_name_phone,
             'father_name_phone' => $this->father_name_phone,
+            'family_members' => $familyMembers,
             'marital_status' => $this->marital_status,
             'number_of_children' => $this->number_of_children,
             'education_level' => $this->education_level,
@@ -244,6 +274,31 @@ class Create extends Component
         session()->flash('message', 'Maid created successfully!');
         
         return redirect()->route((auth()->user()->role === 'trainer' ? 'trainer.' : '') . 'maids.index');
+    }
+
+    public function addFamilyMember(): void
+    {
+        $this->family_members[] = [
+            'name' => '',
+            'relationship' => '',
+            'phone' => '',
+        ];
+    }
+
+    public function removeFamilyMember(int $index): void
+    {
+        if (isset($this->family_members[$index])) {
+            unset($this->family_members[$index]);
+            $this->family_members = array_values($this->family_members);
+        }
+    }
+
+    private function normalizedFamilyMembers(): array
+    {
+        return array_values(array_filter(
+            $this->family_members,
+            fn ($member) => !empty($member['name']) || !empty($member['relationship']) || !empty($member['phone'])
+        ));
     }
 
     /**

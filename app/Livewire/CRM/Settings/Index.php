@@ -55,6 +55,13 @@ class Index extends Component
     public $last_backup_date;
     public $backup_file;
     
+    // Ticket Settings
+    public $ticket_auto_assign_enabled = false;
+    public $ticket_assignment_strategy = 'workload'; // workload, round-robin, category
+    public $ticket_auto_notify = true;
+    public $ticket_sla_check_interval = 60; // minutes
+    public $ticket_approaching_sla_hours = 2;
+    
     // Automation Settings
     public $auto_lead_conversion = false;
     public $auto_opportunity_stage_progression = false;
@@ -100,6 +107,11 @@ class Index extends Component
         'backup_frequency' => 'required|in:daily,weekly,monthly',
         'backup_retention_days' => 'integer|min:1|max:365',
         'backup_email_notifications' => 'boolean',
+        'ticket_auto_assign_enabled' => 'boolean',
+        'ticket_assignment_strategy' => 'required|in:workload,round-robin,category',
+        'ticket_auto_notify' => 'boolean',
+        'ticket_sla_check_interval' => 'integer|min:1|max:1440',
+        'ticket_approaching_sla_hours' => 'integer|min:1|max:24',
         'auto_lead_conversion' => 'boolean',
         'auto_opportunity_stage_progression' => 'boolean',
         'auto_activity_creation' => 'boolean',
@@ -166,6 +178,11 @@ class Index extends Component
                 'backup_frequency' => $this->backup_frequency,
                 'backup_retention_days' => $this->backup_retention_days,
                 'backup_email_notifications' => $this->backup_email_notifications,
+                'ticket_auto_assign_enabled' => $this->ticket_auto_assign_enabled,
+                'ticket_assignment_strategy' => $this->ticket_assignment_strategy,
+                'ticket_auto_notify' => $this->ticket_auto_notify,
+                'ticket_sla_check_interval' => $this->ticket_sla_check_interval,
+                'ticket_approaching_sla_hours' => $this->ticket_approaching_sla_hours,
                 'auto_lead_conversion' => $this->auto_lead_conversion,
                 'auto_opportunity_stage_progression' => $this->auto_opportunity_stage_progression,
                 'auto_activity_creation' => $this->auto_activity_creation,

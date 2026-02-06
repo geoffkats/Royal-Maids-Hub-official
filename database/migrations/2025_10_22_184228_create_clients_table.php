@@ -30,6 +30,8 @@ return new class extends Migration
             $table->unsignedInteger('total_bookings')->default(0);
             $table->unsignedInteger('active_bookings')->default(0);
             $table->text('notes')->nullable();
+            // Enable soft deletes for recoverability and audit safety.
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['subscription_status', 'subscription_tier']);

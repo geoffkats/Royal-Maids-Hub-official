@@ -29,7 +29,7 @@
                 <flux:input 
                     wire:model.live.debounce.400ms="search" 
                     :label="__('Search Clients')"
-                    placeholder="{{ __('Name, company, phone, email...') }}"
+                    placeholder="{{ __('Name, NIN, phone, email...') }}"
                     icon="magnifying-glass"
                     class="filter-input"
                 />
@@ -72,7 +72,7 @@
                 <flux:select wire:model.live="sortBy" :label="__('Sort By')" class="filter-select">
                     <option value="created_at">{{ __('Date Created') }}</option>
                     <option value="contact_person">{{ __('Name') }}</option>
-                    <option value="company_name">{{ __('Company') }}</option>
+                    <option value="nid">{{ __('NIN/ID') }}</option>
                     <option value="subscription_tier">{{ __('Package Tier') }}</option>
                     <option value="subscription_status">{{ __('Status') }}</option>
                 </flux:select>
@@ -127,7 +127,7 @@
             <thead>
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">{{ __('Contact') }}</th>
-                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">{{ __('Company') }}</th>
+                    <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">{{ __('NIN/ID') }}</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">{{ __('Phone') }}</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">{{ __('Location') }}</th>
                     <th class="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider">{{ __('Tier') }}</th>
@@ -156,9 +156,14 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="whitespace-nowrap px-6 py-4 text-sm">
-                            {{ $client->company_name ?? '—' }}
-                        </td>
+                        @can('viewSensitiveIdentity')
+                            <td class="whitespace-nowrap px-6 py-4 text-sm">
+                                <div class="font-medium">{{ $client->identity_number ?? '—' }}</div>
+                                <div class="text-xs text-[#D1C4E9]">{{ ucfirst($client->identity_type ?? 'nin') }}</div>
+                            </td>
+                        @else
+                            <td class="whitespace-nowrap px-6 py-4 text-sm text-[#D1C4E9]">—</td>
+                        @endcan
                         <td class="whitespace-nowrap px-6 py-4 text-sm">
                             {{ $client->phone }}
                         </td>

@@ -5,6 +5,7 @@ namespace App\Livewire\Clients;
 use App\Models\Client;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Gate;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -26,6 +27,12 @@ class Index extends Component
     #[Url]
     public int $perPage = 15;
 
+    #[Url]
+    public string $sortBy = 'created_at';
+
+    #[Url]
+    public string $sortDirection = 'desc';
+
     // Deletion confirmation state
     public bool $showDeleteModal = false;
     public ?int $deleteId = null;
@@ -39,7 +46,7 @@ class Index extends Component
     public function updating($name, $value): void
     {
         // Reset to first page whenever filters or search change
-        if (in_array($name, ['search', 'subscription_status', 'subscription_tier', 'perPage'], true)) {
+        if (in_array($name, ['search', 'subscription_status', 'subscription_tier', 'perPage', 'sortBy', 'sortDirection'], true)) {
             $this->resetPage();
         }
     }
@@ -68,6 +75,7 @@ class Index extends Component
     protected function queryClients(): LengthAwarePaginator
     {
         $term = trim($this->search);
+        $canViewIdentity = Gate::allows('viewSensitiveIdentity');
 
         return Client::query()
             ->with('user')
@@ -75,14 +83,17 @@ class Index extends Component
                 $like = '%' . str_replace(['%','_'], ['\%','\_'], $term) . '%';
                 $q->where(function ($qq) use ($like) {
                     $qq->where('contact_person', 'like', $like)
-                        ->orWhere('company_name', 'like', $like)
                         ->orWhere('phone', 'like', $like)
                         ->orWhere('city', 'like', $like);
                 });
             })
+            ->when($term !== '' && $canViewIdentity, function ($q) use ($term) {
+                $like = '%' . str_replace(['%','_'], ['\%','\_'], $term) . '%';
+                $q->orWhere('identity_number', 'like', $like);
+            })
             ->when(!empty($this->subscription_status), fn($q) => $q->where('subscription_status', $this->subscription_status))
             ->when(!empty($this->subscription_tier), fn($q) => $q->where('subscription_tier', $this->subscription_tier))
-            ->orderByDesc('id')
+            ->orderBy($this->sortBy, $this->sortDirection)
             ->paginate(max(5, min(100, (int) $this->perPage)));
     }
 
@@ -91,12 +102,8 @@ class Index extends Component
         $client = Client::with('user')->findOrFail($clientId);
         $this->authorize('delete', $client);
 
-        // Deleting the user will cascade and delete the client via FK
-        if ($client->user) {
-            $client->user->delete();
-        } else {
-            $client->delete();
-        }
+        // Soft delete the client record to avoid hard-deleting related users.
+        $client->delete();
 
         session()->flash('success', __('Client deleted successfully.'));
         // Reset to first page if current page becomes empty after deletion

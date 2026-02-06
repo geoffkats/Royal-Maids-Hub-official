@@ -62,6 +62,18 @@
                     @error('phone') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
 
                     <flux:input wire:model.defer="secondary_phone" :label="__('Secondary Phone')" />
+
+                    @can('updateSensitiveIdentity')
+                        <flux:select wire:model.defer="identity_type" :label="__('Identity Type')">
+                            <option value="">{{ __('Select identity type...') }}</option>
+                            <option value="nin">{{ __('NIN') }}</option>
+                            <option value="passport">{{ __('Passport') }}</option>
+                        </flux:select>
+                        @error('identity_type') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
+
+                        <flux:input wire:model.defer="identity_number" :label="__('Identity Number')" />
+                        @error('identity_number') <flux:text color="red" class="text-sm">{{ $message }}</flux:text> @enderror
+                    @endcan
                 </div>
             </div>
         </div>

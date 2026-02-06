@@ -1,4 +1,8 @@
 <div class="space-y-6">
+    @php
+        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+    @endphp
+
     {{-- Page Header --}}
     <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
@@ -135,7 +139,7 @@
                         <td class="whitespace-nowrap px-6 py-4 text-sm">
                             <div class="flex items-center gap-3">
                                 <div>
-                                    <a href="{{ route('maids.show', $deployment->maid) }}" wire:navigate class="font-medium text-neutral-900 hover:underline dark:text-white">
+                                    <a href="{{ route($prefix . 'maids.show', $deployment->maid) }}" wire:navigate class="font-medium text-neutral-900 hover:underline dark:text-white">
                                         {{ $deployment->maid->full_name }}
                                     </a>
                                     <div class="text-xs text-neutral-500 dark:text-neutral-400">{{ $deployment->maid->maid_code }}</div>
@@ -154,9 +158,11 @@
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm">
                             <div class="text-neutral-900 dark:text-white">{{ ucfirst(str_replace('-', ' ', $deployment->contract_type)) }}</div>
-                            @if($deployment->monthly_salary)
-                                <div class="text-xs text-neutral-500 dark:text-neutral-400">UGX {{ number_format($deployment->monthly_salary) }}</div>
-                            @endif
+                            @can('viewSensitiveFinancials')
+                                @if($deployment->monthly_salary)
+                                    <div class="text-xs text-neutral-500 dark:text-neutral-400">UGX {{ number_format($deployment->monthly_salary) }}</div>
+                                @endif
+                            @endcan
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-sm">
                             <flux:badge 
@@ -172,14 +178,27 @@
                             </flux:badge>
                         </td>
                         <td class="whitespace-nowrap px-6 py-4 text-right text-sm">
-                            <flux:button 
-                                wire:click="viewDetails({{ $deployment->id }})" 
-                                size="sm" 
-                                icon="eye" 
-                                variant="ghost"
-                            >
-                                {{ __('View Details') }}
-                            </flux:button>
+                            <div class="flex items-center justify-end gap-2">
+                                <flux:button
+                                    wire:click="viewDetails({{ $deployment->id }})"
+                                    size="sm"
+                                    icon="eye"
+                                    variant="ghost"
+                                >
+                                    {{ __('View Details') }}
+                                </flux:button>
+                                @can('update', $deployment)
+                                    <flux:button
+                                        as="a"
+                                        href="{{ route('deployments.edit', $deployment) }}"
+                                        size="sm"
+                                        icon="pencil-square"
+                                        variant="outline"
+                                    >
+                                        {{ __('Edit') }}
+                                    </flux:button>
+                                @endcan
+                            </div>
                         </td>
                     </tr>
                 @empty
@@ -201,11 +220,24 @@
     {{-- Deployment Details Modal --}}
     @if($selectedDeployment)
         <flux:modal name="deployment-details" wire:model="showDetailsModal" class="space-y-6 max-w-4xl">
-            <div>
-                <flux:heading size="lg">{{ __('Deployment Details') }}</flux:heading>
-                <flux:subheading class="mt-2">
-                    {{ __('Complete information for this deployment') }}
-                </flux:subheading>
+            <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <flux:heading size="lg">{{ __('Deployment Details') }}</flux:heading>
+                    <flux:subheading class="mt-2">
+                        {{ __('Complete information for this deployment') }}
+                    </flux:subheading>
+                </div>
+                @can('update', $selectedDeployment)
+                    <flux:button
+                        as="a"
+                        href="{{ route('deployments.edit', $selectedDeployment) }}"
+                        size="sm"
+                        icon="pencil-square"
+                        variant="primary"
+                    >
+                        {{ __('Edit Deployment') }}
+                    </flux:button>
+                @endcan
             </div>
 
             <div class="space-y-6">
@@ -215,7 +247,7 @@
                     <div class="grid grid-cols-2 gap-3 text-sm">
                         <div>
                             <span class="text-neutral-500 dark:text-neutral-400">{{ __('Name:') }}</span>
-                            <a href="{{ route('maids.show', $selectedDeployment->maid) }}" wire:navigate class="ml-2 font-medium text-blue-600 hover:underline dark:text-blue-400">
+                            <a href="{{ route($prefix . 'maids.show', $selectedDeployment->maid) }}" wire:navigate class="ml-2 font-medium text-blue-600 hover:underline dark:text-blue-400">
                                 {{ $selectedDeployment->maid->full_name }}
                             </a>
                         </div>
@@ -246,10 +278,6 @@
                             <span class="text-neutral-500 dark:text-neutral-400">{{ __('Phone:') }}</span>
                             <span class="ml-2 font-medium text-neutral-900 dark:text-white">{{ $selectedDeployment->client_phone }}</span>
                         </div>
-                        <div class="col-span-2">
-                            <span class="text-neutral-500 dark:text-neutral-400">{{ __('Address:') }}</span>
-                            <span class="ml-2 font-medium text-neutral-900 dark:text-white">{{ $selectedDeployment->deployment_address }}</span>
-                        </div>
                         <div>
                             <span class="text-neutral-500 dark:text-neutral-400">{{ __('Location:') }}</span>
                             <span class="ml-2 font-medium text-neutral-900 dark:text-white">{{ $selectedDeployment->deployment_location }}</span>
@@ -277,12 +305,14 @@
                             <span class="text-neutral-500 dark:text-neutral-400">{{ __('End Date:') }}</span>
                             <span class="ml-2 font-medium text-neutral-900 dark:text-white">{{ $selectedDeployment->contract_end_date?->format('M d, Y') ?? 'Ongoing' }}</span>
                         </div>
-                        @if($selectedDeployment->monthly_salary)
-                            <div>
-                                <span class="text-neutral-500 dark:text-neutral-400">{{ __('Monthly Salary:') }}</span>
-                                <span class="ml-2 font-medium text-green-600 dark:text-green-400">UGX {{ number_format($selectedDeployment->monthly_salary) }}</span>
-                            </div>
-                        @endif
+                        @can('viewSensitiveFinancials')
+                            @if($selectedDeployment->monthly_salary)
+                                <div>
+                                    <span class="text-neutral-500 dark:text-neutral-400">{{ __('Monthly Salary:') }}</span>
+                                    <span class="ml-2 font-medium text-green-600 dark:text-green-400">UGX {{ number_format($selectedDeployment->monthly_salary) }}</span>
+                                </div>
+                            @endif
+                        @endcan
                         <div>
                             <span class="text-neutral-500 dark:text-neutral-400">{{ __('Status:') }}</span>
                             <flux:badge 

@@ -38,6 +38,8 @@ return new class extends Migration {
             $table->json('medical_status')->nullable();
             $table->string('profile_image')->nullable();
             $table->text('additional_notes')->nullable();
+            // Enable soft deletes for recoverability and audit safety.
+            $table->softDeletes();
             $table->timestamps();
             $table->index(['status','work_status','role']);
             $table->index('date_of_arrival');

@@ -69,6 +69,13 @@
                         </option>
                     @endforeach
                 </flux:select>
+
+                <flux:select wire:model.live="module" :label="__('Evaluation Module')" required class="md:col-span-2">
+                    <option value="">{{ __('Select Module') }}</option>
+                    @foreach ($moduleQuestions as $moduleKey => $moduleData)
+                        <option value="{{ $moduleKey }}">{{ __($moduleData['label']) }}</option>
+                    @endforeach
+                </flux:select>
             </div>
         </div>
 
@@ -387,6 +394,43 @@
                 <flux:textarea wire:model.defer="strengths" :label="__('Strengths')" rows="3" placeholder="{{ __('Key strengths observed...') }}" />
                 <flux:textarea wire:model.defer="areas_for_improvement" :label="__('Areas for Improvement')" rows="3" placeholder="{{ __('Areas that need development...') }}" />
             </div>
+        </div>
+
+        {{-- 5. Module Evaluation --}}
+        <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+            <flux:heading size="lg" class="mb-1 text-white">{{ __('5. Module Evaluation') }}</flux:heading>
+            <flux:subheading class="mb-4 text-[#D1C4E9]">
+                {{ __('Rating key: 1 = Poor, 2 = Needs Improvement, 3 = Satisfactory, 4 = Good, 5 = Excellent') }}
+            </flux:subheading>
+
+            @if($module)
+                <div class="space-y-6">
+                    @foreach ($moduleQuestions[$module]['questions'] as $questionKey => $questionLabel)
+                        <div>
+                            <div class="mb-2 flex items-center justify-between">
+                                <label class="text-sm font-medium text-[#D1C4E9]">{{ __($questionLabel) }}</label>
+                                @php
+                                    $questionScore = $module_scores[$module][$questionKey] ?? 3;
+                                @endphp
+                                <flux:badge color="{{ $questionScore >= 4 ? 'green' : ($questionScore >= 3 ? 'blue' : 'yellow') }}" size="sm">
+                                    {{ $questionScore }}
+                                </flux:badge>
+                            </div>
+                            <flux:select wire:model.defer="module_scores.{{ $module }}.{{ $questionKey }}" :label="__('Rating')">
+                                <option value="1">1 - {{ __('Poor') }}</option>
+                                <option value="2">2 - {{ __('Needs Improvement') }}</option>
+                                <option value="3">3 - {{ __('Satisfactory') }}</option>
+                                <option value="4">4 - {{ __('Good') }}</option>
+                                <option value="5">5 - {{ __('Excellent') }}</option>
+                            </flux:select>
+                        </div>
+                    @endforeach
+                </div>
+            @else
+                <flux:callout variant="warning" icon="exclamation-triangle" class="!border-[#F5B301]/40 !bg-[#3B0A45] text-[#D1C4E9]">
+                    {{ __('Select an evaluation module to load its questions.') }}
+                </flux:callout>
+            @endif
         </div>
 
         <div class="flex justify-end gap-3">

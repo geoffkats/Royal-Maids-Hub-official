@@ -15,6 +15,70 @@
 
     <flux:separator variant="subtle" />
 
+    {{-- QUICK ACTIONS --}}
+    <div>
+        <h2 class="mb-4 text-lg font-semibold text-white">{{ __('Quick Actions') }}</h2>
+        <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            
+            {{-- Settings / Integration --}}
+            <a href="{{ route('settings.index') }}" wire:navigate 
+               class="group rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg transition-all duration-200 hover:border-[#F5B301] hover:shadow-xl">
+                <div class="flex items-start gap-4">
+                    <div class="rounded-full bg-[#F5B301] p-3 transition-transform duration-200 group-hover:scale-110">
+                        <flux:icon.cog-6-tooth class="size-6 text-[#3B0A45]" />
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-white group-hover:text-[#F5B301]">{{ __('System Settings') }}</h3>
+                        <p class="mt-1 text-sm text-[#D1C4E9]">{{ __('Configure integrations & preferences') }}</p>
+                    </div>
+                </div>
+            </a>
+
+            {{-- Add New Maid --}}
+            <a href="{{ route('maids.create') }}" wire:navigate 
+               class="group rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg transition-all duration-200 hover:border-[#4CAF50] hover:shadow-xl">
+                <div class="flex items-start gap-4">
+                    <div class="rounded-full bg-[#4CAF50] p-3 transition-transform duration-200 group-hover:scale-110">
+                        <flux:icon.user-plus class="size-6 text-white" />
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-white group-hover:text-[#4CAF50]">{{ __('Add New Maid') }}</h3>
+                        <p class="mt-1 text-sm text-[#D1C4E9]">{{ __('Register a new maid') }}</p>
+                    </div>
+                </div>
+            </a>
+
+            {{-- Add Booking --}}
+            <a href="{{ route('bookings.create') }}" wire:navigate 
+               class="group rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg transition-all duration-200 hover:border-[#64B5F6] hover:shadow-xl">
+                <div class="flex items-start gap-4">
+                    <div class="rounded-full bg-[#64B5F6] p-3 transition-transform duration-200 group-hover:scale-110">
+                        <flux:icon.calendar-days class="size-6 text-white" />
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-white group-hover:text-[#64B5F6]">{{ __('Create Booking') }}</h3>
+                        <p class="mt-1 text-sm text-[#D1C4E9]">{{ __('New client booking') }}</p>
+                    </div>
+                </div>
+            </a>
+
+            {{-- Manage Users --}}
+            <a href="{{ route('settings.index') }}" wire:navigate 
+               class="group rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg transition-all duration-200 hover:border-[#B9A0DC] hover:shadow-xl">
+                <div class="flex items-start gap-4">
+                    <div class="rounded-full bg-[#B9A0DC] p-3 transition-transform duration-200 group-hover:scale-110">
+                        <flux:icon.users class="size-6 text-[#3B0A45]" />
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="font-semibold text-white group-hover:text-[#B9A0DC]">{{ __('Manage Users') }}</h3>
+                        <p class="mt-1 text-sm text-[#D1C4E9]">{{ __('User roles & permissions') }}</p>
+                    </div>
+                </div>
+            </a>
+            
+        </div>
+    </div>
+
     {{-- KEY PERFORMANCE INDICATORS --}}
     <div>
         <h2 class="mb-4 text-lg font-semibold text-white">{{ __('Key Performance Indicators') }}</h2>
@@ -168,6 +232,69 @@
                 </div>
             </div>
             
+        </div>
+    </div>
+
+    {{-- FINANCIAL OVERVIEW --}}
+    <div>
+        <div class="flex items-center justify-between">
+            <h2 class="mb-4 text-lg font-semibold text-white">{{ __('Financial Overview') }}</h2>
+            <a href="{{ route('deployments.index') }}" class="text-sm font-medium text-[#F5B301] hover:text-[#F5B301]/80" wire:navigate>
+                {{ __('View financial details') }} →
+            </a>
+        </div>
+        <div class="rounded-lg border border-[#F5B301]/20 bg-[#3B0A45]/40 p-4">
+            <livewire:dashboard.financial-summary />
+        </div>
+    </div>
+
+    {{-- CONTRACTS OVERVIEW --}}
+    <div>
+        <div class="flex items-center justify-between">
+            <h2 class="mb-4 text-lg font-semibold text-white">{{ __('Contracts Overview') }}</h2>
+            <a href="{{ route('contracts.index') }}" class="text-sm font-medium text-[#F5B301] hover:text-[#F5B301]/80" wire:navigate>
+                {{ __('View all contracts') }} →
+            </a>
+        </div>
+        <div class="grid gap-4 md:grid-cols-3">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-[#D1C4E9]">{{ __('Total Contracts') }}</p>
+                        <p class="mt-2 text-3xl font-bold text-white">{{ number_format($totalContracts) }}</p>
+                        <p class="mt-1 text-xs text-[#D1C4E9]">{{ __('All statuses') }}</p>
+                    </div>
+                    <div class="rounded-full bg-[#64B5F6] p-3">
+                        <flux:icon.document-text class="size-6 text-white" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-[#D1C4E9]">{{ __('Active Contracts') }}</p>
+                        <p class="mt-2 text-3xl font-bold text-white">{{ number_format($activeContracts) }}</p>
+                        <p class="mt-1 text-xs text-[#D1C4E9]">{{ __('Currently running') }}</p>
+                    </div>
+                    <div class="rounded-full bg-[#4CAF50] p-3">
+                        <flux:icon.check-circle class="size-6 text-white" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-sm font-medium text-[#D1C4E9]">{{ __('Expiring Soon') }}</p>
+                        <p class="mt-2 text-3xl font-bold text-white">{{ number_format($expiringContracts) }}</p>
+                        <p class="mt-1 text-xs text-[#D1C4E9]">{{ __('Next 30 days') }}</p>
+                    </div>
+                    <div class="rounded-full bg-[#FF9800] p-3">
+                        <flux:icon.clock class="size-6 text-white" />
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

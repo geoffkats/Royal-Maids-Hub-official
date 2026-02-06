@@ -2,7 +2,7 @@
 
 namespace App\Livewire\Programs;
 
-use App\Models\{TrainingProgram, Trainer};
+use App\Models\{Maid, TrainingProgram, Trainer};
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Livewire\Attributes\Url;
@@ -32,6 +32,8 @@ class Index extends Component
     public ?int $deleteId = null;
     public ?string $deleteName = null;
     public string $bulkAction = '';
+    public bool $showHubProgramModal = false;
+    public ?int $hubTrainerId = null;
 
     public function updating($name, $value): void
     {
@@ -161,6 +163,57 @@ class Index extends Component
         $this->dispatch('$refresh');
     }
 
+    public function openHubProgramModal(): void
+    {
+        $this->authorize('create', TrainingProgram::class);
+        $this->showHubProgramModal = true;
+    }
+
+    public function createHubPrograms(): void
+    {
+        $this->authorize('create', TrainingProgram::class);
+
+        $this->validate([
+            'hubTrainerId' => ['required', 'exists:trainers,id'],
+        ]);
+
+        $programType = 'Royal Maids Hub Training';
+        $startDate = now()->format('Y-m-d');
+
+        $maids = Maid::where('status', 'in-training')->get();
+
+        $created = 0;
+        foreach ($maids as $maid) {
+            $exists = TrainingProgram::query()
+                ->where('maid_id', $maid->id)
+                ->where('program_type', $programType)
+                ->where('archived', false)
+                ->exists();
+
+            if ($exists) {
+                continue;
+            }
+
+            TrainingProgram::create([
+                'trainer_id' => $this->hubTrainerId,
+                'maid_id' => $maid->id,
+                'program_type' => $programType,
+                'start_date' => $startDate,
+                'status' => 'scheduled',
+                'notes' => 'Auto-assigned Royal Maids Hub training program.',
+                'hours_required' => 40,
+                'hours_completed' => 0,
+            ]);
+
+            $created++;
+        }
+
+        $this->showHubProgramModal = false;
+        $this->hubTrainerId = null;
+
+        session()->flash('success', __(':count training programs created.', ['count' => $created]));
+    }
+
     public function exportPdf(): void
     {
         session()->flash('info', __('PDF export feature coming soon.'));
@@ -173,6 +226,7 @@ class Index extends Component
         return view('livewire.programs.index', [
             'programs' => $this->query(),
             'statusOptions' => ['scheduled', 'in-progress', 'completed', 'cancelled'],
+            'trainers' => Trainer::with('user')->get(),
         ])->layout('components.layouts.app', ['title' => __('Training Programs')]);
     }
 }

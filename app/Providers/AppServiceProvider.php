@@ -17,6 +17,18 @@ class AppServiceProvider extends ServiceProvider
      * @var array<class-string, class-string>
      */
     protected $policies = [
+        \App\Models\Maid::class => \App\Policies\MaidPolicy::class,
+        \App\Models\Client::class => \App\Policies\ClientPolicy::class,
+        \App\Models\Booking::class => \App\Policies\BookingPolicy::class,
+        \App\Models\Deployment::class => \App\Policies\DeploymentPolicy::class,
+        \App\Models\Trainer::class => \App\Policies\TrainerPolicy::class,
+        \App\Models\Package::class => \App\Policies\PackagePolicy::class,
+        \App\Models\TrainingProgram::class => \App\Policies\TrainingProgramPolicy::class,
+        \App\Models\Evaluation::class => \App\Policies\EvaluationPolicy::class,
+        \App\Models\ClientEvaluation::class => \App\Policies\ClientEvaluationPolicy::class,
+        \App\Models\ClientEvaluationQuestion::class => \App\Policies\ClientEvaluationQuestionPolicy::class,
+        \App\Models\ClientEvaluationResponse::class => \App\Policies\ClientEvaluationResponsePolicy::class,
+        \App\Models\EvaluationTask::class => \App\Policies\EvaluationTaskPolicy::class,
         \App\Models\CRM\Lead::class => \App\Policies\CRM\LeadPolicy::class,
         \App\Models\CRM\Opportunity::class => \App\Policies\CRM\OpportunityPolicy::class,
         \App\Models\CRM\Activity::class => \App\Policies\CRM\ActivityPolicy::class,
@@ -53,6 +65,28 @@ class AppServiceProvider extends ServiceProvider
         foreach ($this->policies as $model => $policy) {
             Gate::policy($model, $policy);
         }
+
+        // Sensitive field gates for identity and financial data.
+        Gate::define('viewSensitiveIdentity', function ($user, $model = null) {
+            return $user instanceof \App\Models\User && $user->isSuperAdmin();
+        });
+
+        Gate::define('updateSensitiveIdentity', function ($user, $model = null) {
+            return $user instanceof \App\Models\User && $user->isSuperAdmin();
+        });
+
+        Gate::define('viewSensitiveFinancials', function ($user, $model = null) {
+            return $user instanceof \App\Models\User && ($user->isSuperAdmin() || $user->isFinanceOfficer());
+        });
+
+        Gate::define('updateSensitiveFinancials', function ($user, $model = null) {
+            return $user instanceof \App\Models\User && ($user->isSuperAdmin() || $user->isFinanceOfficer());
+        });
+
+        // User management is restricted to super admins (legacy admins included).
+        Gate::define('manageUsers', function ($user) {
+            return $user instanceof \App\Models\User && $user->isSuperAdmin();
+        });
         
         // Register currency Blade directives
         Blade::directive('currency', function ($expression) {

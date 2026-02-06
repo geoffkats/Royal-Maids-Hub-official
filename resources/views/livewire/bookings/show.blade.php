@@ -47,6 +47,9 @@
                     <flux:button as="a" :href="route($prefix . 'tickets.create', ['booking_id' => $booking->id, 'client_id' => $booking->client_id])" variant="primary" icon="ticket" class="bg-gradient-to-r from-[#F5B301] to-[#FFD700] text-[#512B58] border-none hover:from-[#FFD700] hover:to-[#F5B301]">
                         {{ __('Create Ticket') }}
                     </flux:button>
+                    <flux:button wire:click="sendClientEvaluationLink" variant="outline" icon="paper-airplane" class="border-white/30 text-white hover:bg-white/10">
+                        {{ __('Send Evaluation Link') }}
+                    </flux:button>
                     <flux:button as="a" :href="route($prefix . 'bookings.edit', $booking)" variant="outline" icon="pencil-square" class="border-white/30 text-white hover:bg-white/10">
                         {{ __('Edit') }}
                     </flux:button>
@@ -55,6 +58,17 @@
                     </flux:button>
                 </div>
             </div>
+
+            @if (session('success'))
+                <flux:callout variant="success" class="mt-4">
+                    {{ session('success') }}
+                </flux:callout>
+            @endif
+            @if (session('error'))
+                <flux:callout variant="danger" class="mt-4">
+                    {{ session('error') }}
+                </flux:callout>
+            @endif
 
             {{-- Main Content Grid --}}
             <div class="grid gap-6 lg:grid-cols-3">

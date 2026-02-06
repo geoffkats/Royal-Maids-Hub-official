@@ -21,6 +21,11 @@ class RoleMiddleware
             abort(401);
         }
 
+        // Super admins bypass role checks for administrative access.
+        if ($user->isSuperAdmin()) {
+            return $next($request);
+        }
+
         if (empty($roles)) {
             return $next($request);
         }

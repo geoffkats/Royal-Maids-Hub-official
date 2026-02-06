@@ -53,7 +53,10 @@
             <div>
                 <label class="text-xs font-semibold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">{{ __('Maid') }}</label>
                 <div class="mt-1">
-                    <a href="{{ route('maids.show', $evaluation->maid) }}" wire:navigate class="text-base font-medium text-blue-600 hover:underline dark:text-blue-400">
+                    @php
+                        $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
+                    @endphp
+                    <a href="{{ route($prefix . 'maids.show', $evaluation->maid) }}" wire:navigate class="text-base font-medium text-blue-600 hover:underline dark:text-blue-400">
                         {{ $evaluation->maid?->first_name }} {{ $evaluation->maid?->last_name }}
                     </a>
                 </div>
@@ -333,6 +336,98 @@
             <p class="text-sm text-neutral-500">{{ __('No performance scores available.') }}</p>
         @endif
     </div>
+
+    {{-- 5. Module Evaluation --}}
+    @php
+        $moduleEvaluation = $evaluation->scores['module_evaluation'] ?? null;
+        $moduleKey = $moduleEvaluation['module'] ?? null;
+        $moduleLabels = [
+            'meal_preparation' => 'Meal Preparation',
+            'child_care_and_development' => 'Child Care and Development',
+            'house_keeping' => 'House Keeping',
+            'safety_and_security' => 'Safety & Security',
+            'laundry_care' => 'Laundry Care',
+            'time_management_and_organization' => 'Time Management & Organization Skills',
+        ];
+        $moduleQuestions = [
+            'meal_preparation' => [
+                'follows_recipe' => 'Follows recipe and portion guidelines accurately and consistently.',
+                'food_safety' => 'Demonstrates proper food safety and hygiene (handwashing, cross-contamination prevention, safe storage).',
+                'equipment_use' => 'Uses kitchen equipment safely and efficiently (knives, stove, oven, blender).',
+                'balanced_meals' => 'Prepares balanced, nutritious meals appropriate to dietary needs/requests.',
+                'kitchen_time_management' => 'Manages time in the kitchen (planning, multitasking, serving on schedule).',
+            ],
+            'child_care_and_development' => [
+                'responds_to_needs' => 'Responds promptly and appropriately to a child\'s physical and emotional needs.',
+                'age_appropriate_care' => 'Demonstrates age-appropriate caregiving (feeding, diapering/toileting, nap routines).',
+                'developmental_activities' => 'Implements developmentally appropriate activities that support learning and milestones.',
+                'child_safety' => 'Maintains child safety and supervises effectively (hazard awareness, secure environment).',
+                'parent_communication' => 'Communicates with parents/guardians clearly and documents observations as required.',
+            ],
+            'house_keeping' => [
+                'cleans_rooms' => 'Cleans rooms thoroughly following checklist and standards (dusting, vacuuming, surfaces).',
+                'uses_products' => 'Demonstrates correct use and care of cleaning products and equipment.',
+                'maintains_order' => 'Maintains order and presentation (bed-making, decluttering, room setup).',
+                'task_prioritization' => 'Prioritizes tasks and completes cleaning within expected timeframes.',
+                'reports_issues' => 'Notices and reports maintenance issues and fragile/breakable items appropriately.',
+            ],
+            'safety_and_security' => [
+                'emergency_procedures' => 'Recognizes and follows household emergency procedures (fire, medical, evacuation).',
+                'safety_equipment' => 'Demonstrates correct use of safety equipment (fire extinguisher, first-aid kit, locks).',
+                'confidentiality' => 'Maintains confidentiality and access control (keys, visitors, personal data).',
+                'hazard_mitigation' => 'Identifies and mitigates common household hazards proactively.',
+                'emergency_response' => 'Responds calmly and effectively in simulated emergency scenarios.',
+            ],
+            'laundry_care' => [
+                'sorts_laundry' => 'Sorts laundry correctly by fabric, color, and care label instructions.',
+                'wash_cycles' => 'Selects and applies correct wash/dry cycles, temperatures, and detergents.',
+                'treats_stains' => 'Treats stains appropriately and removes them effectively.',
+                'handles_delicates' => 'Handles delicate items and special-care garments without damage.',
+                'folds_irons' => 'Folds, irons, and stores laundry neatly and according to household standards.',
+            ],
+            'time_management_and_organization' => [
+                'plans_schedule' => 'Plans and follows a daily/weekly schedule to complete assigned tasks.',
+                'prioritizes_tasks' => 'Prioritizes tasks effectively when multiple duties conflict.',
+                'uses_checklists' => 'Uses checklists and organization tools to track work and reduce errors.',
+                'adapts_changes' => 'Adapts to changes in schedule or unexpected tasks while maintaining productivity.',
+                'meets_timeframes' => 'Completes tasks within agreed timeframes with consistent quality.',
+            ],
+        ];
+    @endphp
+
+    @if($moduleKey && isset($moduleQuestions[$moduleKey]))
+        <div class="details-card">
+            <flux:heading size="lg" class="mb-2">{{ __('5. Module Evaluation') }}</flux:heading>
+            <flux:subheading class="mb-4">{{ __($moduleLabels[$moduleKey] ?? $moduleKey) }}</flux:subheading>
+
+            <div class="mb-4 text-xs text-neutral-500">
+                {{ __('Rating key: 1 = Poor, 2 = Needs Improvement, 3 = Satisfactory, 4 = Good, 5 = Excellent') }}
+            </div>
+
+            <div class="space-y-4">
+                @foreach ($moduleQuestions[$moduleKey] as $questionKey => $questionLabel)
+                    @php
+                        $score = $moduleEvaluation['ratings'][$questionKey] ?? null;
+                    @endphp
+                    <div>
+                        <div class="mb-2 flex items-center justify-between">
+                            <label class="text-sm font-medium text-neutral-700 dark:text-neutral-300">{{ __($questionLabel) }}</label>
+                            @if($score !== null)
+                                <flux:badge :color="$evaluation->getScoreBadgeColor((float) $score)" size="sm">
+                                    {{ $score }}
+                                </flux:badge>
+                            @endif
+                        </div>
+                        @if($score !== null)
+                            <div class="h-2 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-700">
+                                <div class="h-full bg-{{ $evaluation->getScoreBadgeColor((float) $score) }}-600" style="width: {{ ($score / 5) * 100 }}%"></div>
+                            </div>
+                        @endif
+                    </div>
+                @endforeach
+            </div>
+        </div>
+    @endif
 
     {{-- Additional Comments --}}
     @if($evaluation->general_comments || $evaluation->strengths || $evaluation->areas_for_improvement)

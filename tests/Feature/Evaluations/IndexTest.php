@@ -4,7 +4,17 @@ use App\Models\User;
 use App\Models\Trainer;
 use App\Models\Maid;
 use App\Models\Evaluation;
+use App\Models\TrainerSidebarPermission;
 use function Pest\Laravel\{actingAs, get};
+
+function grantTrainerAccessForEvaluations(Trainer $trainer, string $item): void
+{
+    TrainerSidebarPermission::create([
+        'trainer_id' => $trainer->id,
+        'sidebar_item' => $item,
+        'granted_at' => now(),
+    ]);
+}
 
 test('admin can access evaluations index', function () {
     $admin = User::factory()->create(['role' => 'admin']);
@@ -16,7 +26,8 @@ test('admin can access evaluations index', function () {
 
 test('trainer can access evaluations index', function () {
     $trainer = User::factory()->create(['role' => 'trainer']);
-    Trainer::factory()->create(['user_id' => $trainer->id]);
+    $trainerProfile = Trainer::factory()->create(['user_id' => $trainer->id]);
+    grantTrainerAccessForEvaluations($trainerProfile, TrainerSidebarPermission::ITEM_MY_EVALUATIONS);
     
     actingAs($trainer)
         ->get(route('evaluations.index'))
@@ -54,6 +65,7 @@ test('admin can see all evaluations', function () {
 test('trainer can see only their own evaluations', function () {
     $trainerUser1 = User::factory()->create(['role' => 'trainer']);
     $trainer1 = Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    grantTrainerAccessForEvaluations($trainer1, TrainerSidebarPermission::ITEM_MY_EVALUATIONS);
     
     $trainerUser2 = User::factory()->create(['role' => 'trainer']);
     $trainer2 = Trainer::factory()->create(['user_id' => $trainerUser2->id]);
@@ -87,7 +99,8 @@ test('admin can access create evaluation page', function () {
 
 test('trainer can access create evaluation page', function () {
     $trainer = User::factory()->create(['role' => 'trainer']);
-    Trainer::factory()->create(['user_id' => $trainer->id]);
+    $trainerProfile = Trainer::factory()->create(['user_id' => $trainer->id]);
+    grantTrainerAccessForEvaluations($trainerProfile, TrainerSidebarPermission::ITEM_MY_EVALUATIONS);
     
     actingAs($trainer)
         ->get(route('evaluations.create'))
@@ -120,6 +133,7 @@ test('admin can view any evaluation', function () {
 test('trainer can view their own evaluation', function () {
     $trainerUser = User::factory()->create(['role' => 'trainer']);
     $trainer = Trainer::factory()->create(['user_id' => $trainerUser->id]);
+    grantTrainerAccessForEvaluations($trainer, TrainerSidebarPermission::ITEM_MY_EVALUATIONS);
     $maid = Maid::factory()->create();
     
     $evaluation = Evaluation::factory()->create([
@@ -134,7 +148,8 @@ test('trainer can view their own evaluation', function () {
 
 test('trainer cannot view other trainer evaluation', function () {
     $trainerUser1 = User::factory()->create(['role' => 'trainer']);
-    Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    $trainer1 = Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    grantTrainerAccessForEvaluations($trainer1, TrainerSidebarPermission::ITEM_MY_EVALUATIONS);
     
     $trainerUser2 = User::factory()->create(['role' => 'trainer']);
     $trainer2 = Trainer::factory()->create(['user_id' => $trainerUser2->id]);
@@ -169,6 +184,7 @@ test('admin can access edit page for any evaluation', function () {
 test('trainer can access edit page for their own evaluation', function () {
     $trainerUser = User::factory()->create(['role' => 'trainer']);
     $trainer = Trainer::factory()->create(['user_id' => $trainerUser->id]);
+    grantTrainerAccessForEvaluations($trainer, TrainerSidebarPermission::ITEM_MY_EVALUATIONS);
     $maid = Maid::factory()->create();
     
     $evaluation = Evaluation::factory()->create([
@@ -183,7 +199,8 @@ test('trainer can access edit page for their own evaluation', function () {
 
 test('trainer cannot access edit page for other trainer evaluation', function () {
     $trainerUser1 = User::factory()->create(['role' => 'trainer']);
-    Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    $trainer1 = Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    grantTrainerAccessForEvaluations($trainer1, TrainerSidebarPermission::ITEM_MY_EVALUATIONS);
     
     $trainerUser2 = User::factory()->create(['role' => 'trainer']);
     $trainer2 = Trainer::factory()->create(['user_id' => $trainerUser2->id]);

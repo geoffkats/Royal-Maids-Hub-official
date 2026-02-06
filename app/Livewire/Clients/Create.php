@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Package;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -34,6 +35,8 @@ class Create extends Component
     public ?string $next_of_kin_name = null;
     public ?string $next_of_kin_phone = null;
     public ?string $next_of_kin_relationship = null;
+    public ?string $identity_type = null;
+    public ?string $identity_number = null;
     public string $address = '';
     public string $city = '';
     public string $district = '';
@@ -48,6 +51,8 @@ class Create extends Component
 
     protected function rules(): array
     {
+        $canUpdateIdentity = Gate::allows('updateSensitiveIdentity');
+
         return [
             'name' => ['required','string','max:255'],
             'email' => ['required','email','max:255', Rule::unique('users','email')],
@@ -60,6 +65,19 @@ class Create extends Component
             'next_of_kin_name' => ['nullable','string','max:255'],
             'next_of_kin_phone' => ['nullable','string','max:50'],
             'next_of_kin_relationship' => ['nullable','string','max:100'],
+            'identity_type' => $canUpdateIdentity
+                ? ['nullable', 'required_with:identity_number', Rule::in(['nin', 'passport'])]
+                : ['nullable'],
+            'identity_number' => $canUpdateIdentity
+                ? [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    Rule::unique('clients', 'identity_number')->where(function ($query) {
+                        return $query->where('identity_type', $this->identity_type);
+                    }),
+                ]
+                : ['nullable'],
             'address' => ['required','string'],
             'city' => ['required','string','max:100'],
             'district' => ['required','string','max:100'],
@@ -72,6 +90,13 @@ class Create extends Component
 
     public function save(): void
     {
+        $canUpdateIdentity = Gate::allows('updateSensitiveIdentity');
+
+        if (!$canUpdateIdentity) {
+            $this->identity_type = null;
+            $this->identity_number = null;
+        }
+
         try {
             $this->validate();
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -103,12 +128,16 @@ class Create extends Component
             'next_of_kin_name' => $this->next_of_kin_name,
             'next_of_kin_phone' => $this->next_of_kin_phone,
             'next_of_kin_relationship' => $this->next_of_kin_relationship,
+            'identity_type' => $canUpdateIdentity ? $this->identity_type : null,
+            'identity_number' => $canUpdateIdentity ? $this->identity_number : null,
             'address' => $this->address,
             'city' => $this->city,
             'district' => $this->district,
             'package_id' => $this->package_id,
             'subscription_tier' => $this->subscription_tier,
             'subscription_status' => $this->subscription_status,
+            'created_by' => auth()->id(),
+            'updated_by' => auth()->id(),
         ]);
 
         session()->flash('success', __('Client created successfully.'));

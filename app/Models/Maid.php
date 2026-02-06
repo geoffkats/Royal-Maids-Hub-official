@@ -5,10 +5,16 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Auth\Access\AuthorizationException;
 
+/**
+ * Soft deletes protect maid records from hard removal.
+ */
 class Maid extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'maid_code',
@@ -26,6 +32,7 @@ class Maid extends Model
         'lc1_chairperson',
         'mother_name_phone',
         'father_name_phone',
+        'family_members',
         'marital_status',
         'number_of_children',
         'tribe',
@@ -50,9 +57,21 @@ class Maid extends Model
         'medical_status' => 'array',
         'additional_documents' => 'array',
         'id_scans' => 'array',
-        'experience_years' => 'integer',
+        'family_members' => 'array',
+        'experience_years' => 'float',
         'english_proficiency' => 'integer',
         'number_of_children' => 'integer',
+    ];
+
+    /**
+     * Hide sensitive identity data from default serialization.
+     * Access is controlled via policies and gates.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'nin_number',
+        'id_scans',
     ];
 
     protected static function booted(): void
@@ -61,6 +80,20 @@ class Maid extends Model
             if (empty($maid->maid_code)) {
                 $maid->maid_code = 'RMH' . str_pad((string) $maid->id, 5, '0', STR_PAD_LEFT);
                 $maid->save();
+            }
+        });
+
+        static::saving(function (self $maid): void {
+            $user = auth()->user();
+
+            if (!$user) {
+                return;
+            }
+
+            $identityChanged = $maid->isDirty('nin_number') || $maid->isDirty('id_scans');
+
+            if ($identityChanged && Gate::denies('updateSensitiveIdentity', $maid)) {
+                throw new AuthorizationException('Unauthorized to update identity fields.');
             }
         });
     }
@@ -79,6 +112,14 @@ class Maid extends Model
     public function deployments(): HasMany
     {
         return $this->hasMany(Deployment::class);
+    }
+
+    /**
+     * Get the contracts for the maid.
+     */
+    public function contracts(): HasMany
+    {
+        return $this->hasMany(MaidContract::class);
     }
 
     /**

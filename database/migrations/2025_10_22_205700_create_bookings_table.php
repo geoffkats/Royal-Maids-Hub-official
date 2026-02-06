@@ -21,6 +21,8 @@ return new class extends Migration
             $table->enum('status', ['pending', 'confirmed', 'active', 'completed', 'cancelled'])->default('pending')->index();
             $table->decimal('amount', 10, 2)->nullable();
             $table->text('notes')->nullable();
+            // Enable soft deletes for recoverability and audit safety.
+            $table->softDeletes();
             $table->timestamps();
 
             $table->index(['client_id', 'status']);

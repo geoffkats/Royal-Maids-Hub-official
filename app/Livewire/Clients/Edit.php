@@ -6,6 +6,7 @@ use App\Models\Client;
 use App\Models\Package;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
@@ -33,6 +34,8 @@ class Edit extends Component
     public ?string $next_of_kin_name = null;
     public ?string $next_of_kin_phone = null;
     public ?string $next_of_kin_relationship = null;
+    public ?string $identity_type = null;
+    public ?string $identity_number = null;
     public string $address = '';
     public string $city = '';
     public string $district = '';
@@ -45,6 +48,8 @@ class Edit extends Component
         $this->client = $client;
         $this->authorize('update', $this->client);
 
+        $canViewIdentity = Gate::allows('viewSensitiveIdentity', $this->client);
+
         $this->name = $client->user->name;
         $this->email = $client->user->email;
 
@@ -56,6 +61,8 @@ class Edit extends Component
         $this->next_of_kin_name = $client->next_of_kin_name;
         $this->next_of_kin_phone = $client->next_of_kin_phone;
         $this->next_of_kin_relationship = $client->next_of_kin_relationship;
+        $this->identity_type = $canViewIdentity ? $client->identity_type : null;
+        $this->identity_number = $canViewIdentity ? $client->identity_number : null;
         $this->address = $client->address;
         $this->city = $client->city;
         $this->district = $client->district;
@@ -67,6 +74,8 @@ class Edit extends Component
     protected function rules(): array
     {
         $userId = $this->client->user_id;
+        $canUpdateIdentity = Gate::allows('updateSensitiveIdentity', $this->client);
+
         return [
             'name' => ['required','string','max:255'],
             'email' => ['required','email','max:255', Rule::unique('users','email')->ignore($userId)],
@@ -79,6 +88,21 @@ class Edit extends Component
             'next_of_kin_name' => ['nullable','string','max:255'],
             'next_of_kin_phone' => ['nullable','string','max:50'],
             'next_of_kin_relationship' => ['nullable','string','max:100'],
+            'identity_type' => $canUpdateIdentity
+                ? ['nullable', 'required_with:identity_number', Rule::in(['nin', 'passport'])]
+                : ['nullable'],
+            'identity_number' => $canUpdateIdentity
+                ? [
+                    'nullable',
+                    'string',
+                    'max:50',
+                    Rule::unique('clients', 'identity_number')
+                        ->ignore($this->client->id)
+                        ->where(function ($query) {
+                            return $query->where('identity_type', $this->identity_type);
+                        }),
+                ]
+                : ['nullable'],
             'address' => ['required','string'],
             'city' => ['required','string','max:100'],
             'district' => ['required','string','max:100'],
@@ -91,6 +115,13 @@ class Edit extends Component
 
     public function save(): void
     {
+        $canUpdateIdentity = Gate::allows('updateSensitiveIdentity', $this->client);
+
+        if (!$canUpdateIdentity) {
+            $this->identity_type = $this->client->identity_type;
+            $this->identity_number = $this->client->identity_number;
+        }
+
         $this->validate();
 
         $user = $this->client->user;
@@ -120,12 +151,15 @@ class Edit extends Component
             'next_of_kin_name' => $this->next_of_kin_name,
             'next_of_kin_phone' => $this->next_of_kin_phone,
             'next_of_kin_relationship' => $this->next_of_kin_relationship,
+            'identity_type' => $canUpdateIdentity ? $this->identity_type : $this->client->identity_type,
+            'identity_number' => $canUpdateIdentity ? $this->identity_number : $this->client->identity_number,
             'address' => $this->address,
             'city' => $this->city,
             'district' => $this->district,
             'package_id' => $this->package_id,
             'subscription_tier' => $this->subscription_tier,
             'subscription_status' => $this->subscription_status,
+            'updated_by' => auth()->id(),
         ]);
 
         session()->flash('success', __('Client updated successfully.'));

@@ -39,6 +39,8 @@ class TicketFactory extends Factory
         $priorities = ['low', 'medium', 'high', 'urgent'];
         $statuses = ['open', 'pending', 'in_progress', 'on_hold', 'resolved', 'closed'];
         
+        $requesterUser = User::factory()->client()->create();
+        
         return [
             'type' => $type,
             'category' => $category,
@@ -46,7 +48,8 @@ class TicketFactory extends Factory
             'description' => $this->faker->paragraph(3),
             'priority' => $this->faker->randomElement($priorities),
             'status' => $this->faker->randomElement($statuses),
-            'requester_type' => 'admin',
+            'requester_id' => $requesterUser->id,
+            'requester_type' => 'client',
             'auto_priority' => false,
             'sla_breached' => false,
         ];

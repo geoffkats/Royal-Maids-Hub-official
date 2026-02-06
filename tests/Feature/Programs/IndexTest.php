@@ -4,7 +4,17 @@ use App\Models\User;
 use App\Models\Trainer;
 use App\Models\Maid;
 use App\Models\TrainingProgram;
+use App\Models\TrainerSidebarPermission;
 use function Pest\Laravel\{actingAs, get};
+
+function grantTrainerAccessForPrograms(Trainer $trainer, string $item): void
+{
+    TrainerSidebarPermission::create([
+        'trainer_id' => $trainer->id,
+        'sidebar_item' => $item,
+        'granted_at' => now(),
+    ]);
+}
 
 test('admin can access training programs index', function () {
     $admin = User::factory()->create(['role' => 'admin']);
@@ -16,7 +26,8 @@ test('admin can access training programs index', function () {
 
 test('trainer can access training programs index', function () {
     $trainer = User::factory()->create(['role' => 'trainer']);
-    Trainer::factory()->create(['user_id' => $trainer->id]);
+    $trainerProfile = Trainer::factory()->create(['user_id' => $trainer->id]);
+    grantTrainerAccessForPrograms($trainerProfile, TrainerSidebarPermission::ITEM_MY_PROGRAMS);
     
     actingAs($trainer)
         ->get(route('programs.index'))
@@ -57,6 +68,7 @@ test('admin can see all training programs', function () {
 test('trainer can see only their own training programs', function () {
     $trainerUser1 = User::factory()->create(['role' => 'trainer']);
     $trainer1 = Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    grantTrainerAccessForPrograms($trainer1, TrainerSidebarPermission::ITEM_MY_PROGRAMS);
     
     $trainerUser2 = User::factory()->create(['role' => 'trainer']);
     $trainer2 = Trainer::factory()->create(['user_id' => $trainerUser2->id]);
@@ -91,7 +103,8 @@ test('admin can access create training program page', function () {
 
 test('trainer can access create training program page', function () {
     $trainer = User::factory()->create(['role' => 'trainer']);
-    Trainer::factory()->create(['user_id' => $trainer->id]);
+    $trainerProfile = Trainer::factory()->create(['user_id' => $trainer->id]);
+    grantTrainerAccessForPrograms($trainerProfile, TrainerSidebarPermission::ITEM_MY_PROGRAMS);
     
     actingAs($trainer)
         ->get(route('programs.create'))
@@ -126,6 +139,7 @@ test('admin can view any training program', function () {
 test('trainer can view their own training program', function () {
     $trainerUser = User::factory()->create(['role' => 'trainer']);
     $trainer = Trainer::factory()->create(['user_id' => $trainerUser->id]);
+    grantTrainerAccessForPrograms($trainer, TrainerSidebarPermission::ITEM_MY_PROGRAMS);
     $maid = Maid::factory()->create();
     
     $program = TrainingProgram::factory()->create([
@@ -143,6 +157,7 @@ test('trainer can view their own training program', function () {
 test('trainer cannot view other trainer program', function () {
     $trainerUser1 = User::factory()->create(['role' => 'trainer']);
     $trainer1 = Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    grantTrainerAccessForPrograms($trainer1, TrainerSidebarPermission::ITEM_MY_PROGRAMS);
     
     $trainerUser2 = User::factory()->create(['role' => 'trainer']);
     $trainer2 = Trainer::factory()->create(['user_id' => $trainerUser2->id]);
@@ -177,6 +192,7 @@ test('admin can access edit page for any training program', function () {
 test('trainer can access edit page for their own program', function () {
     $trainerUser = User::factory()->create(['role' => 'trainer']);
     $trainer = Trainer::factory()->create(['user_id' => $trainerUser->id]);
+    grantTrainerAccessForPrograms($trainer, TrainerSidebarPermission::ITEM_MY_PROGRAMS);
     $maid = Maid::factory()->create();
     
     $program = TrainingProgram::factory()->create([
@@ -191,7 +207,8 @@ test('trainer can access edit page for their own program', function () {
 
 test('trainer cannot access edit page for other trainer program', function () {
     $trainerUser1 = User::factory()->create(['role' => 'trainer']);
-    Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    $trainer1 = Trainer::factory()->create(['user_id' => $trainerUser1->id]);
+    grantTrainerAccessForPrograms($trainer1, TrainerSidebarPermission::ITEM_MY_PROGRAMS);
     
     $trainerUser2 = User::factory()->create(['role' => 'trainer']);
     $trainer2 = Trainer::factory()->create(['user_id' => $trainerUser2->id]);

@@ -14,6 +14,8 @@ return new class extends Migration {
             $table->unsignedInteger('experience_years')->default(0);
             $table->string('status')->default('active');
             $table->text('bio')->nullable();
+            // Enable soft deletes for recoverability and audit safety.
+            $table->softDeletes();
             $table->timestamps();
         });
     }

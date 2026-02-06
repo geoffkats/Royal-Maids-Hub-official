@@ -1,19 +1,19 @@
-<div class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 dark:from-slate-900 dark:via-slate-800 dark:to-indigo-900">
+<div class="space-y-6">
     @php
         $prefix = auth()->user()->role === 'trainer' ? 'trainer.' : '';
     @endphp
     <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
         <!-- Enhanced Header -->
         <div class="mb-8">
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 px-8 py-6">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-gradient-to-r from-[#512B58] to-[#3B0A45] px-8 py-6">
                     <div class="flex items-center gap-4">
                         <div class="p-3 bg-white/20 backdrop-blur-sm rounded-xl">
                             <x-flux::icon.pencil class="w-8 h-8 text-white" />
                         </div>
                         <div>
                             <h1 class="text-3xl font-bold text-white">Edit Maid: {{ $maid->full_name }}</h1>
-                            <p class="text-emerald-100 mt-1">Update maid information and documents in the system</p>
+                            <p class="mt-1 text-[#D1C4E9]">Update maid information and documents in the system</p>
                         </div>
                     </div>
                 </div>
@@ -33,15 +33,15 @@
         <!-- Main Form -->
                 <form wire:submit.prevent="save" class="space-y-8">
                     <!-- Personal Information Section -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
-                        <div class="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                            <x-flux::icon.user class="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-[#3B0A45] px-6 py-4 border-b border-[#F5B301]/20">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-3">
+                        <div class="p-2 bg-[#F5B301]/20 rounded-lg">
+                            <x-flux::icon.user class="w-5 h-5 text-[#F5B301]" />
                         </div>
                         Personal Information
                     </h3>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Basic personal details and contact information</p>
+                    <p class="text-sm text-[#D1C4E9] mt-1">Basic personal details and contact information</p>
                 </div>
                 <div class="p-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -143,19 +143,21 @@
                             @enderror
                             </div>
 
-                        <div class="space-y-2">
-                            <label for="nin_number" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
-                                National ID Number <span class="text-red-500">*</span>
-                            </label>
-                            <input type="text" wire:model="nin_number" id="nin_number" 
-                                   class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
-                            @error('nin_number') 
-                                <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
-                                    <x-flux::icon.exclamation-triangle class="w-4 h-4" />
-                                    {{ $message }}
-                                </div>
-                            @enderror
+                        @can('updateSensitiveIdentity')
+                            <div class="space-y-2">
+                                <label for="nin_number" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    National ID Number <span class="text-red-500">*</span>
+                                </label>
+                                <input type="text" wire:model="nin_number" id="nin_number" 
+                                       class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 dark:bg-slate-700 dark:text-white transition-all duration-200 placeholder-slate-400 dark:placeholder-slate-500">
+                                @error('nin_number') 
+                                    <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
+                                        <x-flux::icon.exclamation-triangle class="w-4 h-4" />
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
+                        @endcan
 
                         <div class="space-y-2">
                             <label for="marital_status" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
@@ -192,9 +194,9 @@
                     </div>
 
                     <!-- Location Details Section -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-[#3B0A45] px-6 py-4 border-b border-[#F5B301]/20">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-3">
                         <div class="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
                             <x-flux::icon.map-pin class="w-5 h-5 text-green-600 dark:text-green-400" />
                         </div>
@@ -276,9 +278,9 @@
                     </div>
 
                     <!-- Family Information Section -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-purple-50 to-violet-50 dark:from-purple-900/20 dark:to-violet-900/20 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-[#3B0A45] px-6 py-4 border-b border-[#F5B301]/20">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-3">
                         <div class="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
                             <x-flux::icon.user-group class="w-5 h-5 text-purple-600 dark:text-purple-400" />
                         </div>
@@ -315,14 +317,68 @@
                                 </div>
                             @enderror
                         </div>
+
+                        <div class="md:col-span-2 space-y-3">
+                            <div class="flex items-center justify-between">
+                                <label class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
+                                    Additional Family Members
+                                </label>
+                                <button type="button" wire:click="addFamilyMember"
+                                        class="inline-flex items-center gap-2 rounded-lg border border-purple-200 bg-purple-50 px-3 py-2 text-xs font-semibold text-purple-700 hover:bg-purple-100 dark:border-purple-800 dark:bg-purple-900/20 dark:text-purple-200">
+                                    <x-flux::icon.plus class="w-4 h-4" />
+                                    Add
+                                </button>
+                            </div>
+
+                            <div class="space-y-3">
+                                @foreach($family_members as $index => $member)
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 rounded-xl border border-slate-200 dark:border-slate-700 p-4">
+                                        <div class="space-y-2">
+                                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Name</label>
+                                            <input type="text" wire:model="family_members.{{ $index }}.name"
+                                                   class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white" />
+                                            @error('family_members.' . $index . '.name')
+                                                <div class="text-xs text-red-600">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Relationship</label>
+                                            <input type="text" wire:model="family_members.{{ $index }}.relationship"
+                                                   class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white" />
+                                            @error('family_members.' . $index . '.relationship')
+                                                <div class="text-xs text-red-600">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="space-y-2">
+                                            <label class="block text-xs font-semibold text-slate-600 dark:text-slate-400">Phone</label>
+                                            <input type="text" wire:model="family_members.{{ $index }}.phone"
+                                                   class="w-full px-3 py-2 border border-slate-300 dark:border-slate-600 rounded-lg shadow-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 dark:bg-slate-700 dark:text-white" />
+                                            @error('family_members.' . $index . '.phone')
+                                                <div class="text-xs text-red-600">{{ $message }}</div>
+                                            @enderror
+                                        </div>
+                                        <div class="md:col-span-3 flex justify-end">
+                                            <button type="button" wire:click="removeFamilyMember({{ $index }})"
+                                                    class="text-xs font-semibold text-red-600 hover:text-red-700">
+                                                Remove
+                                            </button>
+                                        </div>
+                                    </div>
+                                @endforeach
+
+                                @if(empty($family_members))
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">No additional family members added.</p>
+                                @endif
+                            </div>
+                        </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Education & Experience Section -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-[#3B0A45] px-6 py-4 border-b border-[#F5B301]/20">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-3">
                         <div class="p-2 bg-orange-100 dark:bg-orange-900/30 rounded-lg">
                             <x-flux::icon.academic-cap class="w-5 h-5 text-orange-600 dark:text-orange-400" />
                         </div>
@@ -354,7 +410,7 @@
                             <label for="experience_years" class="block text-sm font-semibold text-slate-700 dark:text-slate-300">
                                 Years of Experience <span class="text-red-500">*</span>
                             </label>
-                            <input type="number" wire:model="experience_years" id="experience_years" min="0" 
+                            <input type="number" wire:model="experience_years" id="experience_years" min="0" step="0.1"
                                    class="w-full px-4 py-3 border border-slate-300 dark:border-slate-600 rounded-xl shadow-sm focus:ring-2 focus:ring-orange-500 focus:border-orange-500 dark:bg-slate-700 dark:text-white transition-all duration-200">
                             @error('experience_years') 
                                 <div class="flex items-center gap-2 text-red-600 text-sm mt-1">
@@ -410,9 +466,9 @@
                     </div>
 
                     <!-- Professional Information Section -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-cyan-50 to-teal-50 dark:from-cyan-900/20 dark:to-teal-900/20 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-[#3B0A45] px-6 py-4 border-b border-[#F5B301]/20">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-3">
                         <div class="p-2 bg-cyan-100 dark:bg-cyan-900/30 rounded-lg">
                             <x-flux::icon.briefcase class="w-5 h-5 text-cyan-600 dark:text-cyan-400" />
                         </div>
@@ -498,9 +554,9 @@
                     </div>
 
                     <!-- Medical Information Section -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-red-50 to-pink-50 dark:from-red-900/20 dark:to-pink-900/20 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-[#3B0A45] px-6 py-4 border-b border-[#F5B301]/20">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-3">
                         <div class="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
                             <x-flux::icon.heart class="w-5 h-5 text-red-600 dark:text-red-400" />
                         </div>
@@ -630,9 +686,9 @@
                     </div>
 
                     <!-- File Uploads Section -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-violet-50 to-purple-50 dark:from-violet-900/20 dark:to-purple-900/20 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-[#3B0A45] px-6 py-4 border-b border-[#F5B301]/20">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-3">
                         <div class="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
                             <x-flux::icon.document-arrow-up class="w-5 h-5 text-violet-600 dark:text-violet-400" />
                         </div>
@@ -776,15 +832,15 @@
                     </div>
 
                     <!-- Additional Notes Section -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden">
-                <div class="bg-gradient-to-r from-slate-50 to-gray-50 dark:from-slate-900/20 dark:to-gray-900/20 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
-                    <h3 class="text-xl font-semibold text-slate-900 dark:text-white flex items-center gap-3">
-                        <div class="p-2 bg-slate-100 dark:bg-slate-900/30 rounded-lg">
-                            <x-flux::icon.document-text class="w-5 h-5 text-slate-600 dark:text-slate-400" />
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] shadow-lg overflow-hidden">
+                <div class="bg-[#3B0A45] px-6 py-4 border-b border-[#F5B301]/20">
+                    <h3 class="text-xl font-semibold text-white flex items-center gap-3">
+                        <div class="p-2 bg-[#F5B301]/20 rounded-lg">
+                            <x-flux::icon.document-text class="w-5 h-5 text-[#F5B301]" />
                         </div>
                         Additional Information
                     </h3>
-                    <p class="text-sm text-slate-600 dark:text-slate-400 mt-1">Additional notes and comments</p>
+                    <p class="mt-1 text-sm text-[#D1C4E9]">Additional notes and comments</p>
                 </div>
                 <div class="p-6">
                     <div class="space-y-2">
@@ -804,15 +860,15 @@
                     </div>
 
                     <!-- Form Actions -->
-            <div class="bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-700 p-6">
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
                 <div class="flex flex-col sm:flex-row gap-4 justify-end">
-                    <a href="{{ route($prefix . 'maids.index') }}" 
-                       class="inline-flex items-center justify-center px-6 py-3 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-300 font-semibold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
+                          <a href="{{ route($prefix . 'maids.index') }}" 
+                              class="inline-flex items-center justify-center px-6 py-3 border border-[#F5B301]/30 bg-[#3B0A45] text-[#D1C4E9] hover:bg-[#512B58] font-semibold rounded-xl transition-all duration-200 shadow-sm hover:shadow-md">
                         <x-flux::icon.x-mark class="w-5 h-5 mr-2" />
                             Cancel
                         </a>
                     <button type="submit" 
-                            class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
+                            class="inline-flex items-center justify-center px-8 py-3 bg-[#F5B301] hover:bg-[#F5B301]/90 text-[#3B0A45] font-semibold rounded-xl transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
                         <x-flux::icon.check class="w-5 h-5 mr-2" />
                             Update Maid
                         </button>
@@ -821,15 +877,16 @@
         </form>
 
         {{-- Deployment Modal --}}
-        <flux:modal name="deployment-modal" wire:model="showDeploymentModal" class="space-y-6 max-w-3xl">
-            <div>
-                <flux:heading size="lg">{{ __('Deployment Details') }}</flux:heading>
-                <flux:subheading class="mt-2">
-                    {{ __('Please provide deployment information for') }} <strong>{{ $maid->full_name }}</strong>
-                </flux:subheading>
-            </div>
+        <flux:modal name="deployment-modal" wire:model="showDeploymentModal" class="max-w-3xl">
+            <div class="space-y-6 rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div>
+                    <flux:heading size="lg" class="text-white">{{ __('Deployment Details') }}</flux:heading>
+                    <flux:subheading class="mt-2 text-[#D1C4E9]">
+                        {{ __('Please provide deployment information for') }} <strong>{{ $maid->full_name }}</strong>
+                    </flux:subheading>
+                </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {{-- Deployment Date --}}
                 <flux:field>
                     <flux:label>{{ __('Deployment Date') }} <span class="text-red-500">*</span></flux:label>
@@ -871,12 +928,6 @@
                     <flux:error name="deployment_client_phone" />
                 </flux:field>
 
-                {{-- Deployment Address --}}
-                <flux:field class="md:col-span-2">
-                    <flux:label>{{ __('Deployment Address') }} <span class="text-red-500">*</span></flux:label>
-                    <flux:textarea wire:model="deployment_address" placeholder="Full deployment address" rows="2" />
-                    <flux:error name="deployment_address" />
-                </flux:field>
 
                 {{-- Monthly Salary --}}
                 <flux:field>
@@ -911,6 +962,57 @@
                     <flux:error name="contract_end_date" />
                 </flux:field>
 
+                {{-- Financial Information Header --}}
+                <div class="md:col-span-2 border-t border-[#F5B301]/20 pt-4">
+                    <h4 class="mb-4 text-sm font-semibold text-white">{{ __('Financial Information') }}</h4>
+                </div>
+
+                {{-- Maid Salary --}}
+                <flux:field>
+                    <flux:label>{{ __('Maid Salary') }}</flux:label>
+                    <flux:input type="number" wire:model="maid_salary" placeholder="0" step="1000" />
+                    <flux:error name="maid_salary" />
+                </flux:field>
+
+                {{-- Client Payment --}}
+                <flux:field>
+                    <flux:label>{{ __('Client Payment') }}</flux:label>
+                    <flux:input type="number" wire:model="client_payment" placeholder="0" step="1000" />
+                    <flux:error name="client_payment" />
+                </flux:field>
+
+                {{-- Service Fee --}}
+                <flux:field>
+                    <flux:label>{{ __('Service Fee') }}</flux:label>
+                    <flux:input type="number" wire:model="service_paid" placeholder="0" step="1000" />
+                    <flux:error name="service_paid" />
+                </flux:field>
+
+                {{-- Payment Status --}}
+                <flux:field>
+                    <flux:label>{{ __('Payment Status') }} <span class="text-red-500">*</span></flux:label>
+                    <flux:select wire:model="payment_status">
+                        <option value="pending">{{ __('Pending') }}</option>
+                        <option value="partial">{{ __('Partial') }}</option>
+                        <option value="paid">{{ __('Paid') }}</option>
+                    </flux:select>
+                    <flux:error name="payment_status" />
+                </flux:field>
+
+                {{-- Salary Paid Date --}}
+                <flux:field>
+                    <flux:label>{{ __('Salary Paid Date') }}</flux:label>
+                    <flux:input type="date" wire:model="salary_paid_date" />
+                    <flux:error name="salary_paid_date" />
+                </flux:field>
+
+                {{-- Currency --}}
+                <flux:field>
+                    <flux:label>{{ __('Currency') }} <span class="text-red-500">*</span></flux:label>
+                    <flux:input wire:model="currency" maxlength="3" placeholder="UGX" />
+                    <flux:error name="currency" />
+                </flux:field>
+
                 {{-- Special Instructions --}}
                 <flux:field class="md:col-span-2">
                     <flux:label>{{ __('Special Instructions') }}</flux:label>
@@ -922,15 +1024,16 @@
                     <flux:label>{{ __('Additional Notes') }}</flux:label>
                     <flux:textarea wire:model="deployment_notes" placeholder="Any additional notes about the deployment" rows="2" />
                 </flux:field>
-            </div>
+                </div>
 
-            <div class="flex gap-2 justify-end pt-4 border-t border-neutral-200 dark:border-neutral-700">
-                <flux:button wire:click="closeDeploymentModal" variant="ghost">
-                    {{ __('Cancel') }}
-                </flux:button>
-                <flux:button wire:click="saveDeployment" variant="primary">
-                    {{ __('Save Deployment & Update Status') }}
-                </flux:button>
+                <div class="flex gap-2 justify-end border-t border-[#F5B301]/20 pt-4">
+                    <flux:button wire:click="closeDeploymentModal" variant="ghost" class="text-[#D1C4E9]">
+                        {{ __('Cancel') }}
+                    </flux:button>
+                    <flux:button wire:click="saveDeployment" variant="primary" class="bg-[#F5B301] text-[#3B0A45] hover:bg-[#F5B301]/90">
+                        {{ __('Save Deployment & Update Status') }}
+                    </flux:button>
+                </div>
             </div>
         </flux:modal>
     </div>

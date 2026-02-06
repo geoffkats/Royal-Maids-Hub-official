@@ -75,6 +75,28 @@
                     @enderror
                 </div>
 
+                @can('updateSensitiveIdentity')
+                    {{-- Identity Type --}}
+                    <div>
+                        <flux:select wire:model="identity_type" :label="__('Identity Type')">
+                            <option value="">{{ __('Select identity type') }}</option>
+                            <option value="nin">{{ __('NIN') }}</option>
+                            <option value="passport">{{ __('Passport') }}</option>
+                        </flux:select>
+                        @error('identity_type')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+                    </div>
+
+                    {{-- Identity Number --}}
+                    <div>
+                        <flux:input wire:model="identity_number" :label="__('Identity Number')" />
+                        @error('identity_number')
+                            <flux:error>{{ $message }}</flux:error>
+                        @enderror
+                    </div>
+                @endcan
+
                 {{-- Amount --}}
                 <div>
                     <flux:input 

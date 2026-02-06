@@ -20,6 +20,12 @@ Schedule::job(new \App\Jobs\CRM\CheckSLABreaches())
     ->name('crm-check-sla-breaches')
     ->description('Check for activity and stage SLA breaches');
 
+// Ticket SLA Check and Notifications - runs every 30 minutes
+Schedule::job(new \App\Jobs\CheckSLABreachesAndNotify())
+    ->everyThirtyMinutes()
+    ->name('ticket-check-sla-breaches-and-notify')
+    ->description('Check for ticket SLA breaches and send notifications');
+
 // Auto-create follow-ups for stale leads (weekly)
 Schedule::call(function () {
     $service = new \App\Services\CRM\ActivityReminderService();
@@ -50,4 +56,11 @@ Schedule::call(function () {
     ->hourly()
     ->name('crm-automation-processing')
     ->description('Process CRM automation rules (lead conversion, stage progression, etc.)');
+
+// Contract Expiring Notifications - runs daily
+Schedule::command('contracts:send-expiring-notifications --days=30')
+    ->dailyAt('09:00')
+    ->timezone('Africa/Kampala')
+    ->name('contracts-expiring-notifications')
+    ->description('Send notifications for contracts expiring within 30 days');
 

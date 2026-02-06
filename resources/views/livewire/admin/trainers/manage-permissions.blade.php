@@ -32,14 +32,14 @@
     </div>
 
     <!-- No Trainers Found -->
-    @if ($trainers->isEmpty() && $search)
+    @if ($trainers->isEmpty() && $nonTrainerUsers->isEmpty() && $search)
         <div class="rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-900/20 dark:border-amber-700 p-6">
             <div class="flex items-center gap-3">
                 <flux:icon.exclamation-circle class="w-6 h-6 text-amber-600 dark:text-amber-400" />
                 <p class="text-amber-800 dark:text-amber-200">No trainers found matching "{{ $search }}"</p>
             </div>
         </div>
-    @elseif ($trainers->isEmpty())
+    @elseif ($trainers->isEmpty() && $nonTrainerUsers->isEmpty())
         <div class="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700 p-6">
             <div class="flex items-center gap-3">
                 <flux:icon.information-circle class="w-6 h-6 text-blue-600 dark:text-blue-400" />
@@ -47,6 +47,33 @@
             </div>
         </div>
     @else
+        @if ($nonTrainerUsers->isNotEmpty())
+            <div class="rounded-lg border border-[#F5B301]/30 bg-[#512B58] p-6 shadow-lg">
+                <div class="flex items-center gap-2 mb-4">
+                    <flux:icon.user-group class="size-5 text-[#F5B301]" />
+                    <h3 class="text-lg font-semibold text-white">Non-Trainer Roles</h3>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    @foreach ($nonTrainerUsers as $user)
+                        <div class="rounded-lg border border-[#F5B301]/20 bg-[#3B0A45] p-4">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-semibold text-white">{{ $user->name }}</p>
+                                    <p class="text-xs text-[#D1C4E9]">{{ $user->email }}</p>
+                                </div>
+                                <span class="rounded-full bg-[#F5B301]/20 px-2.5 py-1 text-xs font-semibold text-[#F5B301]">
+                                    {{ str_replace('_', ' ', $user->role) }}
+                                </span>
+                            </div>
+                            <p class="mt-2 text-xs text-[#D1C4E9]">
+                                {{ __('Role-based access. Trainer permissions do not apply.') }}
+                            </p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        @endif
+
         <!-- Info Box -->
         <div class="rounded-lg border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-700 p-4 mb-6">
             <div class="flex gap-3">
@@ -80,6 +107,11 @@
                                             <div class="text-xs font-medium">
                                                 {{ $trainer->user?->name ?? 'N/A' }}
                                             </div>
+                                            @if($trainer->user?->role)
+                                                <div class="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
+                                                    {{ str_replace('_', ' ', $trainer->user->role) }}
+                                                </div>
+                                            @endif
                                         </th>
                                     @endforeach
                                 </tr>
