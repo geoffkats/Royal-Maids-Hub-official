@@ -1,6 +1,22 @@
 # Changelog
 
-## Latest Version: v3.1.27 (February 6, 2026)
+## Latest Version: v3.2.27 (February 6, 2026)
+
+**Client Evaluations + Contract Documents**
+
+### Major Features
+- ✅ Client evaluations module with admin create/list/show
+- ✅ Public, signed client feedback form with question bank
+- ✅ Client feedback responses index and detail views (admin)
+- ✅ Contract document uploads with listing on edit/show
+- ✅ Contract create/edit forms aligned to royal purple dashboard theme
+- ✅ Super admin access fixed for evaluation tasks and client evaluations
+
+**See**: `docs/RELEASE_NOTES_v3.2.27.md` for full details
+
+---
+
+## v3.1.27 (February 6, 2026)
 
 **Enterprise RBAC + User Management**
 
