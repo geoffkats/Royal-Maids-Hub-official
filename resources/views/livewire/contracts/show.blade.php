@@ -22,8 +22,14 @@
                 <a href="{{ route('contracts.edit', $contract) }}" class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition">
                     {{ __('Edit Contract') }}
                 </a>
-                <button wire:click="emailContract" class="px-6 py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold rounded-lg transition">
-                    {{ __('Email Contract') }}
+                <button
+                    wire:click="emailContract"
+                    wire:loading.attr="disabled"
+                    wire:target="emailContract"
+                    class="px-6 py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 disabled:opacity-60 font-semibold rounded-lg transition"
+                >
+                    <span wire:loading.remove wire:target="emailContract">{{ __('Email Contract') }}</span>
+                    <span wire:loading wire:target="emailContract">{{ __('Sending...') }}</span>
                 </button>
             @endif
             <a href="{{ route('contracts.index') }}" class="px-6 py-3 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700 font-semibold rounded-lg transition">

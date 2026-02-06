@@ -58,7 +58,7 @@ class Index extends Component
     public function mount(): void
     {
         $this->authorizeAccess();
-        $this->role = User::ROLE_CLIENT;
+        $this->role = User::ROLE_CUSTOMER_SUPPORT;
     }
 
     public function updating($name, $value): void
@@ -115,6 +115,11 @@ class Index extends Component
 
         $validated = $this->validate();
 
+        if ($validated['role'] === User::ROLE_SUPER_ADMIN && $this->superAdminExists()) {
+            $this->addError('role', __('Only one super admin account is allowed.'));
+            return;
+        }
+
         User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
@@ -140,6 +145,11 @@ class Index extends Component
 
         $validated = $this->validate();
         $user = User::query()->findOrFail($this->editingUserId);
+
+        if ($validated['role'] === User::ROLE_SUPER_ADMIN && $this->superAdminExists($user->id)) {
+            $this->addError('role', __('Only one super admin account is allowed.'));
+            return;
+        }
 
         if ($user->id === auth()->id() && $user->role !== $validated['role'] && $validated['role'] !== User::ROLE_SUPER_ADMIN) {
             $this->addError('role', __('You cannot change your own role.'));
@@ -197,6 +207,11 @@ class Index extends Component
 
         $user = User::query()->findOrFail($userId);
 
+        if ($user->role === User::ROLE_SUPER_ADMIN) {
+            $this->addError('action', __('Super admin accounts cannot be deactivated.'));
+            return;
+        }
+
         if ($user->id === auth()->id()) {
             $this->addError('action', __('You cannot deactivate your own account.'));
             return;
@@ -217,6 +232,11 @@ class Index extends Component
         }
 
         $user = User::query()->findOrFail($this->actionUserId);
+
+        if ($user->role === User::ROLE_SUPER_ADMIN) {
+            $this->addError('action', __('Super admin accounts cannot be deactivated.'));
+            return;
+        }
 
         if ($user->id === auth()->id()) {
             $this->addError('action', __('You cannot deactivate your own account.'));
@@ -240,6 +260,11 @@ class Index extends Component
 
         $user = User::query()->findOrFail($userId);
 
+        if ($user->role === User::ROLE_SUPER_ADMIN) {
+            $this->addError('action', __('Super admin accounts cannot be deleted.'));
+            return;
+        }
+
         if ($user->id === auth()->id()) {
             $this->addError('action', __('You cannot delete your own account.'));
             return;
@@ -259,6 +284,11 @@ class Index extends Component
         }
 
         $user = User::query()->findOrFail($this->actionUserId);
+
+        if ($user->role === User::ROLE_SUPER_ADMIN) {
+            $this->addError('action', __('Super admin accounts cannot be deleted.'));
+            return;
+        }
 
         if ($user->id === auth()->id()) {
             $this->addError('action', __('You cannot delete your own account.'));
@@ -309,6 +339,7 @@ class Index extends Component
         $sortDirection = $this->sortDirection === 'asc' ? 'asc' : 'desc';
 
         return User::query()
+            ->where('role', '!=', User::ROLE_CLIENT)
             ->when($term !== '', function ($q) use ($term) {
                 $like = '%' . str_replace(['%','_'], ['\%','\_'], $term) . '%';
                 $q->where('name', 'like', $like)
@@ -333,12 +364,13 @@ class Index extends Component
 
         return view('livewire.users.index', [
             'users' => $this->query(),
-            'totalUsers' => User::query()->count(),
+            'totalUsers' => User::query()->where('role', '!=', User::ROLE_CLIENT)->count(),
             'roleCounts' => User::query()
+                ->where('role', '!=', User::ROLE_CLIENT)
                 ->select('role', DB::raw('count(*) as total'))
                 ->groupBy('role')
                 ->pluck('total', 'role'),
-            'roles' => User::roles(),
+            'roles' => $this->staffRoles(),
         ])->layout('components.layouts.app', ['title' => __('User Management')]);
     }
 
@@ -357,7 +389,23 @@ class Index extends Component
             'resetPassword_confirmation',
         ]);
 
-        $this->role = User::ROLE_CLIENT;
+        $this->role = User::ROLE_CUSTOMER_SUPPORT;
         $this->emailVerified = true;
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function staffRoles(): array
+    {
+        return array_values(array_filter(User::roles(), fn (string $role) => $role !== User::ROLE_CLIENT));
+    }
+
+    private function superAdminExists(?int $ignoreUserId = null): bool
+    {
+        return User::query()
+            ->where('role', User::ROLE_SUPER_ADMIN)
+            ->when($ignoreUserId, fn ($q) => $q->where('id', '!=', $ignoreUserId))
+            ->exists();
     }
 }

@@ -42,6 +42,7 @@
             @php
                 $user = auth()->user();
                 $role = $user?->role ?? 'client';
+                $isStaff = in_array($role, ['operations_manager', 'finance_officer', 'customer_support'], true);
                 $is = fn(string $name) => request()->routeIs($name);
                 $href = function (string $name, string $fallback = '#') {
                     return \Illuminate\Support\Facades\Route::has($name) ? route($name) : $fallback;
@@ -347,6 +348,25 @@
                         </flux:navlist.item>
                     </flux:navlist.group>
 
+                    @elseif ($isStaff)
+                    <!-- Staff Navigation -->
+                    <flux:navlist.group :heading="__('Staff Tools')" class="mb-4">
+                        <flux:navlist.item icon="home" :href="route('dashboard')" :current="request()->routeIs('dashboard')" wire:navigate>
+                            {{ __('Dashboard') }}
+                        </flux:navlist.item>
+                    </flux:navlist.group>
+
+                    <flux:navlist.group :heading="__('My Profile')" class="mb-4">
+                        <flux:navlist.item icon="user" href="/settings/profile" :current="$is('profile.*')">
+                            {{ __('View Profile') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="cog-6-tooth" href="/settings/profile" :current="$is('profile.*')">
+                            {{ __('Edit Profile') }}
+                        </flux:navlist.item>
+                        <flux:navlist.item icon="key" href="/settings/password" :current="$is('password.*')">
+                            {{ __('Change Password') }}
+                        </flux:navlist.item>
+                    </flux:navlist.group>
                     @else
                     <!-- Client Navigation -->
                     <flux:navlist.group :heading="__('Bookings')" class="mb-4">

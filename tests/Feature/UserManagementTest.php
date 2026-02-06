@@ -85,3 +85,52 @@ it('soft deletes a user account', function () {
 
     $this->assertSoftDeleted('users', ['id' => $target->id]);
 });
+
+it('prevents creating a second super admin', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    User::factory()->create(['role' => User::ROLE_SUPER_ADMIN]);
+
+    Livewire::actingAs($admin)
+        ->test(Index::class)
+        ->set('name', 'Duplicate Super Admin')
+        ->set('email', 'duplicate-super@royalmaids.test')
+        ->set('role', User::ROLE_SUPER_ADMIN)
+        ->set('password', 'password123')
+        ->set('password_confirmation', 'password123')
+        ->set('emailVerified', true)
+        ->call('createUser')
+        ->assertHasErrors(['role']);
+
+    expect(User::query()->where('role', User::ROLE_SUPER_ADMIN)->count())->toBe(1);
+});
+
+it('prevents promoting a second super admin', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    User::factory()->create(['role' => User::ROLE_SUPER_ADMIN]);
+    $target = User::factory()->create(['role' => User::ROLE_CUSTOMER_SUPPORT]);
+
+    Livewire::actingAs($admin)
+        ->test(Index::class)
+        ->call('openEditModal', $target->id)
+        ->set('role', User::ROLE_SUPER_ADMIN)
+        ->call('updateUser')
+        ->assertHasErrors(['role']);
+
+    $target->refresh();
+    expect($target->role)->not->toBe(User::ROLE_SUPER_ADMIN);
+});
+
+it('prevents deactivating or deleting a super admin', function () {
+    $admin = User::factory()->create(['role' => User::ROLE_ADMIN]);
+    $superAdmin = User::factory()->create(['role' => User::ROLE_SUPER_ADMIN]);
+
+    Livewire::actingAs($admin)
+        ->test(Index::class)
+        ->call('openDeactivateModal', $superAdmin->id)
+        ->assertHasErrors(['action']);
+
+    Livewire::actingAs($admin)
+        ->test(Index::class)
+        ->call('openDeleteModal', $superAdmin->id)
+        ->assertHasErrors(['action']);
+});

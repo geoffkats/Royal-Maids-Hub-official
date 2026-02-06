@@ -65,13 +65,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return match ($user?->role) {
             'super_admin' => redirect()->route('dashboard.admin'),
             'admin' => redirect()->route('dashboard.admin'),
+            'operations_manager' => redirect()->route('dashboard.admin'),
+            'finance_officer' => redirect()->route('dashboard.admin'),
+            'customer_support' => redirect()->route('dashboard.admin'),
             'trainer' => redirect()->route('dashboard.trainer'),
             default => redirect()->route('dashboard.client'),
         };
     })->name('dashboard');
 
     Route::get('admin', AdminDashboard::class)
-        ->middleware(['role:admin'])
+        ->middleware(['role:admin,operations_manager,finance_officer,customer_support'])
         ->name('dashboard.admin');
 
     Route::get('trainer', TrainerDashboard::class)
